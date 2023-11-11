@@ -1,4 +1,6 @@
 using Application.Configs;
+using Application.Events;
+using Application.Events.Flow;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
@@ -52,13 +54,16 @@ public static class MasstransitExtension {
     }
 
     private static void TransitBus(BackendApplicationConfig configuration, IBusRegistrationConfigurator bus) {
-        bus.UsingAzureServiceBus((context, cfg) => {
-            cfg.Host(configuration.AzureServiceBus);
-            cfg.EnablePartitioning = true;
-            cfg.EnableDeadLetteringOnMessageExpiration = true;
-            cfg.UseServiceBusMessageScheduler();
-            // cfg.UsePublishMessageScheduler();
-            cfg.ConfigureEndpoints(context);
+        bus.AddMassTransit(x => {
+            x.AddSagaStateMachine<GeneralEventStateMachineFlow, EventStage>(cfg => {
+                cfg.ConcurrentMessageLimit = 8;
+            });
+            x.UsingRabbitMq((context, cfg) => {
+                cfg.Host(configuration.RabbitMqHost, configuration.RabbitMqVirtualHost, h => {
+                    h.Username(configuration.RabbitMqUsername);
+                    h.Password(configuration.RabbitMqPassword);
+                });
+            });
         });
     }
 }

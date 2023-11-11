@@ -16,34 +16,28 @@ services:
       - "3000:3000"
     volumes:
       - ~/.aspnet/https:/https:ro
-  #    depends_on:
-  #      rabbitmq:
-  #        condition: service_healthy
-  #      db:
-  #        condition: service_healthy
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
   #      redis:
   #        condition: service_healthy
-  #      elasticsearch:
-  #        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
 
   db:
-    build:
-      context: .
-      dockerfile: MSSQL.Dockerfile
-    environment:
-      ACCEPT_EULA: Y
-      SA_PASSWORD: developer123!
-    ports:
-      - 1433:1433
+    image: postgres:13.1
     volumes:
-      - db_data:/var/opt/mssql
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_PASSWORD: developer123!
     restart: always
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "developer123!" -Q "SELECT 1" || exit 1
+      test: pg_isready -U myuser -d db_prod
       interval: 10s
       timeout: 3s
-      retries: 10
-      start_period: 40s
+      retries: 3
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq
@@ -60,18 +54,18 @@ services:
       retries: 5
     networks:
       - gateway_network
-  redis:
-    image: redis:7
-    restart: always
-    ports:
-      - ${REDIS_PORT}:6379
-    networks:
-      - gateway_network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 1s
-      timeout: 3s
-      retries: 30
+#  redis:
+#    image: redis:7
+#    restart: always
+#    ports:
+#      - ${REDIS_PORT}:6379
+#    networks:
+#      - gateway_network
+#    healthcheck:
+#      test: ["CMD", "redis-cli", "ping"]
+#      interval: 1s
+#      timeout: 3s
+#      retries: 30
   elasticsearch:
     container_name: es-container
     image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
@@ -97,6 +91,8 @@ volumes:
   local_es:
     driver: local
   front_api_data:
+    driver: local
+  postgres_data:
     driver: local
 
 networks:
