@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 namespace Application.Configs;
 
 public class BackendApplicationConfig : BaseConfig {
@@ -11,4 +12,8 @@ public class BackendApplicationConfig : BaseConfig {
     public string JwtSecret { get; set; }
     public int JwtAccessTokenExpired { get; set; }
     public int JwtRefreshTokenExpired { get; set; }
+    public static BackendApplicationConfig ParseConfig(IConfiguration configuration) {
+        var applicationConfig = configuration.GetSection("ApplicationConfig").Get<BackendApplicationConfig>()!;
+        return applicationConfig;
+    }
 }

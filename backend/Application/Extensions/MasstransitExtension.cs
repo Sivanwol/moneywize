@@ -1,14 +1,14 @@
 using Application.Configs;
-using Application.Events;
-using Application.Events.Flow;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 namespace Application.Extensions;
 
 public static class MasstransitExtension {
-    public static void AddMassTransitExtension(this IServiceCollection services, BackendApplicationConfig config, Action<IBusRegistrationConfigurator>? registerTransitConsumers,
-        Action<IServiceCollectionQuartzConfigurator>? registerTransitScheduler = null) {
+    public static void AddMassTransitExtension(this IServiceCollection services, BackendApplicationConfig config,
+        Action<IBusRegistrationConfigurator>? registerTransitConsumers,
+        Action<IServiceCollectionQuartzConfigurator>? registerTransitScheduler = null,
+        Action<IBusRegistrationConfigurator>? registerStateMachineDefinions = null) {
         services.Configure<MassTransitHostOptions>(options => {
             options.WaitUntilStarted = true;
         });
@@ -49,15 +49,14 @@ public static class MasstransitExtension {
                 bus.UsingInMemory((context, cfg) => { cfg.ConfigureEndpoints(context); });
                 return;
             }
-            TransitBus(config, bus);
+            TransitBus(config, bus, registerStateMachineDefinions);
         });
     }
 
-    private static void TransitBus(BackendApplicationConfig configuration, IBusRegistrationConfigurator bus) {
+    private static void TransitBus(BackendApplicationConfig configuration, IBusRegistrationConfigurator bus,
+        Action<IBusRegistrationConfigurator>? registerStateMachineDefinions = null) {
+        registerStateMachineDefinions?.Invoke(bus);
         bus.AddMassTransit(x => {
-            x.AddSagaStateMachine<GeneralEventStateMachineFlow, EventStage>(cfg => {
-                cfg.ConcurrentMessageLimit = 8;
-            });
             x.UsingRabbitMq((context, cfg) => {
                 cfg.Host(configuration.RabbitMqHost, configuration.RabbitMqVirtualHost, h => {
                     h.Username(configuration.RabbitMqUsername);

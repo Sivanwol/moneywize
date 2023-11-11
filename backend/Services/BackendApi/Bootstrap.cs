@@ -1,5 +1,7 @@
 using System.Text;
 using Application.Configs;
+using Application.Events;
+using Application.Events.Flow;
 using Application.Extensions;
 using Domain.Entities;
 using Domain.Persistence;
@@ -11,6 +13,7 @@ using Infrastructure.Services.Auth;
 using Infrastructure.Services.Auth.Models;
 using Infrastructure.Services.Auth.Sender;
 using Infrastructure.Validators.Backoffice.Account;
+using MassTransit;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -124,6 +127,10 @@ public class Bootstrap {
             ServiceProcessExtensions.AddConsumersExtension(applicationConfig, bus);
         }, cfg => {
             ServiceProcessExtensions.AddJobsExtension(cfg, applicationConfig);
+        }, bus => {
+            bus.AddSagaStateMachine<GeneralEventStateMachineFlow, EventStage>(cfg => {
+                cfg.ConcurrentMessageLimit = 8;
+            });
         });
 
         #endregion
