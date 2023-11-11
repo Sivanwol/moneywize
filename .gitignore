@@ -1,0 +1,12 @@
+.idea
+.vscode
+.vs
+node_modules
+dist
+docker-data
+# System Files
+.DS_Store
+Thumbs.db
+*.log
+*.DotSettings.user
+global.json
