@@ -12,14 +12,9 @@ public static class ServiceRepositoriesAndMocksExtensions {
         #region Repositories Registers
 
         services.AddTransient<ICountriesRepository, CountriesRepository>();
-        services.AddTransient<IEthnicitiesRepository, EthnicitiesRepository>();
         services.AddTransient<ILanguagesRepository, LanguagesRepository>();
-        services.AddTransient<IReligionsRepository, ReligionsRepository>();
         services.AddTransient<IAppUserRepository, AppUserRepository>();
         services.AddTransient<IOTPRepository, OTPRepository>();
-        services.AddTransient<IMediaRepository, MediaRepository>();
-        services.AddTransient<ISessionRepository, SessionRepository>();
-        services.AddTransient<IChatRepository, ChatRepository>();
 
         #endregion
 
@@ -29,14 +24,9 @@ public static class ServiceRepositoriesAndMocksExtensions {
         #region Mocks Registers
 
         services.AddTransient<ICountiesMockService, MockCountiesServices>();
-        services.AddTransient<IEthnicitiesMockService, MockEthnicitiesServices>();
         services.AddTransient<ILanguagesMockService, MockLanguagesServices>();
-        services.AddTransient<IReligionsMockService, MockReligionsServices>();
         services.AddTransient<IAppUserMockService, MockAppUserServices>();
         services.AddTransient<IOTPMockService, MockOTPServices>();
-        services.AddTransient<IMediaMockService, MockMediaServices>();
-        services.AddTransient<ISessionsMockService, MockSessionsServices>();
-        services.AddTransient<IChatMockService, MockChatServices>();
 
         #endregion
 

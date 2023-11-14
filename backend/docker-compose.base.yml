@@ -27,17 +27,23 @@ services:
         condition: service_healthy
 
   db:
-    image: postgres:13.1
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
+    build:
+      context: .
+      dockerfile: MSSQL.Dockerfile
     environment:
-      POSTGRES_PASSWORD: developer123!
+      ACCEPT_EULA: Y
+      SA_PASSWORD: developer123!
+    ports:
+      - 1433:1433
+    volumes:
+      - db_data:/var/opt/mssql
     restart: always
     healthcheck:
-      test: pg_isready -U myuser -d db_prod
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "developer123!" -Q "SELECT 1" || exit 1
       interval: 10s
       timeout: 3s
-      retries: 3
+      retries: 10
+      start_period: 40s
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq
@@ -91,8 +97,6 @@ volumes:
   local_es:
     driver: local
   front_api_data:
-    driver: local
-  postgres_data:
     driver: local
 
 networks:

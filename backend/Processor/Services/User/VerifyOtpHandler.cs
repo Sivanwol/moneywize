@@ -25,7 +25,7 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
         Log.Logger.Information($"VerifyOtpHandler: [{request.OTPToken}, {request.UserToken}]");
         var result = await _otpRepository.VerifyOTP(request.Code, request.OTPToken, request.UserToken);
         return new VerifyOTPResponse {
-            UserId = result.IsValid ? result.User?.UserId : null,
+            UserId = result.IsValid ? result.User?.Id : null,
             Tokens = result.IsValid ? _jwtAuthManager.GenerateTokens(request.UserToken, new List<Claim>(), SystemClock.Now().DateTime) : null
         };
     }

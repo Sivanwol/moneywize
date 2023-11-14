@@ -12,7 +12,7 @@ public class MockOTPServices : IOTPMockService {
     }
     private RequestOTPMockConfig FakerRequester { get; set; }
     private VerifyOTPMockConfig FakerVerify { get; set; }
-    private Users User { get; set; }
+    private ApplicationUser User { get; set; }
 
     public RequestOTPResponseData RequestOTP(string phoneNumber, int countryId, MFAProvider provider) {
         return FakerRequester.Generate(1).First();
