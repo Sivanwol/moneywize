@@ -1,4 +1,4 @@
-namespace Domain.Persistence.Interfaces;
+namespace Domain.Persistence.Repositories.Common.Interfaces;
 
 public interface IGenericExtendedRepository<T> where T : class, IGenericRepository<T> {
     Task<IEnumerable<T>> GetAll();

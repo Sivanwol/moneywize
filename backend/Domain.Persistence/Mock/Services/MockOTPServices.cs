@@ -1,7 +1,7 @@
 using Domain.Entities;
 using Domain.Entities.OTP;
-using Domain.Persistence.Interfaces.Mock;
 using Domain.Persistence.Mock.Configs;
+using Domain.Persistence.Mock.Services.Interfaces;
 using Infrastructure.Enums;
 namespace Domain.Persistence.Mock.Services;
 

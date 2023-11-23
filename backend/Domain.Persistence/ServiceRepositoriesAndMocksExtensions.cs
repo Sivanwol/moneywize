@@ -1,7 +1,7 @@
-using Domain.Persistence.Interfaces.Mock;
-using Domain.Persistence.Interfaces.Repositories;
 using Domain.Persistence.Mock.Services;
+using Domain.Persistence.Mock.Services.Interfaces;
 using Domain.Persistence.Repositories;
+using Domain.Persistence.Repositories.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 namespace Domain.Persistence;
 

@@ -1,5 +1,5 @@
 using Domain.Entities;
-namespace Domain.Persistence.Interfaces.Mock;
+namespace Domain.Persistence.Mock.Services.Interfaces;
 
 public interface ICountiesMockService {
     public IEnumerable<Countries> GetAll();

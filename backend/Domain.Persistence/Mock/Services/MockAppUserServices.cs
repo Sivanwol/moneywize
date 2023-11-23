@@ -1,23 +1,17 @@
 using Domain.Entities;
-using Domain.Entities.User;
-using Domain.Persistence.Interfaces.Mock;
 using Domain.Persistence.Mock.Configs;
+using Domain.Persistence.Mock.Services.Interfaces;
 namespace Domain.Persistence.Mock.Services;
 
 public class MockAppUserServices : IAppUserMockService {
     public MockAppUserServices() {
         Faker = new AppUserMockConfig();
+        LanguagesFaker = new LanguagesMockConfig();
     }
     private AppUserMockConfig Faker { get; set; }
+    private LanguagesMockConfig LanguagesFaker { get; set; }
 
-    public UserProfile GetUserProfile(int id) {
-        var user = Faker.Generate(1).First();
-        user.Id = id.ToString();
-        return new UserProfile {
-            User = user,
-        };
-    }
-    public ApplicationUser GetOne(int id) {
+    public ApplicationUser GetOne(Guid id) {
         var user = Faker.Generate(1).First();
         user.Id = id.ToString();
         return user;

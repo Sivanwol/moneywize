@@ -20,5 +20,5 @@ public class RequestOTPResponse {
     /// <summary>
     /// the user is locked or not
     /// </summary>
-    public bool IsLocked { get; set; }
+    public bool HasSent { get; set; }
 }

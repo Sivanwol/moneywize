@@ -1,5 +1,6 @@
 using System.Text;
 using Application.Configs;
+using Application.Configs.Providers;
 using Application.Events;
 using Application.Events.Flow;
 using Application.Extensions;
@@ -30,7 +31,7 @@ public class Bootstrap {
         Environment = env;
         Log.Information("Start Bootstrap And Configuration Setup");
         ActiveAzureConfigConnectionString = Configuration["AzureConfigConnectionString"]!;
-        IsLocalConfiguration = string.IsNullOrEmpty(ActiveAzureConfigConnectionString) && bool.Parse(Configuration["IsLocalConfiguration"]!);
+        IsLocalConfiguration = string.IsNullOrEmpty(ActiveAzureConfigConnectionString);
     }
 
     public static IWebHostEnvironment Environment { get; set; }
@@ -56,12 +57,20 @@ public class Bootstrap {
             AccessTokenExpiration = applicationConfig.JwtAccessTokenExpired,
             RefreshTokenExpiration = applicationConfig.JwtRefreshTokenExpired
         };
+        var infoUSmsProvider = new InfoUSmsConfig {
+            UserName = applicationConfig.SMSProviderInfouUserName,
+            Token = applicationConfig.SMSProviderInfouToken,
+            Sender = applicationConfig.SMSProviderInfouSender,
+            TotalRetriesWithinSession = applicationConfig.SMSOtpTotalRetriesWithinSession,
+            ExpiredInMinutes = applicationConfig.SMSCodeExpiredInMinutes
+        };
         if (!string.IsNullOrEmpty(applicationConfig.ConnectionString)) {
-            ActiveConnectionString = applicationConfig.ConnectionString;
+            ActiveConnectionString = Configuration.GetConnectionString("DbConnection")!;
             Log.Information($"Domain Connection: {ActiveConnectionString}");
         }
         services.AddSingleton(jwtTokenConfig!);
         services.AddSingleton(applicationConfig);
+        services.AddSingleton(infoUSmsProvider);
         // auth configuration
         services.Configure<IdentityOptions>(options => {
             options.User.RequireUniqueEmail = true;
@@ -146,8 +155,8 @@ public class Bootstrap {
             services.AddHealthChecksUI().AddSqlServerStorage(ActiveConnectionString);
         }
         // auth registration
-        services.AddIdentityCore<ApplicationUser>()
-            .AddRoles<IdentityRole>()
+
+        services.AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<DomainContext>()
             .AddSignInManager()
             .AddDefaultTokenProviders();

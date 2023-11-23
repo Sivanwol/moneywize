@@ -1,4 +1,4 @@
-using Domain.Persistence.Interfaces.Repositories;
+using Domain.Persistence.Repositories.Interfaces;
 using Infrastructure.Requests.Processor.Services.User;
 using Infrastructure.Services.Auth;
 using MediatR;
@@ -23,9 +23,10 @@ public class LogoutUserHandler : IRequestHandler<LogoutUserRequest, bool> {
 
     public async Task<bool> Handle(LogoutUserRequest request, CancellationToken cancellationToken) {
         Log.Logger.Information($"LogoutUserHandler: [{request.UserToken}]");
-        var result = await _otpRepository.LocateUserByToken(request.UserToken);
-        if (!result)
+        var result = await _appUserRepository.GetUserByToken(request.UserToken);
+        if (result == null) {
             return false;
+        }
         _jwtAuthManager.RemoveRefreshTokenByUserToken(request.UserToken);
         return true;
     }

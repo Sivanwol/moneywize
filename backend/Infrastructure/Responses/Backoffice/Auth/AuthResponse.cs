@@ -10,7 +10,7 @@ public class AuthResponse {
     /// <summary>
     /// user id
     /// </summary>
-    public string UserId { get; set; }
+    public Guid UserId { get; set; }
 
     /// <summary>
     /// in case of user required do MFA action this property will be true

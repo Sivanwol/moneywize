@@ -1,6 +1,6 @@
 using Domain.Entities;
-using Domain.Persistence.Interfaces.Mock;
 using Domain.Persistence.Mock.Configs;
+using Domain.Persistence.Mock.Services.Interfaces;
 namespace Domain.Persistence.Mock.Services;
 
 public class MockCountiesServices : ICountiesMockService {

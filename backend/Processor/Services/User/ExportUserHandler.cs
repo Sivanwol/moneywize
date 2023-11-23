@@ -1,5 +1,5 @@
 using Application.Responses.Base;
-using Domain.Persistence.Interfaces.Repositories;
+using Domain.Persistence.Repositories.Interfaces;
 using Infrastructure.Requests.Processor.Services.User;
 using MediatR;
 using Serilog;

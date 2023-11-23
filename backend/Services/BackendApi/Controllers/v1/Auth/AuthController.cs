@@ -123,7 +123,7 @@ public class AuthController : BaseApiController {
         _logger.LogInformation(1, "User logged in -  {UserId}", user.Id);
         var claims = await _userManager.GetClaimsAsync(user);
         response.Tokens = _jwtAuthManager.GenerateTokens(user.Email, claims, DateTime.Now);
-        response.UserId = user.Id;
+        response.UserId = new Guid(user.Id);
         return ResponseHelper.CreateResponse(response);
     }
 
@@ -250,7 +250,7 @@ public class AuthController : BaseApiController {
             var user = await _userManager.FindByEmailAsync(userName);
             return ResponseHelper.CreateResponse(new AuthResponse {
                 Tokens = jwtResult,
-                UserId = user.Id
+                UserId = new Guid(user.Id)
             });
         }
         catch (SecurityTokenException e) {
@@ -441,7 +441,7 @@ public class AuthController : BaseApiController {
 
                 _logger.LogInformation(4, "User created a new account with password.");
                 return ResponseHelper.CreateResponse(new AuthResponse {
-                    UserId = user.Id
+                    UserId = new Guid(user.Id)
                 });
             }
         }
