@@ -1,12 +1,12 @@
 version: "3.8"
 
 services:
-  front-api-service:
-    container_name: front-api-container
+  backend-api-service:
+    container_name: backend-api-container
     build:
       context: .
-      dockerfile: frontApi.Dockerfile
-    image: front-api-service
+      dockerfile: ./backend.Dockerfile
+    image: backend-api-service
     environment:
       - ASPNETCORE_URLS=http://bk-container:3000
     restart: always
@@ -21,8 +21,8 @@ services:
         condition: service_healthy
       db:
         condition: service_healthy
-  #      redis:
-  #        condition: service_healthy
+#      redis:
+#        condition: service_healthy
       elasticsearch:
         condition: service_healthy
 

@@ -10,8 +10,6 @@ public sealed class AppUserMockConfig : AutoFaker<ApplicationUser> {
         RuleFor(fake => fake.FirstName, fake => fake.Name.FirstName());
         RuleFor(fake => fake.LastName, fake => fake.Name.LastName());
         RuleFor(fake => fake.Email, fake => fake.Person.Email);
-        RuleFor(fake => fake.CountryId, fake => fake.Random.Decimal(110, 210));
-        RuleFor(fake => fake.DisplayLanguageId, fake => fake.Random.Decimal(110, 210));
         RuleFor(fake => fake.EmailConfirmed, fake => true);
         RuleFor(fake => fake.TwoFactorEnabled, fake => true);
         RuleFor(fake => fake.Address, fake => fake.Address.FullAddress());

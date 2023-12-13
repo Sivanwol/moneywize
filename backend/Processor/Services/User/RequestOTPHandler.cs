@@ -51,9 +51,9 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
             throw new EntityNotFoundException("User", $"{request.CountryId}-{request.PhoneNumber}");
         }
 
-        var country = await _countriesRepository.GetById(user.CountryId);
+        var country = await _countriesRepository.GetById(user.Country.Id);
         if (country == null) {
-            throw new EntityNotFoundException("Countries", user.CountryId.ToString());
+            throw new EntityNotFoundException("Countries", user.Country.Id.ToString());
         }
         _logger.LogInformation($"Loading Sms Provider: {country.Provider}");
         switch (country.Provider) {

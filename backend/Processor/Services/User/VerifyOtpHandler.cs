@@ -44,10 +44,10 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
             throw new EntityNotFoundException("User", request.UserToken);
         }
 
-        Log.Logger.Information($"Locating User By Phone: {user.CountryId}-{user.PhoneNumber}");
-        var country = await _countriesRepository.GetById(user.CountryId);
+        Log.Logger.Information($"Locating User By Phone: {user.Country.Id}-{user.PhoneNumber}");
+        var country = await _countriesRepository.GetById(user.Country.Id);
         if (country == null) {
-            throw new EntityNotFoundException("Countries", user.CountryId.ToString());
+            throw new EntityNotFoundException("Countries", user.Country.Id.ToString());
         }
         Log.Logger.Information($"Loading Sms Provider: {country.Provider}");
         var expiredCodeInMinutes = 0;

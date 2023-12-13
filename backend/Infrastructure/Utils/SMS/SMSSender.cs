@@ -7,8 +7,9 @@ namespace Infrastructure.Utils.SMS;
 public class SMSSender {
     static BaseSMSProvider _provider;
     static SMSSender _instance;
-    private static ILoggerFactory _logger;
+    private static ILoggerFactory _loggerFaactory;
     private static InfoUSmsConfig _config;
+    private static ILogger _logger;
 
     public static SMSSender Instance
     {
@@ -16,21 +17,24 @@ public class SMSSender {
     }
 
     public void Load(ILoggerFactory logger, InfoUSmsConfig config) {
-        _logger = logger;
+        _logger = logger.CreateLogger<SMSSender>();
+        _loggerFaactory = logger;
         _config = config;
     }
     public int GetSMSExpireInMinutes() {
         return _config.ExpiredInMinutes;
     }
     public void Init(SMSProviders provider, string countryNumber, string phoneNumber, string messageTemplate) {
-        switch (provider) {
-            case SMSProviders.INFOU:
-                _provider = new InfoUProvider(_logger, _config);
-                break;
-        }
-        _provider.Init(countryNumber, phoneNumber, messageTemplate);
+        // switch (provider) {
+        //     case SMSProviders.INFOU:
+        //         _provider = new InfoUProvider(_logger, _config);
+        //         break;
+        // }
+        // _provider.Init(countryNumber, phoneNumber, messageTemplate);
+        _logger.LogInformation($"Init: {provider}, {countryNumber}, {phoneNumber}, {messageTemplate}");
     }
     public void SendSMS(string code) {
-        _provider.SendSMS(code);
+        // _provider.SendSMS(code);
+        _logger.LogInformation($"SendSMS: {code}");
     }
 }

@@ -5,7 +5,7 @@ using Quartz;
 namespace Application.Extensions;
 
 public static class MasstransitExtension {
-    public static void AddMassTransitExtension(this IServiceCollection services, BackendApplicationConfig config,
+    public static void AddMassTransitExtension(this IServiceCollection services, string connectionString, BackendApplicationConfig config,
         Action<IBusRegistrationConfigurator>? registerTransitConsumers,
         Action<IServiceCollectionQuartzConfigurator>? registerTransitScheduler = null,
         Action<IBusRegistrationConfigurator>? registerStateMachineDefinions = null) {
@@ -13,7 +13,7 @@ public static class MasstransitExtension {
             options.WaitUntilStarted = true;
         });
         services.AddQuartz(c => {
-            c.SchedulerName = "Mylo-System-Job";
+            c.SchedulerName = "System-Job";
             c.SchedulerId = "AUTO";
             c.UseMicrosoftDependencyInjectionJobFactory();
             c.UseDedicatedThreadPool(t => {
@@ -22,7 +22,7 @@ public static class MasstransitExtension {
             c.InterruptJobsOnShutdown = true;
             c.UseTimeZoneConverter();
             c.UsePersistentStore(s => {
-                s.UseSqlServer(config.ConnectionString);
+                s.UseMySql(connectionString);
                 s.UseProperties = true;
                 s.RetryInterval = TimeSpan.FromSeconds(15);
                 s.UseJsonSerializer();

@@ -26,12 +26,9 @@ public class CountriesRepository : BaseRepository, ICountriesRepository {
         return result;
     }
 
-    public async Task<Countries?> GetById(int id) {
+    public async Task<Countries?> GetById(Guid id) {
         _logger.LogInformation($"Fetching country with id {id}");
         var result = Context.Countries.FirstOrDefault(row => row.Id == id);
         return result;
-    }
-    public Task<Countries?> GetById(Guid id) {
-        throw new NotImplementedException();
     }
 }

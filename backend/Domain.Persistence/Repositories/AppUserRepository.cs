@@ -25,7 +25,7 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
     }
 
 
-    public async Task SaveDisplayLanguage(Guid userId, int languageId) {
+    public async Task SaveDisplayLanguage(Guid userId, Guid languageId) {
         Log.Logger.Information($"Saving display language for user {userId}-{languageId}");
         var languageData = await _languagesRepository.GetById(languageId);
         if (languageData == null) {
@@ -52,11 +52,6 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
             throw new EntityNotFoundException("User", userId.ToString());
         }
     }
-
-
-    public Task<ApplicationUser?> GetById(int id) {
-        throw new NotImplementedException();
-    }
     public Task<ApplicationUser> GetById(Guid id) {
         Log.Logger.Information($"Fetching user with id {id}");
         return Task.FromResult(_mock.GetOne(id));
@@ -67,9 +62,9 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
         return Context.Users.FirstOrDefault(w => w.Token == userToken);
     }
 
-    public async Task<ApplicationUser?> LocateUserByPhone(int countryId, string phoneNumber) {
+    public async Task<ApplicationUser?> LocateUserByPhone(Guid countryId, string phoneNumber) {
         Log.Logger.Information($"Locating user with phone number {countryId}-{phoneNumber}");
-        var user = Context.Users.Where(w => w.CountryId == countryId && w.PhoneNumber == phoneNumber).First();
+        var user = Context.Users.Where(w => w.Country.Id == countryId && w.PhoneNumber == phoneNumber).First();
         if (user == null) {
             throw new EntityNotFoundException("User", $"{countryId}-{phoneNumber}");
         }
@@ -98,8 +93,6 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
         if (entities.Any()) {
             Log.Logger.Information($"Clearing existing otp code for user {user.Id}-{provider}");
             foreach (var item in entities) {
-                if (item == null)
-                    continue;
                 item.ComplateAt = SystemClock.Now().DateTime;
                 item.UpdatedAt = SystemClock.Now().DateTime;
             }
@@ -159,5 +152,10 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
             where w.UserId.Equals(user.Id) && w.ExpirationDate >= SystemClock.Now().DateTime && !w.ComplateAt.HasValue
             orderby w.ExpirationDate descending
             select w).FirstOrDefault();
+    }
+
+
+    public Task<ApplicationUser?> GetById(int id) {
+        throw new NotImplementedException();
     }
 }

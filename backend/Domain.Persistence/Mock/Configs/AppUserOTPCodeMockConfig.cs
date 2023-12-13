@@ -8,7 +8,7 @@ public sealed class AppUserOTPCodeMockConfig : AutoFaker<ApplicationUserOtpCodes
     public AppUserOTPCodeMockConfig() {
         Randomizer.Seed = new Random(8675309);
         var dt = SystemClock.Now().DateTime;
-        RuleFor(fake => fake.Id, fake => fake.Random.Number(1, 1000));
+        RuleFor(fake => fake.Id, fake => fake.Random.Guid());
         RuleFor(fake => fake.UserId, fake => fake.Random.Guid());
         RuleFor(fake => fake.Token, fake => StringExtensions.RandomUniqueString(128));
         RuleFor(fake => fake.Code, fake => fake.Random.Number(111111, 999999).ToString());

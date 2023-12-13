@@ -64,7 +64,7 @@ public class Bootstrap {
             TotalRetriesWithinSession = applicationConfig.SMSOtpTotalRetriesWithinSession,
             ExpiredInMinutes = applicationConfig.SMSCodeExpiredInMinutes
         };
-        if (!string.IsNullOrEmpty(applicationConfig.ConnectionString)) {
+        if (string.IsNullOrEmpty(applicationConfig.ConnectionString)) {
             ActiveConnectionString = Configuration.GetConnectionString("DbConnection")!;
             Log.Information($"Domain Connection: {ActiveConnectionString}");
         }
@@ -91,7 +91,21 @@ public class Bootstrap {
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
         });
         services.AddGenericServiceExtension(Configuration, () => {
-            services.AddDbContext<DomainContext>(options => options.UseSqlServer(ActiveConnectionString));
+            var serverVersion = new MySqlServerVersion(new Version(5, 7));
+            services.AddDbContext<DomainContext>(options => {
+                options.UseMySql(ActiveConnectionString, serverVersion,
+                        mySqlOptions => {
+                            mySqlOptions.EnableRetryOnFailure(
+                                maxRetryCount: 3,
+                                maxRetryDelay: TimeSpan.FromSeconds(30),
+                                errorNumbersToAdd: null);
+                        })
+                    .LogTo(Console.WriteLine, LogLevel.Information);
+                if (Environment.IsDevelopment()) {
+                    options.EnableSensitiveDataLogging()
+                        .EnableDetailedErrors();
+                }
+            });
             services.AddTransient<IDomainContext>(provider => provider.GetService<DomainContext>()!);
             // services.Configure<SmsSettings>(c => {
             //     c.AccountIdentification = Configuration["SmsSettings:AccountIdentification"];
@@ -132,7 +146,7 @@ public class Bootstrap {
             cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.FullName!.Contains("Sql")).ToArray()));
         // enabled elastic search 
         // services.AddElasticsearch(Configuration);
-        services.AddMassTransitExtension(applicationConfig, bus => {
+        services.AddMassTransitExtension(ActiveConnectionString, applicationConfig, bus => {
             ServiceProcessExtensions.AddConsumersExtension(applicationConfig, bus);
         }, cfg => {
             ServiceProcessExtensions.AddJobsExtension(cfg, applicationConfig);
@@ -148,7 +162,7 @@ public class Bootstrap {
         // health checks registration 
         if (applicationConfig.DisableHealthCheck) { // we check if we want the health checks to be disabled (mostly in dev)
             services.AddHealthChecks()
-                .AddSqlServer(ActiveConnectionString, tags: new[] {
+                .AddMySql(ActiveConnectionString, tags: new[] {
                     "db"
                 })
                 .AddApplicationStatus();
@@ -204,7 +218,10 @@ public class Bootstrap {
                 app.UseHsts();
             }
         });
-        app.UseAzureAppConfiguration();
+
+        if (!IsLocalConfiguration) {
+            app.UseAzureAppConfiguration();
+        }
         app.UseAuthentication();
         app.UseAuthorization();
 

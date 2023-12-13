@@ -25,12 +25,9 @@ public class LanguagesRepository : BaseRepository, ILanguagesRepository {
         return result;
     }
 
-    public async Task<Languages?> GetById(int id) {
+    public async Task<Languages?> GetById(Guid id) {
         _logger.LogInformation($"Fetching language with id {id}");
         var result = Context.Languages.FirstOrDefault(row => row.Id == id);
         return result;
-    }
-    public Task<Languages?> GetById(Guid id) {
-        throw new NotImplementedException();
     }
 }

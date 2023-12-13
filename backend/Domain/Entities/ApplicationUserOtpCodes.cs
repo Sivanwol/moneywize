@@ -4,7 +4,11 @@ namespace Domain.Entities;
 
 [Table("ApplicationUserOtpCodes")]
 public class ApplicationUserOtpCodes : BaseEntity {
+
+    [ForeignKey("ApplicationUser")]
     public Guid UserId { get; set; }
+
+    public ApplicationUser User { get; set; }
     public string Token { get; set; }
     public string Code { get; set; }
     public DateTime ExpirationDate { get; set; }
