@@ -160,7 +160,7 @@ public class Bootstrap {
 
         services.AddApiVersionExtension(applicationConfig);
         // health checks registration 
-        if (applicationConfig.DisableHealthCheck) { // we check if we want the health checks to be disabled (mostly in dev)
+        if (!applicationConfig.DisableHealthCheck) { // we check if we want the health checks to be disabled (mostly in dev)
             services.AddHealthChecks()
                 .AddMySql(ActiveConnectionString, tags: new[] {
                     "db"
@@ -201,7 +201,7 @@ public class Bootstrap {
         if (Environment.IsDevelopment() || applicationConfig.EnableSwagger) {
             app.UseSwaggerExtension(env);
         }
-        if (applicationConfig.DisableHealthCheck) {
+        if (!applicationConfig.DisableHealthCheck) {
             app.UseHealthChecks("/healthz", new HealthCheckOptions {
                 Predicate = _ => true,
                 ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
