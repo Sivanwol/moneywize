@@ -57,7 +57,6 @@ public class AuthController : BaseApiController {
         _logger = authDeps.LoggerFactory.CreateLogger<AuthController>();
     }
 
-
     /// <summary>
     /// will be called when user request to login
     /// </summary>
