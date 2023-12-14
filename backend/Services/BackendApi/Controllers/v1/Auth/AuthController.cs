@@ -23,50 +23,40 @@ using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Annotations;
 namespace BackendApi.Controllers.v1.Auth;
 
+public class AuthDependencies {
+    public IMediator Mediator { get; set; }
+    public BackendApplicationConfig Configuration { get; set; }
+    public UserManager<ApplicationUser> UserManager { get; set; }
+    public SignInManager<ApplicationUser> SignInManager { get; set; }
+    public IEmailSender EmailSender { get; set; }
+    public ISmsSender SmsSender { get; set; }
+    public ILoggerFactory LoggerFactory { get; set; }
+    public IJwtAuthManager JwtAuthManager { get; set; }
+}
+
+public class ValidatorDependencies {
+    public IValidator<ResetPasswordRequest> ResetPasswordValidator { get; set; }
+    public IValidator<LoginRequest> LoginValidator { get; set; }
+    public IValidator<RefreshTokenRequest> RefreshTokenValidator { get; set; }
+    public IValidator<VerifyFromProviderRequest> VerifyFromProviderValidator { get; set; }
+    public IValidator<SendCodeToProviderRequest> SendCodeToProviderValidator { get; set; }
+    public IValidator<RegisterNewUserRequest> RegisterNewUserValidator { get; set; }
+}
+
 [ApiVersion("1.0")]
 [Authorize]
 public class AuthController : BaseApiController {
-    private readonly IEmailSender _emailSender;
-    private readonly IJwtAuthManager _jwtAuthManager;
+    private readonly AuthDependencies _authDependencies;
     private readonly ILogger _logger;
-    private readonly IValidator<LoginRequest> _loginValidator;
-    private readonly IValidator<RefreshTokenRequest> _refreshTokenValidator;
-    private readonly IValidator<RegisterNewUserRequest> _registerNewUserValidator;
-    private readonly IValidator<ResetPasswordRequest> _resetPasswordValidator;
-    private readonly IValidator<SendCodeToProviderRequest> _sendCodeToProviderValidator;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly ISmsSender _smsSender;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IValidator<VerifyFromProviderRequest> _verifyFromProviderValidator;
-
+    private readonly ValidatorDependencies _validatorDependencies;
     public AuthController(
-        IMediator _mediator,
-        BackendApplicationConfig _configuration,
-        UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager,
-        IEmailSender emailSender,
-        ISmsSender smsSender,
-        ILoggerFactory loggerFactory,
-        IJwtAuthManager jwtAuthManager,
-        IValidator<ResetPasswordRequest> resetPasswordValidator,
-        IValidator<LoginRequest> loginValidator,
-        IValidator<RefreshTokenRequest> refreshTokenValidator,
-        IValidator<VerifyFromProviderRequest> verifyFromProviderValidator,
-        IValidator<SendCodeToProviderRequest> sendCodeToProviderValidator,
-        IValidator<RegisterNewUserRequest> registerNewUserValidator) : base(_mediator, _configuration) {
-        _userManager = userManager;
-        _signInManager = signInManager;
-        _emailSender = emailSender;
-        _smsSender = smsSender;
-        _logger = loggerFactory.CreateLogger<AuthController>();
-        _jwtAuthManager = jwtAuthManager;
-        _registerNewUserValidator = registerNewUserValidator;
-        _resetPasswordValidator = resetPasswordValidator;
-        _loginValidator = loginValidator;
-        _sendCodeToProviderValidator = sendCodeToProviderValidator;
-        _refreshTokenValidator = refreshTokenValidator;
-        _verifyFromProviderValidator = verifyFromProviderValidator;
+        AuthDependencies authDeps,
+        ValidatorDependencies validatorDeps) : base(authDeps.Mediator, authDeps.Configuration) {
+        _authDependencies = authDeps;
+        _validatorDependencies = validatorDeps;
+        _logger = authDeps.LoggerFactory.CreateLogger<AuthController>();
     }
+
 
     /// <summary>
     /// will be called when user request to login
@@ -80,13 +70,13 @@ public class AuthController : BaseApiController {
     [AllowAnonymous]
     public async Task<IActionResult> Login(LoginRequest request) {
         var response = new AuthResponse();
-        var validator = await _loginValidator.ValidateAsync(request);
+        var validator = await _validatorDependencies.LoginValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
         }
 
         var result =
-            await _signInManager.PasswordSignInAsync(request.Email, request.Password, request.RememberMe,
+            await _authDependencies.SignInManager.PasswordSignInAsync(request.Email, request.Password, request.RememberMe,
                 lockoutOnFailure: false);
         var user = await _userManager.FindByEmailAsync(request.Email);
         // user not found
