@@ -3,6 +3,7 @@ using Application.Contract;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using MimeKit;
 namespace Infrastructure.Services.Email;
 
@@ -10,8 +11,8 @@ public class MailService : IMailService {
 
     private readonly MailServerConfig _settings;
 
-    public MailService(MailServerConfig settings) {
-        _settings = settings;
+    public MailService(IOptions<MailServerConfig> mailServerConfigOptions) {
+        _settings = mailServerConfigOptions.Value;
     }
 
     public async Task<bool> SendWithAttachmentsAsync(MailDataWithAttachments mailData, CancellationToken ct = default) {

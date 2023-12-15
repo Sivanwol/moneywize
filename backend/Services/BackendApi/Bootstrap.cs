@@ -107,6 +107,7 @@ public class Bootstrap {
                 }
             });
             services.Configure<MailServerConfig>(Configuration.GetSection(nameof(MailServerConfig)));
+
             services.AddTransient<IDomainContext>(provider => provider.GetService<DomainContext>()!);
             services.AddTransient<ITemplateService, TemplateService>();
             services.AddTransient<IMailService, MailService>();
@@ -118,7 +119,7 @@ public class Bootstrap {
             services.AddValidatorsFromAssemblyContaining<LoginUserValidator>();
             services.AddValidatorsFromAssemblyContaining<SendCodeToProviderValidator>();
             services.AddValidatorsFromAssemblyContaining<SendCodeFromProviderValidator>();
-
+            services.AddRazorPages();
             services.AddHostedService<JwtRefreshTokenCache>();
         });
         if (Environment.IsDevelopment() || applicationConfig.EnableSwagger) {
