@@ -5,6 +5,7 @@ using MailKit.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using Serilog;
 namespace Infrastructure.Services.Email;
 
 public class MailService : IMailService {
@@ -12,11 +13,16 @@ public class MailService : IMailService {
     private readonly MailServerConfig _settings;
 
     public MailService(IOptions<MailServerConfig> mailServerConfigOptions) {
+        Log.Information($"MailService: {mailServerConfigOptions.Value}");
         _settings = mailServerConfigOptions.Value;
     }
 
     public async Task<bool> SendWithAttachmentsAsync(MailDataWithAttachments mailData, CancellationToken ct = default) {
         try {
+            var jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(mailData);
+            Log.Information($"MailDataWithAttachments: {jsonString}");
+            jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(_settings);
+            Log.Information($"Mail Settings: {jsonString}");
             // Initialize a new instance of the MimeKit.MimeMessage class
             var mail = new MimeMessage();
 
@@ -95,7 +101,8 @@ public class MailService : IMailService {
             #endregion
 
         }
-        catch (Exception) {
+        catch (Exception e) {
+            Log.Error(e, $"MailService: {e.Message}");
             return false;
         }
         return true;
@@ -103,6 +110,11 @@ public class MailService : IMailService {
 
     public async Task<bool> SendAsync(MailData mailData, CancellationToken ct = default) {
         try {
+            var jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(mailData);
+            Log.Information($"MailData: {jsonString}");
+            jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(_settings);
+            Log.Information($"Mail Settings: {jsonString}");
+
             // Initialize a new instance of the MimeKit.MimeMessage class
             var mail = new MimeMessage();
 
@@ -155,6 +167,8 @@ public class MailService : IMailService {
                 await smtp.ConnectAsync(_settings.ServerAddress, _settings.Port, SecureSocketOptions.SslOnConnect, ct);
             } else if (_settings.IsStartTls) {
                 await smtp.ConnectAsync(_settings.ServerAddress, _settings.Port, SecureSocketOptions.StartTls, ct);
+            } else {
+                await smtp.ConnectAsync(_settings.ServerAddress, _settings.Port, SecureSocketOptions.None, ct);
             }
 
             if (_settings.IsUseCredentials) {
@@ -166,7 +180,8 @@ public class MailService : IMailService {
             #endregion
 
         }
-        catch (Exception) {
+        catch (Exception e) {
+            Log.Error(e, $"MailService: {e.Message}");
             return false;
         }
         return true;

@@ -106,7 +106,7 @@ public class Bootstrap {
                         .EnableDetailedErrors();
                 }
             });
-            services.Configure<MailServerConfig>(Configuration.GetSection(nameof(MailServerConfig)));
+            services.Configure<MailServerConfig>(Configuration.GetSection("MailConfig"));
 
             services.AddTransient<IDomainContext>(provider => provider.GetService<DomainContext>()!);
             services.AddTransient<ITemplateService, TemplateService>();

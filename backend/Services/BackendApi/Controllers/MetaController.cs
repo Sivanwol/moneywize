@@ -5,6 +5,7 @@ using Application.Utils.Service;
 using Infrastructure.Services.Email;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 namespace BackendApi.Controllers;
 
 public class MetaController : BaseApiController {
@@ -38,18 +39,25 @@ public class MetaController : BaseApiController {
                 UpdatedOn = DateTime.Now.ToString("dd/MM/yyyy")
             },
         };
-        var template = await _templateService.GetTemplateHtmlAsStringAsync("TestMail", testList);
-        var mailData = new MailData(
-            new List<string> {
-                "test@test.com"
-            },
-            "Test Mail",
-            template
-        );
-        var result = await _mailService.SendAsync(mailData, new CancellationToken());
-        if (result) {
-            return StatusCode(StatusCodes.Status200OK, "Mail has successfully been sent.");
-        } else {
+        try {
+            var template = await _templateService.GetTemplateHtmlAsStringAsync("MailingTemplates/test", testList);
+            Log.Information($"Template: {template}");
+            var mailData = new MailData(
+                new List<string> {
+                    "test@test.com"
+                },
+                "Test Mail",
+                template
+            );
+            var result = await _mailService.SendAsync(mailData, new CancellationToken());
+            if (result) {
+                return StatusCode(StatusCodes.Status200OK, "Mail has successfully been sent.");
+            } else {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occured. The Mail could not be sent.");
+            }
+        }
+        catch (Exception ex) {
+            Log.Error(ex, "An error occured while sending the mail.");
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occured. The Mail could not be sent.");
         }
     }
