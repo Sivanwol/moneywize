@@ -12,7 +12,7 @@ using HealthChecks.ApplicationStatus.DependencyInjection;
 using HealthChecks.UI.Client;
 using Infrastructure.Services.Auth;
 using Infrastructure.Services.Auth.Models;
-using Infrastructure.Services.Auth.Sender;
+using Infrastructure.Services.Email;
 using Infrastructure.Validators.Backoffice.Account;
 using MassTransit;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -106,20 +106,10 @@ public class Bootstrap {
                         .EnableDetailedErrors();
                 }
             });
+            services.Configure<MailServerConfig>(Configuration.GetSection(nameof(MailServerConfig)));
             services.AddTransient<IDomainContext>(provider => provider.GetService<DomainContext>()!);
-            // services.Configure<SmsSettings>(c => {
-            //     c.AccountIdentification = Configuration["SmsSettings:AccountIdentification"];
-            //     c.AccountMessagingServiceSid = Configuration["SmsSettings:AccountMessagingServiceSid"];
-            //     c.AccountAuthToken = Configuration["SmsSettings:AccountAuthToken"];
-            //     c.AccountFrom = Configuration["SmsSettings:AccountFrom"];
-            // });
-            // services.Configure<EmailSettings>(c => {
-            //     c.ApiKey = Configuration["EmailSettings:ApiKey"];
-            //     c.SenderEmail = Configuration["EmailSettings:SenderEmail"];
-            //     c.SenderName = Configuration["EmailSettings:SenderName"];
-            // });
-            services.AddTransient<IEmailSender, AuthMessageSender>();
-            services.AddTransient<ISmsSender, AuthMessageSender>();
+            services.AddTransient<ITemplateService, TemplateService>();
+            services.AddTransient<IMailService, MailService>();
             services.AddSingleton<IJwtAuthManager, JwtAuthManager>();
             services.AddValidatorsFromAssemblyContaining<ForgetPasswordValidator>();
             services.AddValidatorsFromAssemblyContaining<RegisterUserValidator>();

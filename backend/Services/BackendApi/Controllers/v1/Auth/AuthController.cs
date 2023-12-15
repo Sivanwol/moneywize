@@ -15,7 +15,6 @@ using Infrastructure.Requests.Processor.Services.User;
 using Infrastructure.Responses.Controllers.Auth;
 using Infrastructure.Responses.Controllers.Countries;
 using Infrastructure.Services.Auth;
-using Infrastructure.Services.Auth.Sender;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -28,7 +27,6 @@ namespace BackendApi.Controllers.v1.Auth;
 [ApiVersion("1.0")]
 [Authorize]
 public class AuthController : BaseApiController {
-    private readonly IEmailSender _emailSender;
     private readonly IJwtAuthManager _jwtAuthManager;
     private readonly ILogger _logger;
     private readonly IValidator<LoginRequest> _loginValidator;
@@ -37,7 +35,6 @@ public class AuthController : BaseApiController {
     private readonly IValidator<ResetPasswordRequest> _resetPasswordValidator;
     private readonly IValidator<SendCodeToProviderRequest> _sendCodeToProviderValidator;
     private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly ISmsSender _smsSender;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IValidator<VerifyFromProviderRequest> _verifyFromProviderValidator;
 
@@ -46,8 +43,6 @@ public class AuthController : BaseApiController {
         BackendApplicationConfig configuration,
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        IEmailSender emailSender,
-        ISmsSender smsSender,
         ILoggerFactory loggerFactory,
         IJwtAuthManager jwtAuthManager,
         IValidator<ResetPasswordRequest> resetPasswordValidator,
@@ -58,8 +53,6 @@ public class AuthController : BaseApiController {
         IValidator<RegisterNewUserRequest> registerNewUserValidator) : base(mediator, configuration) {
         _userManager = userManager;
         _signInManager = signInManager;
-        _emailSender = emailSender;
-        _smsSender = smsSender;
         _logger = loggerFactory.CreateLogger<AuthController>();
         _jwtAuthManager = jwtAuthManager;
         _registerNewUserValidator = registerNewUserValidator;
@@ -283,10 +276,10 @@ public class AuthController : BaseApiController {
         var message = "Your security code is: " + code;
         switch (requestProvider) {
             case "Email":
-                await _emailSender.SendEmailAsync(await _userManager.GetEmailAsync(user), "Security Code", message);
+                // await _emailSender.SendEmailAsync(await _userManager.GetEmailAsync(user), "Security Code", message);
                 break;
             case "Phone":
-                await _smsSender.SendSmsAsync(await _userManager.GetPhoneNumberAsync(user), message);
+                // await _smsSender.SendSmsAsync(await _userManager.GetPhoneNumberAsync(user), message);
                 break;
         }
         return ResponseHelper.CreateEmptyResponse();

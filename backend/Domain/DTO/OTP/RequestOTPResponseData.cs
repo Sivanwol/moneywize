@@ -1,4 +1,4 @@
-namespace Domain.Entities.OTP;
+namespace Domain.DTO.OTP;
 
 public class RequestOTPResponseData {
     public string OTPToken { get; set; }

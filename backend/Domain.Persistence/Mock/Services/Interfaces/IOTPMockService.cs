@@ -1,4 +1,4 @@
-using Domain.Entities.OTP;
+using Domain.DTO.OTP;
 using Infrastructure.Enums;
 namespace Domain.Persistence.Mock.Services.Interfaces;
 

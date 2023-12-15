@@ -1,5 +1,5 @@
+using Domain.DTO.OTP;
 using Domain.Entities;
-using Domain.Entities.OTP;
 using Domain.Persistence.Repositories.Common.Interfaces;
 using Infrastructure.Enums;
 namespace Domain.Persistence.Repositories.Interfaces;

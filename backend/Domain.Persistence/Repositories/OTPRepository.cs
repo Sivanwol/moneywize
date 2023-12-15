@@ -1,6 +1,6 @@
 using Application.Utils;
+using Domain.DTO.OTP;
 using Domain.Entities;
-using Domain.Entities.OTP;
 using Domain.Persistence.Context;
 using Domain.Persistence.Repositories.Common;
 using Domain.Persistence.Repositories.Interfaces;

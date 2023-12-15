@@ -1,4 +1,5 @@
-namespace Domain.Entities.OTP;
+using Domain.Entities;
+namespace Domain.DTO.OTP;
 
 public class VerifyOTPResponseData {
     public ApplicationUser? User { get; set; }
