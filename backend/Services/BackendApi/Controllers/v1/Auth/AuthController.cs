@@ -1,5 +1,6 @@
 using System.Net;
 using Application.Configs;
+using Application.Exceptions;
 using Application.Responses.Base;
 using Application.Utils;
 using Application.Utils.Service;
@@ -10,8 +11,9 @@ using IdentityModel.Client;
 using Infrastructure.Enums;
 using Infrastructure.Requests.Controllers.Backoffice;
 using Infrastructure.Requests.Processor.Services.Countries;
-using Infrastructure.Responses.Backoffice.Auth;
-using Infrastructure.Responses.Processor.Services.Countries;
+using Infrastructure.Requests.Processor.Services.User;
+using Infrastructure.Responses.Controllers.Auth;
+using Infrastructure.Responses.Controllers.Countries;
 using Infrastructure.Services.Auth;
 using Infrastructure.Services.Auth.Sender;
 using MediatR;
@@ -40,8 +42,8 @@ public class AuthController : BaseApiController {
     private readonly IValidator<VerifyFromProviderRequest> _verifyFromProviderValidator;
 
     public AuthController(
-        IMediator _mediator,
-        BackendApplicationConfig _configuration,
+        IMediator mediator,
+        BackendApplicationConfig configuration,
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IEmailSender emailSender,
@@ -53,7 +55,7 @@ public class AuthController : BaseApiController {
         IValidator<RefreshTokenRequest> refreshTokenValidator,
         IValidator<VerifyFromProviderRequest> verifyFromProviderValidator,
         IValidator<SendCodeToProviderRequest> sendCodeToProviderValidator,
-        IValidator<RegisterNewUserRequest> registerNewUserValidator) : base(_mediator, _configuration) {
+        IValidator<RegisterNewUserRequest> registerNewUserValidator) : base(mediator, configuration) {
         _userManager = userManager;
         _signInManager = signInManager;
         _emailSender = emailSender;
@@ -73,58 +75,37 @@ public class AuthController : BaseApiController {
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    [HttpPost("login")]
+    [HttpPost("login/web")]
     [SwaggerOperation(Tags = new[] {
         "Auth"
     })]
     [AllowAnonymous]
     public async Task<IActionResult> Login(LoginRequest request) {
-        var response = new AuthResponse();
         var validator = await _loginValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
         }
 
-        var result =
-            await _signInManager.PasswordSignInAsync(request.Email, request.Password, request.RememberMe,
-                lockoutOnFailure: false);
-        var user = await _userManager.FindByEmailAsync(request.Email);
-        // user not found
-        if (user == null) {
-            _logger.LogWarning(2, "User account not found");
+        try {
+            var response = await Mediator.Send(new LoginWebUserRequest {
+                Email = request.Email,
+                Password = request.Password,
+                RememberMe = request.RememberMe
+            });
+            return ResponseHelper.CreateResponse(response);
+        }
+        catch (UserNotFoundException e) {
             return ResponseHelper.CreateEmptyResponse(["User not found or password is not correct"], HttpStatusCode.Unauthorized);
         }
-        // user account got disabled
-        if (result.IsNotAllowed) {
-            _logger.LogWarning(2, "User account is disabled - {UserId}", user.Id);
+        catch (UserBlockException e) {
             return ResponseHelper.CreateEmptyResponse(["User account disabled"], HttpStatusCode.Unauthorized);
         }
-
-        // user need two factor
-        if (result.RequiresTwoFactor) {
-            _logger.LogWarning(2, "User account required two way factor - {UserId}", user.Id);
-            response.RequeiredMFA = false;
-            return ResponseHelper.CreateResponse(response, ["User account required two way factor"], HttpStatusCode.Unauthorized);
+        catch (UserLockedoutException e) {
+            return ResponseHelper.CreateEmptyResponse(["User account locked out"], HttpStatusCode.Unauthorized);
         }
-
-        // user locked out
-        if (result.IsLockedOut) {
-            _logger.LogWarning(2, "User account locked out - {UserId}", user.Id);
-            response.LockedOut = true;
-            return ResponseHelper.CreateResponse(response, ["User account locked out"], HttpStatusCode.Unauthorized);
-        }
-
-        // bad password
-        if (!result.Succeeded) {
-            _logger.LogWarning(2, "Invalid login attempt - {UserId}", user.Id);
+        catch (InvalidLoginException e) {
             return ResponseHelper.CreateEmptyResponse(["User not found or password is not correct"], HttpStatusCode.Unauthorized);
         }
-
-        _logger.LogInformation(1, "User logged in -  {UserId}", user.Id);
-        var claims = await _userManager.GetClaimsAsync(user);
-        response.Tokens = _jwtAuthManager.GenerateTokens(user.Email, claims, DateTime.Now);
-        response.UserId = new Guid(user.Id);
-        return ResponseHelper.CreateResponse(response);
     }
 
     /// <summary>
@@ -138,9 +119,9 @@ public class AuthController : BaseApiController {
     [Authorize]
     public async Task<IActionResult> Logout() {
         var userToken = User.Identity?.Name!;
-        await _signInManager.SignOutAsync();
-        _jwtAuthManager.RemoveRefreshTokenByUserToken(userToken);
-        _logger.LogInformation("User [{UserName}] logged out the system.", userToken);
+        await Mediator.Send(new LogoutUserRequest {
+            UserToken = userToken
+        });
         return ResponseHelper.CreateEmptyResponse();
     }
 

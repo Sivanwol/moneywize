@@ -1,5 +1,5 @@
 using Infrastructure.Services.Auth.Models;
-namespace Infrastructure.Responses.Backoffice.Auth;
+namespace Infrastructure.Responses.Controllers.Auth;
 
 public class AuthResponse {
     /// <summary>

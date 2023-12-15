@@ -1,0 +1,28 @@
+using AutoBogus;
+using Bogus;
+using Domain.Entities;
+namespace Domain.Persistence.Mock.Configs;
+
+public sealed class ActivityLogMockConfig : AutoFaker<ActivityLog> {
+    public ActivityLogMockConfig() {
+        Randomizer.Seed = new Random(8675309);
+        RuleFor(fake => fake.Id, fake => fake.Random.Guid());
+        var opType = new Randomizer().Int(1, 10);
+        if (opType > 5) {
+            RuleFor(fake => fake.UserId, fake => null);
+            RuleFor(fake => fake.OperationType, fake => {
+                var values = Enum.GetValues(typeof(ActivityOperationType)).Cast<ActivityOperationType>();
+                values = values.Where(val => val != ActivityOperationType.USER);
+                return fake.PickRandom(values);
+            });
+        } else {
+            RuleFor(fake => fake.UserId, fake => fake.Random.Guid());
+            RuleFor(fake => fake.OperationType, fake => ActivityOperationType.USER);
+        }
+        RuleFor(fake => fake.EntityId, fake => fake.Random.Guid());
+        RuleFor(fake => fake.Activity, fake => fake.Random.String2(10));
+        RuleFor(fake => fake.Details, fake => fake.Random.String2(10));
+        RuleFor(fake => fake.EntityType, fake => fake.Random.String2(10));
+        RuleFor(fake => fake.CreatedAt, fake => fake.Date.Past(1));
+    }
+}
