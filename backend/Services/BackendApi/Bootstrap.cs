@@ -1,5 +1,6 @@
 using System.Text;
 using Application.Configs;
+using Application.Configs.General;
 using Application.Configs.Providers;
 using Application.Events;
 using Application.Events.Flow;
@@ -107,6 +108,7 @@ public class Bootstrap {
                 }
             });
             services.Configure<MailServerConfig>(Configuration.GetSection("MailConfig"));
+            services.Configure<FrontEndPaths>(Configuration.GetSection("FrontEndPaths"));
 
             services.AddTransient<IDomainContext>(provider => provider.GetService<DomainContext>()!);
             services.AddTransient<ITemplateService, TemplateService>();
