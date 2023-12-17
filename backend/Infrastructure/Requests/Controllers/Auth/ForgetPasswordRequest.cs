@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Infrastructure.Enums;
 using Swashbuckle.AspNetCore.Annotations;
 namespace Infrastructure.Requests.Controllers.Auth;
 
@@ -15,10 +16,28 @@ public class ForgetPasswordRequest {
 
     [SwaggerSchema("Country Id of the user")]
     [Required]
-    public Guid? CountyId { get; set; }
+    public Guid? CountryId { get; set; }
 
     [SwaggerSchema("Phone of the user")]
     [Required]
     [Phone]
-    public string? Phone { get; set; }
+    public string? PhoneNumber { get; set; }
+
+    [Required]
+    [SwaggerSchema("Provider of the MFA")]
+    public string Provider { get; set; }
+
+    [Required]
+    [SwaggerSchema("Resent OTP")]
+    public bool Resent { get; set; }
+
+    public Processor.Services.User.ForgotPasswordRequest ToProcessorEntity() {
+        return new Processor.Services.User.ForgotPasswordRequest {
+            Email = Email,
+            CountryId = CountryId,
+            PhoneNumber = PhoneNumber,
+            Provider = (MFAProvider)Enum.Parse(typeof(MFAProvider), Provider),
+            ReSend = Resent
+        };
+    }
 }

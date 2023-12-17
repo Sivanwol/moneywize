@@ -61,9 +61,7 @@ public class Bootstrap {
         var infoUSmsProvider = new InfoUSmsConfig {
             UserName = applicationConfig.SMSProviderInfouUserName,
             Token = applicationConfig.SMSProviderInfouToken,
-            Sender = applicationConfig.SMSProviderInfouSender,
-            TotalRetriesWithinSession = applicationConfig.SMSOtpTotalRetriesWithinSession,
-            ExpiredInMinutes = applicationConfig.SMSCodeExpiredInMinutes
+            Sender = applicationConfig.SMSProviderInfouSender
         };
         if (string.IsNullOrEmpty(applicationConfig.ConnectionString)) {
             ActiveConnectionString = Configuration.GetConnectionString("DbConnection")!;

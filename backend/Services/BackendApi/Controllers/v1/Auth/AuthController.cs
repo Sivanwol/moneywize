@@ -126,33 +126,47 @@ public class AuthController : BaseApiController {
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    [HttpPost("forgot-password/locate-user")]
+    [HttpPost("forgot-password/request")]
     [SwaggerOperation(Tags = new[] {
         "Auth"
     })]
+    [SwaggerResponse(StatusCodes.Status200OK, "Response of request OTP", typeof(DataResponse<RequestOTPResponse>))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad request", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     [AllowAnonymous]
     public async Task<IActionResult> ForgotPassword(ForgetPasswordRequest request) {
         var validator = await _forgetPasswordValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
         }
-        var user = await _userManager.FindByEmailAsync(request.Email);
-        if (user == null || !(await _userManager.IsEmailConfirmedAsync(user))) {
-            // Don't reveal that the user does not exist or is not confirmed
+        try {
+            var result = await Mediator.Send(request.ToProcessorEntity());
+            return ResponseHelper.CreateResponse(result);
+        }
+        catch (EntityNotFoundException e) {
+            _logger.LogError(e, "One of the entities was not found");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
-                "User not found or email."
+                "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
-
-        // TODO: handle of forget password logic
-        // For more information on how to enable account confirmation and password reset please
-        // visit https://go.microsoft.com/fwlink/?LinkID=532713
-        // var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-        // var callbackUrl = Url.Action("ResetPassword", "Account", new {userId = user.Id, code},
-        //     protocol: HttpContext.Request.Scheme);
-        // await _emailSender.SendEmailAsync(request.Email, "Reset Password",
-        //     $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
-        return ResponseHelper.CreateEmptyResponse();
+        catch (MFAProviderImplementedException e) {
+            _logger.LogError(e, "MFA Provider is not implemented");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "MFA Provider is not implemented"
+            }, HttpStatusCode.BadRequest);
+        }
+        catch (OTPNotFoundException e) {
+            _logger.LogError(e, "OTP not found");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "OTP not found"
+            }, HttpStatusCode.Forbidden);
+        }
+        catch (Exception e) {
+            _logger.LogError(e, "Error in RequestOTPCode");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                e.Message
+            }, HttpStatusCode.InternalServerError);
+        }
     }
     /// <summary>
     /// will be called when user confirm email and request to reset password

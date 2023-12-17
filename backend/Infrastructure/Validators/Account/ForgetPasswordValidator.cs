@@ -1,11 +1,12 @@
 using Application.Utils;
 using FluentValidation;
+using Infrastructure.Enums;
 using Infrastructure.Requests.Controllers.Auth;
 namespace Infrastructure.Validators.Account;
 
 public class ForgetPasswordValidator : AbstractValidator<ForgetPasswordRequest> {
     public ForgetPasswordValidator() {
-        When(x => !string.IsNullOrEmpty(x.Email) && !(string.IsNullOrEmpty(x.Phone) && x.CountyId.HasValue), () => {
+        When(x => !string.IsNullOrEmpty(x.Email) && (string.IsNullOrEmpty(x.PhoneNumber) && !x.CountryId.HasValue), () => {
             RuleFor(x => x.Email)
                 .NotEmpty()
                 .WithMessage("Email is required")
@@ -14,11 +15,13 @@ public class ForgetPasswordValidator : AbstractValidator<ForgetPasswordRequest> 
                 .EmailAddress()
                 .WithMessage("Email is not valid");
         });
-        When(x => string.IsNullOrEmpty(x.Email) && (!string.IsNullOrEmpty(x.Phone) && !x.CountyId.HasValue), () => {
-            RuleFor(x => x.CountyId)
+        When(x => string.IsNullOrEmpty(x.Email) && (!string.IsNullOrEmpty(x.PhoneNumber) && x.CountryId.HasValue), () => {
+            RuleFor(x => x.CountryId)
                 .NotEmpty()
-                .WithMessage("CountyId is required");
-            RuleFor(x => x.Phone)
+                .WithMessage("CountyId is required")
+                .IsGuid()
+                .WithMessage("CountyId is not valid");
+            RuleFor(x => x.PhoneNumber)
                 .NotEmpty()
                 .WithMessage("Phone is required")
                 .MinimumLength(7)
@@ -27,5 +30,8 @@ public class ForgetPasswordValidator : AbstractValidator<ForgetPasswordRequest> 
                 .WithMessage("Phone must not exceed 15 characters")
                 .MatchPhoneNumber();
         });
+        RuleFor(x => x.Provider)
+            .IsEnumName(typeof(MFAProvider), caseSensitive: false)
+            .WithMessage("Provider is not valid");
     }
 }
