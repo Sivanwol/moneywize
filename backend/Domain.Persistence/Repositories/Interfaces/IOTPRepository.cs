@@ -5,6 +5,9 @@ using Infrastructure.Enums;
 namespace Domain.Persistence.Repositories.Interfaces;
 
 public interface IOTPRepository : IGenericEmptyRepository<ApplicationUser> {
-    Task<RequestOTPResponseData> RequestOTP(Countries country, ApplicationUser user, ApplicationUserOtpCodes codeEntity, MFAProvider provider);
+    Task<RequestOTPResponseData> RequestOTPForgetPassword(string homeUrl, string homeImageUrl, Countries country, ApplicationUser user, ApplicationUserOtpCodes codeEntity,
+        MFAProvider provider, CancellationToken cancellationToken = default);
+    Task<RequestOTPResponseData> RequestOTP(string homeUrl, string homeImageUrl, Countries country, ApplicationUser user, ApplicationUserOtpCodes codeEntity, MFAProvider provider,
+        CancellationToken cancellationToken = default);
     Task<VerifyOTPResponseData> VerifyOTP(ApplicationUser user, ApplicationUserOtpCodes codeEntity, string code);
 }

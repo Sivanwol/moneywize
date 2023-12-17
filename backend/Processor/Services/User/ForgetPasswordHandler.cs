@@ -1,68 +1,140 @@
-using Application.Contract;
+using Application.Configs;
+using Application.Configs.Providers;
 using Application.Exceptions;
-using Application.Responses.Base;
-using Domain.DTO.User;
+using Application.Utils;
 using Domain.Entities;
 using Domain.Persistence.Repositories.Interfaces;
+using Infrastructure.Enums;
 using Infrastructure.Requests.Processor.Services.User;
-using Infrastructure.Services.Email;
+using Infrastructure.Responses.Controllers.Auth;
+using Infrastructure.Utils.SMS;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Serilog;
 namespace Processor.Services.User;
 
-public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, EmptyResponse> {
+public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, RequestOTPResponse> {
     private readonly IAppUserRepository _appUserRepository;
+    private readonly BackendApplicationConfig _config;
     private readonly ICountriesRepository _countriesRepository;
-    private readonly IMailService _mailService;
+    private readonly InfoUSmsConfig _infoUSmsConfig;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly IMediator _mediator;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly ITemplateService _templateService;
-    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IOTPRepository _otpRepository;
 
     public ForgetPasswordHandler(IMediator mediator,
-        UserManager<ApplicationUser> userManager,
         IAppUserRepository appUserRepository,
+        ILoggerFactory logger,
         ICountriesRepository countriesRepository,
-        IMailService mailService,
-        ITemplateService templateService,
-        SignInManager<ApplicationUser> signInManager) {
+        IOTPRepository otpRepository,
+        InfoUSmsConfig infoUSmsConfig,
+        BackendApplicationConfig config) {
         _mediator = mediator;
-        _signInManager = signInManager;
-        _userManager = userManager;
         _appUserRepository = appUserRepository;
         _countriesRepository = countriesRepository;
-        _mailService = mailService;
-        _templateService = templateService;
+        _config = config;
+        _otpRepository = otpRepository;
+        _loggerFactory = logger;
+        _infoUSmsConfig = infoUSmsConfig;
     }
 
-    public async Task<EmptyResponse> Handle(ForgotPasswordRequest request, CancellationToken cancellationToken) {
-        Log.Logger.Information($"ForgetPasswordHandler: [{request.Email}, {request.CountryId}, {request.Phone}]");
-        if (string.IsNullOrEmpty(request.Email) && string.IsNullOrEmpty(request.Phone) && (request.CountryId == null || request.CountryId == Guid.Empty)) {
-            throw new InvalidRequestException("Email or Phone is required");
+    public async Task<RequestOTPResponse> Handle(ForgotPasswordRequest request, CancellationToken cancellationToken) {
+        Log.Logger.Information($"RequestOtpHandler: [{request.Provider},{request.CountryId}, {request.PhoneNumber}]");
+        Log.Logger.Information($"Start Prep for Sending SMS OTP");
+        Log.Logger.Information($"Locating User By Phone: {request.CountryId}-{request.PhoneNumber}");
+        if (IsIdentifyByPhoneNumber(request)) {
+            var country = await _countriesRepository.GetById(request.CountryId!.Value);
+            if (country == null)
+                throw new EntityNotFoundException("Country", request.CountryId!.Value.ToString());
         }
-        var country = await _countriesRepository.GetById(request.CountryId!.Value);
-        if (country == null) {
-            throw new EntityNotFoundException("Country", request.CountryId.Value.ToString());
+        var user = await LocateUser(request);
+        if (request.Provider == MFAProvider.SMS) {
+            LoadProvider(user.Country.Provider);
         }
+        if (request.ReSend) {
+            return await HandleResend(user, request);
+        } else {
+            return await SendOTP(user, request);
+        }
+    }
+
+    private bool IsIdentifyByEmailAddress(ForgotPasswordRequest request) {
+        return !string.IsNullOrEmpty(request.Email) && request.CountryId == null && string.IsNullOrEmpty(request.PhoneNumber);
+    }
+
+    private bool IsIdentifyByPhoneNumber(ForgotPasswordRequest request) {
+        return !string.IsNullOrEmpty(request.PhoneNumber) && request.CountryId != null && string.IsNullOrEmpty(request.Email);
+    }
+
+    private void LoadProvider(SMSProviders provider) {
+        Log.Logger.Information($"Loading Sms Provider: {provider}");
+        switch (provider) {
+            case SMSProviders.INFOU:
+                SMSSender.Instance.Load(_loggerFactory, _infoUSmsConfig);
+                break;
+            default:
+                throw new MFAProviderImplementedException(Enum.GetName(typeof(SMSProviders), provider)!);
+        }
+    }
+
+    private async Task<RequestOTPResponse> HandleResend(ApplicationUser user, ForgotPasswordRequest request) {
+        Log.Logger.Information($"Verify OTP Entity for user {user.Id} and check if user will able to resend");
+        var totalCodesSent = await _appUserRepository.GetTotalOtpCodesWithinExpirationDate(new Guid(user.Id), _config.OTPCodeTotalRetriesWithinSession);
+
+        if (totalCodesSent >= _config.OTPCodeTotalRetriesWithinSession) {
+            Log.Logger.Information(($"User {user.Id} has reached max resend limit"));
+            return await FetchOtpResponse(user);
+        }
+
+        return await SendOTP(user, request);
+    }
+
+    private async Task<ApplicationUser> LocateUser(ForgotPasswordRequest request) {
         ApplicationUser? user = null;
-        // find user by email
-        if (!string.IsNullOrEmpty(request.Email)) {
+        if (IsIdentifyByEmailAddress(request)) {
             user = await _appUserRepository.LocateUserByEmail(request.Email);
-            if (user == null) {
-                throw new EntityNotFoundException("User", request.Email);
-            }
-            var template = await _templateService.GetTemplateHtmlAsStringAsync("UserForgetPassword", new ForgetPasswordMail {
-                UserToken = user.Token,
-                Title = "Forget Password",
-                HomePageUrl = request.HostUrl,
-                HostImageUrl = request.HostUrl + "/assets/",
-            });
-            await _mailService.SendAsync(new MailData(new List<string> {
-                request.Email
-            }, "Forget Password", template), cancellationToken);
+        } else if (IsIdentifyByPhoneNumber(request)) {
+            user = await _appUserRepository.LocateUserByPhone(request.CountryId!.Value, request.PhoneNumber!);
         }
-        Log.Logger.Information("Reset password Email Sent -  {UserId}", user!.Id);
-        return new EmptyResponse();
+        if (user == null)
+            throw new EntityNotFoundException("User", $"{request.CountryId}-{request.PhoneNumber}");
+
+        return user;
+    }
+
+    private async Task<RequestOTPResponse> SendOTP(ApplicationUser user, ForgotPasswordRequest request) {
+        var forceResent = request.ReSend && await _appUserRepository.IsAllowToResendOtpCode(user, _config.OTPCodeExpiredInMinutes, _config.OTPCodeTotalRetriesWithinSession);
+        var otpEntity = await _appUserRepository.GenerateOtpCode(user, _config.OTPCodeExpiredInMinutes, forceResent, request.Provider);
+        if (otpEntity == null) {
+            Log.Logger.Information($"User {user.Id} has within the expiration date and won't able to sent or been reached max resend limit");
+            return await FetchOtpResponse(user);
+        }
+        Log.Logger.Information($"OTP Entity for user {user.Id} has been generated otp entity id {otpEntity.Id}");
+        var result = await _otpRepository.RequestOTPForgetPassword(request.BaseUrl, request.BaseUrl + "/assets", user.Country, user, otpEntity, request.Provider);
+        Log.Logger.Information($"Sendt OTP for user {user.Id}");
+        return new RequestOTPResponse {
+            UserToken = result.UserToken,
+            OTPExpired = result.OTPExpired,
+            OTPToken = result.OTPToken,
+            HasSent = true
+        };
+    }
+
+    private async Task<RequestOTPResponse> FetchOtpResponse(ApplicationUser user) {
+        var otpResult = await _appUserRepository.FetchOTP(user);
+        if (otpResult != null) {
+            return new RequestOTPResponse {
+                UserToken = user.Token,
+                OTPExpired = otpResult.ExpirationDate,
+                OTPToken = otpResult.Token,
+                HasSent = false
+            };
+        }
+        return new RequestOTPResponse {
+            UserToken = "",
+            OTPExpired = SystemClock.Now().DateTime,
+            OTPToken = "",
+            HasSent = false
+        };
     }
 }

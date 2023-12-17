@@ -26,11 +26,16 @@ public class BackendApplicationConfig : BaseConfig {
 
     #region Infou Sms Provider Configs
 
-    public int SMSCodeExpiredInMinutes { get; set; }
-    public int SMSOtpTotalRetriesWithinSession { get; set; }
     public string SMSProviderInfouToken { get; set; }
     public string SMSProviderInfouSender { get; set; }
     public string SMSProviderInfouUserName { get; set; }
+
+    #endregion
+
+    #region OTP General Configs
+
+    public int OTPCodeExpiredInMinutes { get; set; }
+    public int OTPCodeTotalRetriesWithinSession { get; set; }
 
     #endregion
 

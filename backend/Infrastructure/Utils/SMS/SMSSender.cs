@@ -26,7 +26,7 @@ public class SMSSender {
     }
 
     public void Init(SMSProviders provider, string countryNumber, string phoneNumber, string messageTemplate) {
-        if (_config.IsEnabled == false) throw new Exception("SMS is not enabled");
+        if (!_config.IsEnabled) throw new Exception("SMS is not enabled");
         switch (provider) {
             case SMSProviders.INFOU:
                 _provider = new InfoUProvider(_loggerFaactory, _config);
@@ -36,7 +36,7 @@ public class SMSSender {
         _logger.LogInformation($"Init: {provider}, {countryNumber}, {phoneNumber}, {messageTemplate}");
     }
     public void SendSMS(string code) {
-        if (_config.IsEnabled == false) throw new Exception("SMS is not enabled");
+        if (!_config.IsEnabled) throw new Exception("SMS is not enabled");
         _provider.SendSMS(code);
         _logger.LogInformation($"SendSMS: {code}");
     }

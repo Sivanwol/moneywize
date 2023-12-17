@@ -1,6 +1,6 @@
 namespace Application.Constraints;
 
-public static class EmailPathConst {
+public static class EmailTemplates {
     private const string BasePath = "EmailTemplates";
     public const string UserExport = $"{BasePath}/UserExport";
     public const string UserForgotPassword = $"{BasePath}/UserForgotPassword";

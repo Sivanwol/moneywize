@@ -1,3 +1,4 @@
+using Application.Configs;
 using Application.Configs.Providers;
 using Application.Exceptions;
 using Application.Utils;
@@ -13,6 +14,7 @@ namespace Processor.Services.User;
 
 public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPResponse> {
     private readonly IAppUserRepository _appUserRepository;
+    private readonly BackendApplicationConfig _config;
     private readonly ICountriesRepository _countriesRepository;
     private readonly InfoUSmsConfig _infoUSmsConfig;
     private readonly ILogger _logger;
@@ -26,6 +28,7 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
         IOTPRepository otpRepository,
         IAppUserRepository appUserRepository,
         ICountriesRepository countriesRepository,
+        BackendApplicationConfig config,
         InfoUSmsConfig infoUSmsConfig) {
         _otpRepository = otpRepository;
         _countriesRepository = countriesRepository;
@@ -34,13 +37,18 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
         _mediator = mediator;
         _loggerFactory = logger;
         _infoUSmsConfig = infoUSmsConfig;
+        _config = config;
     }
 
     public async Task<RequestOTPResponse> Handle(SendOTPRequest request, CancellationToken cancellationToken) {
         _logger.LogInformation($"RequestOtpHandler: [{request.Provider},{request.CountryId}, {request.PhoneNumber}]");
         _logger.LogInformation($"Start Prep for Sending SMS OTP");
         _logger.LogInformation($"Locating User By Phone: {request.CountryId}-{request.PhoneNumber}");
-        ValidateProvider(request.Provider);
+        if (IsIdentifyByPhoneNumber(request)) {
+            var country = await _countriesRepository.GetById(request.CountryId!.Value);
+            if (country == null)
+                throw new EntityNotFoundException("Country", request.CountryId!.Value.ToString());
+        }
         var user = await LocateUser(request);
         LoadProvider(user.Country.Provider);
         if (request.ReSend) {
@@ -50,18 +58,12 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
         }
     }
 
-
-    private void ValidateProvider(MFAProvider provider) {
-        if (provider != MFAProvider.SMS)
-            throw new MFAProviderImplementedException(Enum.GetName(typeof(MFAProvider), provider)!);
+    private bool IsIdentifyByEmailAddress(SendOTPRequest request) {
+        return !string.IsNullOrEmpty(request.Email) && request.CountryId == null && string.IsNullOrEmpty(request.PhoneNumber);
     }
 
-    private async Task<ApplicationUser> LocateUser(SendOTPRequest request) {
-        var user = await _appUserRepository.LocateUserByPhone(request.CountryId, request.PhoneNumber);
-        if (user == null)
-            throw new EntityNotFoundException("User", $"{request.CountryId}-{request.PhoneNumber}");
-
-        return user;
+    private bool IsIdentifyByPhoneNumber(SendOTPRequest request) {
+        return !string.IsNullOrEmpty(request.PhoneNumber) && request.CountryId != null && string.IsNullOrEmpty(request.Email);
     }
 
     private void LoadProvider(SMSProviders provider) {
@@ -75,11 +77,25 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
         }
     }
 
+    private async Task<ApplicationUser> LocateUser(SendOTPRequest request) {
+        ApplicationUser? user = null;
+        if (IsIdentifyByEmailAddress(request)) {
+            user = await _appUserRepository.LocateUserByEmail(request.Email!);
+        } else if (IsIdentifyByPhoneNumber(request)) {
+            user = await _appUserRepository.LocateUserByPhone(request.CountryId!.Value, request.PhoneNumber!);
+        }
+        if (user == null)
+            throw new EntityNotFoundException("User", $"{request.CountryId}-{request.PhoneNumber}");
+
+        return user;
+    }
+
+
     private async Task<RequestOTPResponse> HandleResend(ApplicationUser user, SendOTPRequest request) {
         _logger.LogInformation($"Verify OTP Entity for user {user.Id} and check if user will able to resend");
-        var totalCodesSent = await _appUserRepository.GetTotalOtpCodesWithinExpirationDate(new Guid(user.Id), _infoUSmsConfig.ExpiredInMinutes);
+        var totalCodesSent = await _appUserRepository.GetTotalOtpCodesWithinExpirationDate(new Guid(user.Id), _config.OTPCodeTotalRetriesWithinSession);
 
-        if (totalCodesSent >= _infoUSmsConfig.TotalRetriesWithinSession) {
+        if (totalCodesSent >= _config.OTPCodeTotalRetriesWithinSession) {
             _logger.LogInformation($"User {user.Id} has reached max resend limit");
             return await FetchOtpResponse(user);
         }
@@ -95,7 +111,7 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
             return await FetchOtpResponse(user);
         }
         _logger.LogInformation($"OTP Entity for user {user.Id} has been generated otp entity id {otpEntity.Id}");
-        var result = await _otpRepository.RequestOTP(user.Country, user, otpEntity, request.Provider);
+        var result = await _otpRepository.RequestOTP(request.BaseUrl, request.BaseUrl + "/assets", user.Country, user, otpEntity, request.Provider);
         _logger.LogInformation($"Sendt OTP for user {user.Id}");
         return new RequestOTPResponse {
             UserToken = result.UserToken,
