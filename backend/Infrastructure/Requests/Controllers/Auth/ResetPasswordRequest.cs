@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Swashbuckle.AspNetCore.Annotations;
-namespace Infrastructure.Requests.Controllers.Backoffice;
+namespace Infrastructure.Requests.Controllers.Auth;
 
 [SwaggerSchema(Required = new[] {
     "Reset User Password"

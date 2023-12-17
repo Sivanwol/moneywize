@@ -1,6 +1,6 @@
 using FluentValidation;
 using Infrastructure.Requests.Controllers.Common;
-namespace Infrastructure.Validators.Backoffice.Account;
+namespace Infrastructure.Validators.Account;
 
 public class RefreshTokenValidator : AbstractValidator<RefreshTokenRequest> {
     public RefreshTokenValidator() {

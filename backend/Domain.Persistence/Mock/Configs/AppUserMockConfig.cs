@@ -13,6 +13,7 @@ public sealed class AppUserMockConfig : AutoFaker<ApplicationUser> {
         RuleFor(fake => fake.EmailConfirmed, fake => true);
         RuleFor(fake => fake.TwoFactorEnabled, fake => true);
         RuleFor(fake => fake.Address, fake => fake.Address.FullAddress());
+        RuleFor(fake => fake.Country, fake => new CountriesMockConfig().Generate(1).First());
         RuleFor(fake => fake.PhoneNumber, fake => fake.Person.Phone);
         RuleFor(fake => fake.PhoneNumberConfirmed, fake => true);
         RuleFor(fake => fake.LockoutEnabled, fake => false);

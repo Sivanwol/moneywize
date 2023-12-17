@@ -9,7 +9,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using IdentityModel.Client;
 using Infrastructure.Enums;
-using Infrastructure.Requests.Controllers.Backoffice;
+using Infrastructure.Requests.Controllers.Auth;
 using Infrastructure.Requests.Processor.Services.Countries;
 using Infrastructure.Requests.Processor.Services.User;
 using Infrastructure.Responses.Controllers.Auth;
@@ -27,6 +27,7 @@ namespace BackendApi.Controllers.v1.Auth;
 [ApiVersion("1.0")]
 [Authorize]
 public class AuthController : BaseApiController {
+    private readonly IValidator<ForgetPasswordRequest> _forgetPasswordValidator;
     private readonly IJwtAuthManager _jwtAuthManager;
     private readonly ILogger _logger;
     private readonly IValidator<LoginRequest> _loginValidator;
@@ -46,6 +47,7 @@ public class AuthController : BaseApiController {
         ILoggerFactory loggerFactory,
         IJwtAuthManager jwtAuthManager,
         IValidator<ResetPasswordRequest> resetPasswordValidator,
+        IValidator<ForgetPasswordRequest> forgetPasswordValidator,
         IValidator<LoginRequest> loginValidator,
         IValidator<RefreshTokenRequest> refreshTokenValidator,
         IValidator<VerifyFromProviderRequest> verifyFromProviderValidator,
@@ -56,6 +58,7 @@ public class AuthController : BaseApiController {
         _logger = loggerFactory.CreateLogger<AuthController>();
         _jwtAuthManager = jwtAuthManager;
         _registerNewUserValidator = registerNewUserValidator;
+        _forgetPasswordValidator = forgetPasswordValidator;
         _resetPasswordValidator = resetPasswordValidator;
         _loginValidator = loginValidator;
         _sendCodeToProviderValidator = sendCodeToProviderValidator;
@@ -123,12 +126,45 @@ public class AuthController : BaseApiController {
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    [HttpPost("forgot-password")]
+    [HttpPost("forgot-password/locate-user")]
     [SwaggerOperation(Tags = new[] {
         "Auth"
     })]
     [AllowAnonymous]
     public async Task<IActionResult> ForgotPassword(ForgetPasswordRequest request) {
+        var validator = await _forgetPasswordValidator.ValidateAsync(request);
+        if (!validator.IsValid) {
+            return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
+        }
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user == null || !(await _userManager.IsEmailConfirmedAsync(user))) {
+            // Don't reveal that the user does not exist or is not confirmed
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "User not found or email."
+            }, HttpStatusCode.BadRequest);
+        }
+
+        // TODO: handle of forget password logic
+        // For more information on how to enable account confirmation and password reset please
+        // visit https://go.microsoft.com/fwlink/?LinkID=532713
+        // var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+        // var callbackUrl = Url.Action("ResetPassword", "Account", new {userId = user.Id, code},
+        //     protocol: HttpContext.Request.Scheme);
+        // await _emailSender.SendEmailAsync(request.Email, "Reset Password",
+        //     $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+        return ResponseHelper.CreateEmptyResponse();
+    }
+    /// <summary>
+    /// will be called when user confirm email and request to reset password
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("forgot-password/change-password")]
+    [SwaggerOperation(Tags = new[] {
+        "Auth"
+    })]
+    [AllowAnonymous]
+    public async Task<IActionResult> ForgotPasswordChange(ForgetPasswordRequest request) {
         if (!ModelState.IsValid)
             return ResponseHelper.CreateEmptyResponse(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList(), HttpStatusCode.BadRequest);
         var user = await _userManager.FindByEmailAsync(request.Email);

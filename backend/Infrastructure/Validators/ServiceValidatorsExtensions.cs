@@ -1,13 +1,12 @@
 using FluentValidation;
 using Infrastructure.Validators.Account;
-using Infrastructure.Validators.Backoffice.Account;
 using Microsoft.Extensions.DependencyInjection;
 namespace Infrastructure.Validators;
 
 public static class ServiceValidatorsExtensions {
     public static void AddValidatorsExtension(this IServiceCollection services) {
 
-        #region Auth Backend
+        #region Auth Account
 
         services.AddValidatorsFromAssemblyContaining<ForgetPasswordValidator>();
         services.AddValidatorsFromAssemblyContaining<RegisterUserValidator>();
@@ -16,11 +15,6 @@ public static class ServiceValidatorsExtensions {
         services.AddValidatorsFromAssemblyContaining<LoginUserValidator>();
         services.AddValidatorsFromAssemblyContaining<SendCodeToProviderValidator>();
         services.AddValidatorsFromAssemblyContaining<SendCodeFromProviderValidator>();
-
-        #endregion
-
-        #region Auth Account
-
         services.AddValidatorsFromAssemblyContaining<RequestOtpValidator>();
         services.AddValidatorsFromAssemblyContaining<VerifyOTPValidator>();
 

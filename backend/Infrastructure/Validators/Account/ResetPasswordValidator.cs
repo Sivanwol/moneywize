@@ -1,6 +1,6 @@
 using FluentValidation;
-using Infrastructure.Requests.Controllers.Backoffice;
-namespace Infrastructure.Validators.Backoffice.Account;
+using Infrastructure.Requests.Controllers.Auth;
+namespace Infrastructure.Validators.Account;
 
 public class ResetPasswordValidator : AbstractValidator<ResetPasswordRequest> {
     public ResetPasswordValidator() {

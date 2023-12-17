@@ -9,6 +9,7 @@ public interface IAppUserRepository : IGenericRepository<ApplicationUser> {
     Task ExportUser(Guid userId);
     Task<ApplicationUser?> GetUserByToken(string userToken);
     Task<ApplicationUser?> LocateUserByPhone(Guid CountryId, string PhoneNumber);
+    Task<ApplicationUser?> LocateUserByEmail(string email);
     Task<ApplicationUserOtpCodes?> GenerateOtpCode(ApplicationUser user, int expiredCodeInMinutes, bool forceSent, MFAProvider provider);
     Task<int> GetTotalOtpCodesWithinExpirationDate(Guid userId, int expiredCodeInMinutes);
     Task<ApplicationUserOtpCodes?> IsExistingOtpEntity(string userToken, string token, int expiredCodeInMinutes);

@@ -14,7 +14,7 @@ using HealthChecks.UI.Client;
 using Infrastructure.Services.Auth;
 using Infrastructure.Services.Auth.Models;
 using Infrastructure.Services.Email;
-using Infrastructure.Validators.Backoffice.Account;
+using Infrastructure.Validators.Account;
 using MassTransit;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;

@@ -2,7 +2,6 @@ using Application.Exceptions;
 using Application.Utils;
 using Domain.Entities;
 using Domain.Persistence.Context;
-using Domain.Persistence.Mock.Services.Interfaces;
 using Domain.Persistence.Repositories.Common;
 using Domain.Persistence.Repositories.Interfaces;
 using Infrastructure.Enums;
@@ -12,14 +11,11 @@ namespace Domain.Persistence.Repositories;
 public class AppUserRepository : BaseRepository, IAppUserRepository {
     private readonly ICountriesRepository _countriesRepository;
     private readonly ILanguagesRepository _languagesRepository;
-    private readonly IAppUserMockService _mock;
     public AppUserRepository(
         IDomainContext context,
         ICountriesRepository countriesRepository,
-        ILanguagesRepository languagesRepository,
-        IAppUserMockService mock
+        ILanguagesRepository languagesRepository
     ) : base(context) {
-        _mock = mock;
         _countriesRepository = countriesRepository;
         _languagesRepository = languagesRepository;
     }
@@ -35,6 +31,8 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
         if (user == null) {
             throw new EntityNotFoundException("User", userId.ToString());
         }
+        user.DisplayLanguage = languageData;
+        await Context.Instance.SaveChangesAsync();
     }
 
     public async Task DeleteUser(Guid userId) {
@@ -52,9 +50,9 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
             throw new EntityNotFoundException("User", userId.ToString());
         }
     }
-    public Task<ApplicationUser> GetById(Guid id) {
+    public async Task<ApplicationUser?> GetById(Guid id) {
         Log.Logger.Information($"Fetching user with id {id}");
-        return Task.FromResult(_mock.GetOne(id));
+        return Context.Users.FirstOrDefault(w => w.Id == id.ToString());
     }
 
     public async Task<ApplicationUser?> GetUserByToken(string userToken) {
@@ -71,6 +69,14 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
         return user;
     }
 
+    public async Task<ApplicationUser?> LocateUserByEmail(string email) {
+        Log.Logger.Information($"Locating user with email {email}");
+        var user = Context.Users.Where(w => w.Email == email).First();
+        if (user == null) {
+            throw new EntityNotFoundException("User", email);
+        }
+        return user;
+    }
     public async Task<ApplicationUserOtpCodes?> GenerateOtpCode(ApplicationUser user, int expiredCodeInMinutes, bool forceSent, MFAProvider provider) {
         Log.Logger.Information($"Generate otp code for user {user.Id}-{provider}");
         if (provider == MFAProvider.Email) return null;
@@ -152,10 +158,5 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
             where w.UserId.Equals(user.Id) && w.ExpirationDate >= SystemClock.Now().DateTime && !w.ComplateAt.HasValue
             orderby w.ExpirationDate descending
             select w).FirstOrDefault();
-    }
-
-
-    public Task<ApplicationUser?> GetById(int id) {
-        throw new NotImplementedException();
     }
 }
