@@ -5,6 +5,7 @@ using Domain.Persistence.Context;
 using Domain.Persistence.Repositories.Common;
 using Domain.Persistence.Repositories.Interfaces;
 using Infrastructure.Enums;
+using Infrastructure.Services.Email;
 using Infrastructure.Utils.SMS;
 using Microsoft.Extensions.Logging;
 namespace Domain.Persistence.Repositories;
@@ -13,15 +14,19 @@ public class OTPRepository : BaseRepository, IOTPRepository {
     private readonly ILogger _logger;
     public OTPRepository(
         IDomainContext context,
-        ILoggerFactory logger
+        ILoggerFactory logger,
+        ITemplateService tempDataRepository,
+        IMailService mailService
     ) : base(context) {
         _logger = logger.CreateLogger<OTPRepository>();
     }
 
     public async Task<RequestOTPResponseData> RequestOTP(Countries country, ApplicationUser user, ApplicationUserOtpCodes codeEntity, MFAProvider provider) {
         _logger.LogInformation($"Requesting OTP for user {user.Id}-{codeEntity.Id}");
-        SMSSender.Instance.Init(country.Provider, country.CountryCode, user.PhoneNumber, $"Your OTP code is ##code##");
-        SMSSender.Instance.SendSMS(codeEntity.Code);
+        if (provider == MFAProvider.Email) { } else {
+            SMSSender.Instance.Init(country.Provider, country.CountryCode, user.PhoneNumber, $"Your OTP code is ##code##");
+            SMSSender.Instance.SendSMS(codeEntity.Code);
+        }
         var res = new RequestOTPResponseData {
             UserToken = user.Token,
             OTPToken = codeEntity.Token,

@@ -66,7 +66,11 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
         builder.Entity<Countries>();
         builder.Entity<Languages>();
         builder.Entity<Tags>();
-        builder.Entity<ApplicationUserOtpCodes>();
+        builder.Entity<ApplicationUserOtpCodes>()
+            .HasIndex(x => x.Token).IsUnique();
+
+        builder.Entity<ApplicationUserOtpCodes>().Property(x => x.ProviderType).HasConversion<byte>();
+
         builder.Entity<VendorContact>()
             .HasKey(vc => new {
                 vc.VendorId,

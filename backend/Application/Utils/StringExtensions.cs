@@ -6,8 +6,11 @@ public static class StringExtensions {
     public static string GenerateToken() {
         return RandomUniqueString(128);
     }
-    public static string RandomUniqueString(int length) {
+    public static string RandomUniqueString(int length, bool specialCharacters = true) {
         var alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-";
+        if (!specialCharacters) {
+            alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        }
         var outOfRange = byte.MaxValue + 1 - (byte.MaxValue + 1) % alphabet.Length;
         var baseHash = CreateMD5Hash(Guid.NewGuid().ToString());
         var lengthHash = (length - baseHash.Length) - 1;

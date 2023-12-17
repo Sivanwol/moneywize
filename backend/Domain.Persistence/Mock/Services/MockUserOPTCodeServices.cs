@@ -1,0 +1,54 @@
+using Application.Utils;
+using Domain.Entities;
+using Domain.Persistence.Mock.Configs;
+using Domain.Persistence.Mock.Services.Interfaces;
+namespace Domain.Persistence.Mock.Services;
+
+public class MockUserOPTCodeServices : IOTPMockService {
+    public MockUserOPTCodeServices() {
+        OTPCodeFaker = new AppUserOTPCodeMockConfig();
+    }
+    public AppUserOTPCodeMockConfig OTPCodeFaker { get; set; }
+
+    public ApplicationUserOtpCodes GetOne(Guid userId) {
+        var otp = OTPCodeFaker.Generate(1).First();
+        otp.UserId = userId;
+        return otp;
+    }
+
+    public ApplicationUserOtpCodes GetOne(Guid userId, bool active) {
+        var dt = SystemClock.Now().DateTime;
+        return OTPCodeFaker.Generate(1).First(x => {
+            x.UserId = userId;
+            x.ComplateAt = active ? null : dt;
+            return true;
+        });
+    }
+
+    public ApplicationUserOtpCodes GetOne(Guid userId, bool active, string code) {
+        var dt = SystemClock.Now().DateTime;
+        return OTPCodeFaker.Generate(1).First(x => {
+            x.UserId = userId;
+            x.ComplateAt = active ? null : dt;
+            x.Code = code;
+            return true;
+        });
+    }
+
+    public IEnumerable<ApplicationUserOtpCodes> GetMany(Guid userId) {
+        return OTPCodeFaker.Generate(5).Select(x => {
+            x.UserId = userId;
+            return x;
+        });
+    }
+
+    public IEnumerable<ApplicationUserOtpCodes> GetMany(Guid userId, bool active) {
+        var dt = SystemClock.Now().DateTime;
+        return OTPCodeFaker.Generate(5).Select(x => {
+            x.UserId = userId;
+            x.ComplateAt = active ? null : dt;
+
+            return x;
+        });
+    }
+}

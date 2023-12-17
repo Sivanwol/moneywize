@@ -1,24 +1,20 @@
-using System.Security.Claims;
-using System.Text;
 using Application.Middleware;
 using Application.Security;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
-
 namespace Application.Extensions;
 
 public static class GenericServiceExtension {
     public static void AddGenericServiceExtension(this IServiceCollection services, IConfiguration configuration,
         Action? moreConfigurationServices) {
         Log.Information("Pre Configure Server");
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddCors(options => {
@@ -43,6 +39,7 @@ public static class GenericServiceExtension {
         Log.Information("Pre Bind Configure Server");
         app.UseRouting();
         app.UseSerilogRequestLogging();
+        AppUrlHttpContext.Configure(app.ApplicationServices.GetRequiredService<IHttpContextAccessor>());
         app.UseMiddleware<ErrorHandlingMiddleware>();
         app.UseMiddleware<CorrelationMiddleware>();
 

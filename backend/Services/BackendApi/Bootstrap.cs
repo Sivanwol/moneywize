@@ -122,6 +122,7 @@ public class Bootstrap {
             services.AddValidatorsFromAssemblyContaining<SendCodeToProviderValidator>();
             services.AddValidatorsFromAssemblyContaining<SendCodeFromProviderValidator>();
             services.AddRazorPages();
+
             services.AddHostedService<JwtRefreshTokenCache>();
         });
         if (Environment.IsDevelopment() || applicationConfig.EnableSwagger) {
@@ -217,6 +218,7 @@ public class Bootstrap {
         }
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseStaticFiles();
 
         app.UseEndpoints(endpoints => {
             // endpoints.MapGroup("/auth").MapIdentityApi<ApplicationUser>();
