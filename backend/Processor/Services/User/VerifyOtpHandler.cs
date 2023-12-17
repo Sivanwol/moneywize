@@ -1,11 +1,11 @@
 using System.Security.Claims;
+using Application.Configs;
 using Application.Configs.Providers;
 using Application.Exceptions;
 using Application.Utils;
 using Domain.Entities;
 using Domain.Persistence.Repositories.Interfaces;
 using Domain.Requests.Processor.Services.User;
-using Infrastructure.Enums;
 using Infrastructure.Responses.Controllers.Auth;
 using Infrastructure.Services.Auth;
 using MediatR;
@@ -15,6 +15,7 @@ namespace Processor.Services.User;
 
 public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPResponse> {
     private readonly IAppUserRepository _appUserRepository;
+    private readonly BackendApplicationConfig _config;
     private readonly ICountriesRepository _countriesRepository;
     private readonly InfoUSmsConfig _infoUSmsConfig;
     private readonly IJwtAuthManager _jwtAuthManager;
@@ -28,6 +29,7 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
         IAppUserRepository appUserRepository,
         ICountriesRepository countriesRepository,
         IOTPRepository otpRepository,
+        BackendApplicationConfig config,
         InfoUSmsConfig infoUSmsConfig) {
         _otpRepository = otpRepository;
         _appUserRepository = appUserRepository;
@@ -36,12 +38,13 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
         _jwtAuthManager = jwtAuthManager;
         _loggerFactory = logger;
         _mediator = mediator;
+        _config = config;
     }
 
     public async Task<VerifyOTPResponse> Handle(VerifyOtpUserRequest request, CancellationToken cancellationToken) {
         ApplicationUser user = await GetValidUserByToken(request.UserToken);
         Countries country = await GetValidCountryByUser(user);
-        int expiredCodeInMinutes = GetExpiredCodeInMinutesByProvider(country.Provider);
+        int expiredCodeInMinutes = _config.OTPCodeExpiredInMinutes;
         var otpEntity = await GetOtpEntity(request, expiredCodeInMinutes, user);
         var result = await _otpRepository.VerifyOTP(user, otpEntity, request.Code);
 
@@ -75,16 +78,6 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
             throw new EntityNotFoundException("Countries", user.Country.Id.ToString());
         }
         return country;
-    }
-
-    private int GetExpiredCodeInMinutesByProvider(SMSProviders countryProvider) {
-        Log.Logger.Information($"Loading Sms Provider: {countryProvider}");
-        switch (countryProvider) {
-            case SMSProviders.INFOU:
-                return _infoUSmsConfig.ExpiredInMinutes;
-            default:
-                throw new MFAProviderImplementedException(Enum.GetName(typeof(SMSProviders), countryProvider)!);
-        }
     }
 
     private async Task<ApplicationUserOtpCodes> GetOtpEntity(VerifyOtpUserRequest request, int expiredCodeInMinutes, ApplicationUser user) {

@@ -5,6 +5,7 @@ using Application.Responses.Base;
 using Application.Utils;
 using Application.Utils.Service;
 using Domain.Entities;
+using Domain.Requests.Processor.Services.User;
 using FluentValidation;
 using FluentValidation.Results;
 using IdentityModel.Client;
@@ -38,6 +39,7 @@ public class AuthController : BaseApiController {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IValidator<VerifyFromProviderRequest> _verifyFromProviderValidator;
+    private readonly IValidator<VerifyOtpUserRequest> _verifyOtpUserValidator;
 
     public AuthController(
         IMediator mediator,
@@ -46,6 +48,7 @@ public class AuthController : BaseApiController {
         SignInManager<ApplicationUser> signInManager,
         ILoggerFactory loggerFactory,
         IJwtAuthManager jwtAuthManager,
+        IValidator<VerifyOtpUserRequest> verifyOtpUserValidator,
         IValidator<ResetPasswordRequest> resetPasswordValidator,
         IValidator<ForgetPasswordRequest> forgetPasswordValidator,
         IValidator<LoginRequest> loginValidator,
@@ -59,6 +62,7 @@ public class AuthController : BaseApiController {
         _jwtAuthManager = jwtAuthManager;
         _registerNewUserValidator = registerNewUserValidator;
         _forgetPasswordValidator = forgetPasswordValidator;
+        _verifyOtpUserValidator = verifyOtpUserValidator;
         _resetPasswordValidator = resetPasswordValidator;
         _loginValidator = loginValidator;
         _sendCodeToProviderValidator = sendCodeToProviderValidator;
@@ -173,31 +177,35 @@ public class AuthController : BaseApiController {
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    [HttpPost("forgot-password/change-password")]
+    [HttpPost("forgot-password/confirm")]
     [SwaggerOperation(Tags = new[] {
         "Auth"
     })]
     [AllowAnonymous]
-    public async Task<IActionResult> ForgotPasswordChange(ForgetPasswordRequest request) {
-        if (!ModelState.IsValid)
-            return ResponseHelper.CreateEmptyResponse(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList(), HttpStatusCode.BadRequest);
-        var user = await _userManager.FindByEmailAsync(request.Email);
-        if (user == null || !(await _userManager.IsEmailConfirmedAsync(user))) {
-            // Don't reveal that the user does not exist or is not confirmed
+    public async Task<IActionResult> ForgotPasswordConfirm(VerifyOtpUserRequest request) {
+        var validator = await _verifyOtpUserValidator.ValidateAsync(request);
+        if (!validator.IsValid) {
+            return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
+        }
+        try {
+            return ResponseHelper.CreateResponse(await Mediator.Send(new Domain.Requests.Processor.Services.User.VerifyOtpUserRequest {
+                Code = request.Code,
+                OTPToken = request.OTPToken,
+                UserToken = request.UserToken
+            }));
+        }
+        catch (EntityNotFoundException e) {
+            _logger.LogError(e, "One of the entities was not found");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
-                "User not found or email."
+                "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
-
-        // TODO: handle of forget password logic
-        // For more information on how to enable account confirmation and password reset please
-        // visit https://go.microsoft.com/fwlink/?LinkID=532713
-        // var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-        // var callbackUrl = Url.Action("ResetPassword", "Account", new {userId = user.Id, code},
-        //     protocol: HttpContext.Request.Scheme);
-        // await _emailSender.SendEmailAsync(request.Email, "Reset Password",
-        //     $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
-        return ResponseHelper.CreateEmptyResponse();
+        catch (Exception e) {
+            _logger.LogError(e, "Error in RequestOTPCode");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                e.Message
+            }, HttpStatusCode.InternalServerError);
+        }
     }
 
     /// <summary>

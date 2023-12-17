@@ -1,6 +1,8 @@
 using Domain.Entities;
 using Domain.Persistence.Mock.Services;
 using Domain.Persistence.Repositories;
+using Domain.Persistence.Repositories.Interfaces;
+using Infrastructure.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MockQueryable.Moq;
@@ -111,5 +113,140 @@ public class ApplicationUserRepositoryTest : BaseTest {
             Assert.That(result.PhoneNumber, Is.EqualTo(user.PhoneNumber));
             Assert.That(result.Country.Id, Is.EqualTo(user.Country.Id));
         });
+    }
+
+    [Test, Description("Test the FetchOTP method")]
+    public async Task FetchOTP() {
+        var mockUser = new MockAppUserServices();
+        var user = mockUser.GetOne(Guid.NewGuid());
+        var mock = new MockUserOPTCodeServices();
+        var mockData = mock.GetMany(Guid.Parse(user.Id), false);
+        var expected = mock.GetOne(Guid.Parse(user.Id), true);
+        mockData = mockData.Append(expected);
+        var mockObj = mockData.AsQueryable().BuildMockDbSet();
+        var mockEnumerableUser = new List<ApplicationUser> {
+            user
+        };
+        var mockObjUser = mockEnumerableUser.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.UserOtpCodes).Returns(mockObj.Object!);
+        Context.Setup(x => x.Users).Returns(mockObjUser.Object);
+        var languagesRepository = new LanguagesRepository(Context.Object, factory);
+        var countriesRepository = new CountriesRepository(Context.Object, factory);
+        var repository = new AppUserRepository(Context.Object, countriesRepository, languagesRepository);
+        var result = await repository.FetchOTP(user);
+        Assert.That(result, Is.Not.Null);
+        Assert.Multiple(() => {
+            Assert.That(result!.Id, Is.EqualTo(expected.Id));
+            Assert.That(result.UserId, Is.EqualTo(expected.UserId));
+            Assert.That(result.Code, Is.EqualTo(expected.Code));
+            Assert.That(result.Token, Is.EqualTo(expected.Token));
+            Assert.That(result.ComplateAt, Is.Null);
+        });
+    }
+
+    [Test, Description("Test the ClearOtpCodes method")]
+    public async Task ClearOtpCodes() {
+        var mockUser = new MockAppUserServices();
+        var user = mockUser.GetOne(Guid.NewGuid());
+        var mock = new MockUserOPTCodeServices();
+        var mockData = mock.GetMany(Guid.Parse(user.Id), true);
+        var mockObj = mockData.AsQueryable().BuildMockDbSet();
+        var mockEnumerableUser = new List<ApplicationUser> {
+            user
+        };
+        var mockObjUser = mockEnumerableUser.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.UserOtpCodes).Returns(mockObj.Object!);
+        Context.Setup(x => x.Users).Returns(mockObjUser.Object);
+        var mockRepository = new Mock<IAppUserRepository>();
+        await mockRepository.Object.ClearOtpCodes(Guid.Parse(user.Id));
+        mockRepository.Verify(x => x.ClearOtpCodes(It.IsAny<Guid>()), Times.Once);
+    }
+
+
+    [Test, Description("Test the GetTotalOtpCodesWithinExpirationDate method")]
+    public async Task GetTotalOtpCodesWithinExpirationDate() {
+        var mockUser = new MockAppUserServices();
+        var user = mockUser.GetOne(Guid.NewGuid());
+        var mock = new MockUserOPTCodeServices();
+        var mockData = mock.GetOne(Guid.Parse(user.Id), true);
+        var mockEnumerable = new List<ApplicationUserOtpCodes> {
+            mockData
+        };
+        var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
+        var mockEnumerableUser = new List<ApplicationUser> {
+            user
+        };
+        var mockObjUser = mockEnumerableUser.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.UserOtpCodes).Returns(mockObj.Object!);
+        Context.Setup(x => x.Users).Returns(mockObjUser.Object);
+        var languagesRepository = new LanguagesRepository(Context.Object, factory);
+        var countriesRepository = new CountriesRepository(Context.Object, factory);
+        var repository = new AppUserRepository(Context.Object, countriesRepository, languagesRepository);
+        var result = await repository.GetTotalOtpCodesWithinExpirationDate(Guid.Parse(user.Id), 3);
+        Assert.That(result, Is.EqualTo(1));
+    }
+
+
+    [Test, Description("Test the GetTotalOtpCodesWithinExpirationDate method")]
+    [TestCase(5)]
+    [TestCase(3)]
+    public async Task IsAllowToResendOtpCode(int totalMaxSent) {
+        var mockUser = new MockAppUserServices();
+        var user = mockUser.GetOne(Guid.NewGuid());
+        var mock = new MockUserOPTCodeServices();
+        var mockData = mock.GetMany(Guid.Parse(user.Id), true).Select(w => {
+            w.ExpirationDate = DateTime.Now.AddMinutes(3);
+            return w;
+        });
+        var mockObj = mockData.AsQueryable().BuildMockDbSet();
+        var mockEnumerableUser = new List<ApplicationUser> {
+            user
+        };
+        var mockObjUser = mockEnumerableUser.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.UserOtpCodes).Returns(mockObj.Object!);
+        Context.Setup(x => x.Users).Returns(mockObjUser.Object);
+        var languagesRepository = new LanguagesRepository(Context.Object, factory);
+        var countriesRepository = new CountriesRepository(Context.Object, factory);
+        var repository = new AppUserRepository(Context.Object, countriesRepository, languagesRepository);
+        var result = await repository.IsAllowToResendOtpCode(user, 3, totalMaxSent);
+        Assert.That(result, Is.EqualTo(totalMaxSent != 3));
+    }
+    [Test, Description("Test the GenerateOtpCode method")]
+    [TestCase(5, true, MFAProvider.Email)]
+    [TestCase(5, false, MFAProvider.SMS)]
+    [TestCase(10, false, MFAProvider.SMS)]
+    [TestCase(5, true, MFAProvider.SMS)]
+    public async Task GenerateOtpCode(int expiredCodeInMinutes, bool forceSent, MFAProvider provider) {
+        var mockUser = new MockAppUserServices();
+        var user = mockUser.GetOne(Guid.NewGuid());
+        var mockEnumerableUser = new List<ApplicationUser> {
+            user
+        };
+        var mockObjUser = mockEnumerableUser.AsQueryable().BuildMockDbSet();
+        var mock = new MockUserOPTCodeServices();
+        var mockData = mock.GetMany(Guid.Parse(user.Id), true).Select(w => {
+            w.ExpirationDate = DateTime.Now.AddMinutes(-1);
+            return w;
+        });
+        Context.Setup(x => x.Users).Returns(mockObjUser.Object);
+        if (forceSent || expiredCodeInMinutes == 10) {
+            mockData = new List<ApplicationUserOtpCodes>();
+        }
+        var mockObj = mockData.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.UserOtpCodes).Returns(mockObj.Object!);
+        var languagesRepository = new LanguagesRepository(Context.Object, factory);
+        var countriesRepository = new CountriesRepository(Context.Object, factory);
+        var repository = new AppUserRepository(Context.Object, countriesRepository, languagesRepository);
+        var result = await repository.GenerateOtpCode(user, expiredCodeInMinutes, forceSent, provider);
+        if (expiredCodeInMinutes == 2) {
+            Assert.That(result, Is.Null);
+        } else {
+            Assert.That(result, Is.Not.Null);
+            Assert.Multiple(() => {
+                Assert.That(result!.UserId, Is.EqualTo(Guid.Parse(user.Id)));
+                Assert.That(result.Token, Is.Not.Empty);
+                Assert.That(result.Code, Is.Not.Empty);
+            });
+        }
     }
 }

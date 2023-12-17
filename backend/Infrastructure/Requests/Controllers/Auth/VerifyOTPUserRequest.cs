@@ -6,7 +6,7 @@ namespace Infrastructure.Requests.Controllers.Auth;
     "Request OTP for user"
 })]
 [SwaggerTag("Controllers")]
-public class MobileVerifyOTPUserRequest {
+public class VerifyOTPUserRequest {
     [Required]
     [SwaggerSchema("Code of the MFA")]
     public string Code { get; set; }

@@ -11,8 +11,10 @@ public class MockUserOPTCodeServices : IOTPMockService {
     public AppUserOTPCodeMockConfig OTPCodeFaker { get; set; }
 
     public ApplicationUserOtpCodes GetOne(Guid userId) {
+        var dt = SystemClock.Now().DateTime;
         var otp = OTPCodeFaker.Generate(1).First();
         otp.UserId = userId;
+        otp.ExpirationDate = dt.AddMinutes(15);
         return otp;
     }
 
@@ -20,6 +22,7 @@ public class MockUserOPTCodeServices : IOTPMockService {
         var dt = SystemClock.Now().DateTime;
         return OTPCodeFaker.Generate(1).First(x => {
             x.UserId = userId;
+            x.ExpirationDate = dt.AddMinutes(15);
             x.ComplateAt = active ? null : dt;
             return true;
         });
@@ -30,14 +33,18 @@ public class MockUserOPTCodeServices : IOTPMockService {
         return OTPCodeFaker.Generate(1).First(x => {
             x.UserId = userId;
             x.ComplateAt = active ? null : dt;
+            x.ExpirationDate = dt.AddMinutes(15);
             x.Code = code;
             return true;
         });
     }
 
     public IEnumerable<ApplicationUserOtpCodes> GetMany(Guid userId) {
+        var dt = SystemClock.Now().DateTime;
         return OTPCodeFaker.Generate(5).Select(x => {
             x.UserId = userId;
+            x.ExpirationDate = dt.AddMinutes(15);
+            x.ComplateAt = null;
             return x;
         });
     }
@@ -46,6 +53,7 @@ public class MockUserOPTCodeServices : IOTPMockService {
         var dt = SystemClock.Now().DateTime;
         return OTPCodeFaker.Generate(5).Select(x => {
             x.UserId = userId;
+            x.ExpirationDate = dt.AddMinutes(15);
             x.ComplateAt = active ? null : dt;
 
             return x;

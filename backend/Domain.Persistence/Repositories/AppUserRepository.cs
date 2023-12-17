@@ -79,7 +79,6 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
     }
     public async Task<ApplicationUserOtpCodes?> GenerateOtpCode(ApplicationUser user, int expiredCodeInMinutes, bool forceSent, MFAProvider provider) {
         Log.Logger.Information($"Generate otp code for user {user.Id}-{provider}");
-        if (provider == MFAProvider.Email) return null;
         var totalCodeSent = Context.UserOtpCodes.Count(w =>
             w.UserId.Equals(user.Id) && w.ExpirationDate <= SystemClock.Now().DateTime.AddMinutes(expiredCodeInMinutes) && w.ExpirationDate >= SystemClock.Now().DateTime &&
             w.ComplateAt == null);
@@ -88,7 +87,7 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
         var entity = new ApplicationUserOtpCodes {
             UserId = new Guid(user.Id),
             Token = StringExtensions.GenerateToken(),
-            Code = ApplicationUserOtpCodes.GenerateCode(),
+            Code = (provider == MFAProvider.Email) ? ApplicationUserOtpCodes.GenerateCodeAsToken() : ApplicationUserOtpCodes.GenerateCode(),
             ExpirationDate = SystemClock.Now().DateTime.AddMinutes(expiredCodeInMinutes),
             CreatedAt = SystemClock.Now().DateTime,
             UpdatedAt = SystemClock.Now().DateTime,
