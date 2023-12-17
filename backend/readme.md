@@ -1,5 +1,9 @@
 # Installation For Developer
 When you setup new machine, on the database please fetch the this sql from [here](https://github.com/quartznet/quartznet/blob/main/database/tables/tables_mysql_innodb.sql).
+
+## Email Template Service 
+https://my.stripo.email/
+
 ## SQL
 ```sql
 
