@@ -14,7 +14,7 @@ using Serilog;
 namespace Processor.Services.User;
 
 public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, RequestOTPResponse> {
-    private readonly IAppUserRepository _appUserRepository;
+    private readonly IApplicationUserRepository _applicationUserRepository;
     private readonly BackendApplicationConfig _config;
     private readonly ICountriesRepository _countriesRepository;
     private readonly InfoUSmsConfig _infoUSmsConfig;
@@ -23,14 +23,14 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
     private readonly IOTPRepository _otpRepository;
 
     public ForgetPasswordHandler(IMediator mediator,
-        IAppUserRepository appUserRepository,
+        IApplicationUserRepository applicationUserRepository,
         ILoggerFactory logger,
         ICountriesRepository countriesRepository,
         IOTPRepository otpRepository,
         InfoUSmsConfig infoUSmsConfig,
         BackendApplicationConfig config) {
         _mediator = mediator;
-        _appUserRepository = appUserRepository;
+        _applicationUserRepository = applicationUserRepository;
         _countriesRepository = countriesRepository;
         _config = config;
         _otpRepository = otpRepository;
@@ -79,7 +79,7 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
 
     private async Task<RequestOTPResponse> HandleResend(ApplicationUser user, ForgotPasswordRequest request) {
         Log.Logger.Information($"Verify OTP Entity for user {user.Id} and check if user will able to resend");
-        var totalCodesSent = await _appUserRepository.GetTotalOtpCodesWithinExpirationDate(new Guid(user.Id), _config.OTPCodeTotalRetriesWithinSession);
+        var totalCodesSent = await _applicationUserRepository.GetTotalOtpCodesWithinExpirationDate(new Guid(user.Id), _config.OTPCodeTotalRetriesWithinSession);
 
         if (totalCodesSent >= _config.OTPCodeTotalRetriesWithinSession) {
             Log.Logger.Information(($"User {user.Id} has reached max resend limit"));
@@ -92,9 +92,9 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
     private async Task<ApplicationUser> LocateUser(ForgotPasswordRequest request) {
         ApplicationUser? user = null;
         if (IsIdentifyByEmailAddress(request)) {
-            user = await _appUserRepository.LocateUserByEmail(request.Email);
+            user = await _applicationUserRepository.LocateUserByEmail(request.Email);
         } else if (IsIdentifyByPhoneNumber(request)) {
-            user = await _appUserRepository.LocateUserByPhone(request.CountryId!.Value, request.PhoneNumber!);
+            user = await _applicationUserRepository.LocateUserByPhone(request.CountryId!.Value, request.PhoneNumber!);
         }
         if (user == null)
             throw new EntityNotFoundException("User", $"{request.CountryId}-{request.PhoneNumber}");
@@ -103,8 +103,9 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
     }
 
     private async Task<RequestOTPResponse> SendOTP(ApplicationUser user, ForgotPasswordRequest request) {
-        var forceResent = request.ReSend && await _appUserRepository.IsAllowToResendOtpCode(user, _config.OTPCodeExpiredInMinutes, _config.OTPCodeTotalRetriesWithinSession);
-        var otpEntity = await _appUserRepository.GenerateOtpCode(user, _config.OTPCodeExpiredInMinutes, forceResent, request.Provider);
+        var forceResent = request.ReSend &&
+                          await _applicationUserRepository.IsAllowToResendOtpCode(user, _config.OTPCodeExpiredInMinutes, _config.OTPCodeTotalRetriesWithinSession);
+        var otpEntity = await _applicationUserRepository.GenerateOtpCode(user, _config.OTPCodeExpiredInMinutes, forceResent, request.Provider);
         if (otpEntity == null) {
             Log.Logger.Information($"User {user.Id} has within the expiration date and won't able to sent or been reached max resend limit");
             return await FetchOtpResponse(user);
@@ -121,7 +122,7 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
     }
 
     private async Task<RequestOTPResponse> FetchOtpResponse(ApplicationUser user) {
-        var otpResult = await _appUserRepository.FetchOTP(user);
+        var otpResult = await _applicationUserRepository.FetchOTP(user);
         if (otpResult != null) {
             return new RequestOTPResponse {
                 UserToken = user.Token,

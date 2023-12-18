@@ -10,7 +10,7 @@ using Moq;
 using Test.Shared.Common;
 namespace Domain.Persistence.Test.Repositories;
 
-[TestFixture, Description("Test the CountriesRepository")]
+[TestFixture, Description("Test the ApplicationUserRepository")]
 [Category("Users")]
 public class ApplicationUserRepositoryTest : BaseTest {
     [SetUp]
@@ -42,7 +42,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         Context.Setup(c => c.Instance.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
         var languagesRepository = new LanguagesRepository(Context.Object, factory);
         var countriesRepository = new CountriesRepository(Context.Object, factory);
-        var repository = new AppUserRepository(Context.Object, countriesRepository, languagesRepository);
+        var repository = new ApplicationUserRepository(Context.Object, countriesRepository, languagesRepository);
         await repository.SaveDisplayLanguage(Guid.Parse(user.Id), newLanguage.Id);
         Context.Verify(x => x.Instance.SaveChangesAsync(It.IsAny<CancellationToken>()));
     }
@@ -58,7 +58,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         Context.Setup(x => x.Users).Returns(mockObjUser.Object);
         var languagesRepository = new LanguagesRepository(Context.Object, factory);
         var countriesRepository = new CountriesRepository(Context.Object, factory);
-        var repository = new AppUserRepository(Context.Object, countriesRepository, languagesRepository);
+        var repository = new ApplicationUserRepository(Context.Object, countriesRepository, languagesRepository);
         var result = await repository.GetById(Guid.Parse(user.Id));
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() => {
@@ -81,7 +81,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         Context.Setup(x => x.Users).Returns(mockObjUser.Object);
         var languagesRepository = new LanguagesRepository(Context.Object, factory);
         var countriesRepository = new CountriesRepository(Context.Object, factory);
-        var repository = new AppUserRepository(Context.Object, countriesRepository, languagesRepository);
+        var repository = new ApplicationUserRepository(Context.Object, countriesRepository, languagesRepository);
         var result = await repository.GetUserByToken(user.Token);
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() => {
@@ -103,7 +103,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         Context.Setup(x => x.Users).Returns(mockObjUser.Object);
         var languagesRepository = new LanguagesRepository(Context.Object, factory);
         var countriesRepository = new CountriesRepository(Context.Object, factory);
-        var repository = new AppUserRepository(Context.Object, countriesRepository, languagesRepository);
+        var repository = new ApplicationUserRepository(Context.Object, countriesRepository, languagesRepository);
         var result = await repository.LocateUserByPhone(user.Country.Id, user.PhoneNumber!);
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() => {
@@ -132,7 +132,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         Context.Setup(x => x.Users).Returns(mockObjUser.Object);
         var languagesRepository = new LanguagesRepository(Context.Object, factory);
         var countriesRepository = new CountriesRepository(Context.Object, factory);
-        var repository = new AppUserRepository(Context.Object, countriesRepository, languagesRepository);
+        var repository = new ApplicationUserRepository(Context.Object, countriesRepository, languagesRepository);
         var result = await repository.FetchOTP(user);
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() => {
@@ -157,11 +157,10 @@ public class ApplicationUserRepositoryTest : BaseTest {
         var mockObjUser = mockEnumerableUser.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.UserOtpCodes).Returns(mockObj.Object!);
         Context.Setup(x => x.Users).Returns(mockObjUser.Object);
-        var mockRepository = new Mock<IAppUserRepository>();
+        var mockRepository = new Mock<IApplicationUserRepository>();
         await mockRepository.Object.ClearOtpCodes(Guid.Parse(user.Id));
         mockRepository.Verify(x => x.ClearOtpCodes(It.IsAny<Guid>()), Times.Once);
     }
-
 
     [Test, Description("Test the GetTotalOtpCodesWithinExpirationDate method")]
     public async Task GetTotalOtpCodesWithinExpirationDate() {
@@ -181,11 +180,10 @@ public class ApplicationUserRepositoryTest : BaseTest {
         Context.Setup(x => x.Users).Returns(mockObjUser.Object);
         var languagesRepository = new LanguagesRepository(Context.Object, factory);
         var countriesRepository = new CountriesRepository(Context.Object, factory);
-        var repository = new AppUserRepository(Context.Object, countriesRepository, languagesRepository);
+        var repository = new ApplicationUserRepository(Context.Object, countriesRepository, languagesRepository);
         var result = await repository.GetTotalOtpCodesWithinExpirationDate(Guid.Parse(user.Id), 3);
         Assert.That(result, Is.EqualTo(1));
     }
-
 
     [Test, Description("Test the GetTotalOtpCodesWithinExpirationDate method")]
     [TestCase(5)]
@@ -207,10 +205,11 @@ public class ApplicationUserRepositoryTest : BaseTest {
         Context.Setup(x => x.Users).Returns(mockObjUser.Object);
         var languagesRepository = new LanguagesRepository(Context.Object, factory);
         var countriesRepository = new CountriesRepository(Context.Object, factory);
-        var repository = new AppUserRepository(Context.Object, countriesRepository, languagesRepository);
+        var repository = new ApplicationUserRepository(Context.Object, countriesRepository, languagesRepository);
         var result = await repository.IsAllowToResendOtpCode(user, 3, totalMaxSent);
         Assert.That(result, Is.EqualTo(totalMaxSent != 3));
     }
+
     [Test, Description("Test the GenerateOtpCode method")]
     [TestCase(5, true, MFAProvider.Email)]
     [TestCase(5, false, MFAProvider.SMS)]
@@ -236,7 +235,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         Context.Setup(x => x.UserOtpCodes).Returns(mockObj.Object!);
         var languagesRepository = new LanguagesRepository(Context.Object, factory);
         var countriesRepository = new CountriesRepository(Context.Object, factory);
-        var repository = new AppUserRepository(Context.Object, countriesRepository, languagesRepository);
+        var repository = new ApplicationUserRepository(Context.Object, countriesRepository, languagesRepository);
         var result = await repository.GenerateOtpCode(user, expiredCodeInMinutes, forceSent, provider);
         if (expiredCodeInMinutes == 2) {
             Assert.That(result, Is.Null);

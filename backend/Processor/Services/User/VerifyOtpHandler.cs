@@ -14,7 +14,7 @@ using Serilog;
 namespace Processor.Services.User;
 
 public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPResponse> {
-    private readonly IAppUserRepository _appUserRepository;
+    private readonly IApplicationUserRepository _applicationUserRepository;
     private readonly BackendApplicationConfig _config;
     private readonly ICountriesRepository _countriesRepository;
     private readonly InfoUSmsConfig _infoUSmsConfig;
@@ -26,13 +26,13 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
     public VerifyOtpHandler(IMediator mediator,
         ILoggerFactory logger,
         IJwtAuthManager jwtAuthManager,
-        IAppUserRepository appUserRepository,
+        IApplicationUserRepository applicationUserRepository,
         ICountriesRepository countriesRepository,
         IOTPRepository otpRepository,
         BackendApplicationConfig config,
         InfoUSmsConfig infoUSmsConfig) {
         _otpRepository = otpRepository;
-        _appUserRepository = appUserRepository;
+        _applicationUserRepository = applicationUserRepository;
         _countriesRepository = countriesRepository;
         _infoUSmsConfig = infoUSmsConfig;
         _jwtAuthManager = jwtAuthManager;
@@ -51,7 +51,7 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
         Guid? userId = result.IsValid ? new Guid(user.Id) : null;
         if (result.IsValid) {
             Log.Logger.Information($"Clearing OTP Codes for User: [{userId}]");
-            await _appUserRepository.ClearOtpCodes(userId.Value);
+            await _applicationUserRepository.ClearOtpCodes(userId.Value);
         }
 
         return new VerifyOTPResponse {
@@ -64,7 +64,7 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
 
     private async Task<ApplicationUser> GetValidUserByToken(string userToken) {
         Log.Logger.Information($"VerifyOtpHandler: [{userToken}]");
-        var user = await _appUserRepository.GetUserByToken(userToken);
+        var user = await _applicationUserRepository.GetUserByToken(userToken);
         if (user == null) {
             throw new EntityNotFoundException("User", userToken);
         }
@@ -82,7 +82,7 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
 
     private async Task<ApplicationUserOtpCodes> GetOtpEntity(VerifyOtpUserRequest request, int expiredCodeInMinutes, ApplicationUser user) {
         Log.Logger.Information($"Checking if OTP Entity Exist for User: [{user.Id}, {request.OTPToken}]");
-        var otpEntity = await _appUserRepository.IsExistingOtpEntity(request.UserToken, request.OTPToken, expiredCodeInMinutes);
+        var otpEntity = await _applicationUserRepository.IsExistingOtpEntity(request.UserToken, request.OTPToken, expiredCodeInMinutes);
         if (otpEntity == null) {
             throw new EntityNotFoundException("UserOtpCodes", request.UserToken);
         }

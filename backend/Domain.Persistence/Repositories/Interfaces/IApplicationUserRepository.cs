@@ -3,7 +3,7 @@ using Domain.Persistence.Repositories.Common.Interfaces;
 using Infrastructure.Enums;
 namespace Domain.Persistence.Repositories.Interfaces;
 
-public interface IAppUserRepository : IGenericRepository<ApplicationUser> {
+public interface IApplicationUserRepository : IGenericRepository<ApplicationUser> {
     Task SaveDisplayLanguage(Guid userId, Guid languageId);
     Task DeleteUser(Guid userId);
     Task ExportUser(Guid userId);

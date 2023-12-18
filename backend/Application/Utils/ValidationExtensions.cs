@@ -8,6 +8,8 @@ public static class ValidationExtensions {
         => rule.Must(x => IsValidGuid(x.Value)).WithMessage("Invalid Guid");
     public static IRuleBuilderOptions<T, Guid> IsGuid<T>(this IRuleBuilder<T, Guid> rule)
         => rule.Must(x => IsValidGuid(x)).WithMessage("Invalid Guid");
+    public static IRuleBuilderOptions<T, string> IsGuid<T>(this IRuleBuilder<T, string> rule)
+        => rule.Must(x => Guid.TryParse(x, out var validatedGuid) && IsValidGuid(validatedGuid)).WithMessage("Invalid Guid");
 
 
     private static bool IsValidGuid(Guid unValidatedGuid) {

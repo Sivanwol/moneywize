@@ -1,4 +1,5 @@
 using System.Net;
+using System.Security.Claims;
 using Application.Configs;
 using Application.Exceptions;
 using Application.Responses.Base;
@@ -23,12 +24,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Annotations;
+using ResetPasswordRequest = Infrastructure.Requests.Controllers.Auth.ResetPasswordRequest;
 namespace BackendApi.Controllers.v1.Auth;
 
 [ApiVersion("1.0")]
 [Authorize]
 public class AuthController : BaseApiController {
     private readonly IValidator<ForgetPasswordRequest> _forgetPasswordValidator;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IJwtAuthManager _jwtAuthManager;
     private readonly ILogger _logger;
     private readonly IValidator<LoginRequest> _loginValidator;
@@ -46,6 +49,7 @@ public class AuthController : BaseApiController {
         BackendApplicationConfig configuration,
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
+        IHttpContextAccessor httpContextAccessor,
         ILoggerFactory loggerFactory,
         IJwtAuthManager jwtAuthManager,
         IValidator<VerifyOtpUserRequest> verifyOtpUserValidator,
@@ -68,6 +72,7 @@ public class AuthController : BaseApiController {
         _sendCodeToProviderValidator = sendCodeToProviderValidator;
         _refreshTokenValidator = refreshTokenValidator;
         _verifyFromProviderValidator = verifyFromProviderValidator;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     /// <summary>
@@ -76,6 +81,9 @@ public class AuthController : BaseApiController {
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost("login/web")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad request", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized request", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     [SwaggerOperation(Tags = new[] {
         "Auth"
     })]
@@ -106,6 +114,12 @@ public class AuthController : BaseApiController {
         catch (InvalidLoginException e) {
             return ResponseHelper.CreateEmptyResponse(["User not found or password is not correct"], HttpStatusCode.Unauthorized);
         }
+        catch (Exception e) {
+            _logger.LogError(e, "Error while logging out user");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "Error while logging out user"
+            }, HttpStatusCode.InternalServerError);
+        }
     }
 
     /// <summary>
@@ -113,16 +127,25 @@ public class AuthController : BaseApiController {
     /// </summary>
     /// <returns></returns>
     [HttpPost("logout")]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     [SwaggerOperation(Tags = new[] {
         "Auth"
     })]
     [Authorize]
     public async Task<IActionResult> Logout() {
         var userToken = User.Identity?.Name!;
-        await Mediator.Send(new LogoutUserRequest {
-            UserToken = userToken
-        });
-        return ResponseHelper.CreateEmptyResponse();
+        try {
+            await Mediator.Send(new LogoutUserRequest {
+                UserToken = userToken
+            });
+            return ResponseHelper.CreateEmptyResponse();
+        }
+        catch (Exception e) {
+            _logger.LogError(e, "Error while logging out user");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "Error while logging out user"
+            }, HttpStatusCode.InternalServerError);
+        }
     }
 
     /// <summary>
@@ -178,6 +201,9 @@ public class AuthController : BaseApiController {
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost("forgot-password/confirm")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Response of request Forgot Password Confirm", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad request", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     [SwaggerOperation(Tags = new[] {
         "Auth"
     })]
@@ -217,37 +243,36 @@ public class AuthController : BaseApiController {
     [SwaggerOperation(Tags = new[] {
         "Auth"
     })]
-    [AllowAnonymous]
+    [SwaggerResponse(StatusCodes.Status200OK, "Response of request Reset Password", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad request", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     public async Task<IActionResult> ResetPassword(ResetPasswordRequest request) {
         var validator = await _resetPasswordValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
         }
-
-        ;
-        var user = await _userManager.FindByEmailAsync(request.Email);
-        if (user == null) {
+        try {
+            var loginUserId = _httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return ResponseHelper.CreateResponse(await Mediator.Send(request.ToProcessorEntity(Guid.Parse(loginUserId))));
+        }
+        catch (EntityNotFoundException e) {
+            _logger.LogError(e, "One of the entities was not found");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
-                "User not found."
+                "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
-
-        if (request.Password == request.NewPassword) {
+        catch (AuthenticationException e) {
+            _logger.LogError(e, e.Message);
             return ResponseHelper.CreateEmptyResponse(new List<string> {
-                "New password must be different from old password."
-            }, HttpStatusCode.BadRequest);
+                e.Message
+            }, HttpStatusCode.Unauthorized);
         }
-
-        var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
-        if (result.Succeeded) {
-            return ResponseHelper.CreateEmptyResponse();
+        catch (Exception e) {
+            _logger.LogError(e, "Error in ResetPassword");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                e.Message
+            }, HttpStatusCode.InternalServerError);
         }
-
-        _logger.LogError("User [{UserId}] failed to reset password. Errors: {ResultErrors}", user.Id,
-            result.Errors.Select(s => s.Description).ToList());
-        return ResponseHelper.CreateEmptyResponse(new List<string> {
-            "Error while resetting password"
-        }, HttpStatusCode.BadRequest);
     }
 
     /// <summary>

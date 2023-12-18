@@ -8,10 +8,10 @@ using Infrastructure.Enums;
 using Serilog;
 namespace Domain.Persistence.Repositories;
 
-public class AppUserRepository : BaseRepository, IAppUserRepository {
+public class ApplicationUserRepository : BaseRepository, IApplicationUserRepository {
     private readonly ICountriesRepository _countriesRepository;
     private readonly ILanguagesRepository _languagesRepository;
-    public AppUserRepository(
+    public ApplicationUserRepository(
         IDomainContext context,
         ICountriesRepository countriesRepository,
         ILanguagesRepository languagesRepository

@@ -1,0 +1,6 @@
+namespace Application.Exceptions;
+
+public class AuthenticationException : BaseException {
+
+    public AuthenticationException(string message) : base("user", StatusCodeErrors.Unauthorized, message) { }
+}
