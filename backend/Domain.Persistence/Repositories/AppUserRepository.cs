@@ -62,7 +62,7 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
 
     public async Task<ApplicationUser?> LocateUserByPhone(Guid countryId, string phoneNumber) {
         Log.Logger.Information($"Locating user with phone number {countryId}-{phoneNumber}");
-        var user = Context.Users.Where(w => w.Country.Id == countryId && w.PhoneNumber == phoneNumber).First();
+        var user = Context.Users.First(w => w.Country.Id == countryId && w.PhoneNumber == phoneNumber);
         if (user == null) {
             throw new EntityNotFoundException("User", $"{countryId}-{phoneNumber}");
         }
@@ -71,7 +71,7 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
 
     public async Task<ApplicationUser?> LocateUserByEmail(string email) {
         Log.Logger.Information($"Locating user with email {email}");
-        var user = Context.Users.Where(w => w.Email == email).First();
+        var user = Context.Users.First(w => w.Email == email);
         if (user == null) {
             throw new EntityNotFoundException("User", email);
         }
@@ -85,7 +85,7 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
         if (totalCodeSent != 0 && !forceSent)
             return null;
         var entity = new ApplicationUserOtpCodes {
-            UserId = new Guid(user.Id),
+            UserId = Guid.Parse(user.Id),
             Token = StringExtensions.GenerateToken(),
             Code = (provider == MFAProvider.Email) ? ApplicationUserOtpCodes.GenerateCodeAsToken() : ApplicationUserOtpCodes.GenerateCode(),
             ExpirationDate = SystemClock.Now().DateTime.AddMinutes(expiredCodeInMinutes),
@@ -94,7 +94,7 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
         };
         var expiredDate = SystemClock.Now().DateTime.AddMinutes(forceSent ? 0 : expiredCodeInMinutes);
         var entities = Context.UserOtpCodes.Where(w =>
-            w.UserId.Equals(user.Id) && w.ExpirationDate <= expiredDate && w.ExpirationDate >= SystemClock.Now().DateTime && w.ComplateAt == null);
+            w.UserId.Equals(Guid.Parse(user.Id)) && w.ExpirationDate <= expiredDate && w.ExpirationDate >= SystemClock.Now().DateTime && w.ComplateAt == null);
         if (entities.Any()) {
             Log.Logger.Information($"Clearing existing otp code for user {user.Id}-{provider}");
             foreach (var item in entities) {
@@ -114,7 +114,8 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
             return null;
         }
         var entity = Context.UserOtpCodes.FirstOrDefault(w =>
-            w.UserId.Equals(user.Id) && w.Token == token && w.ExpirationDate >= SystemClock.Now().DateTime && w.ExpirationDate <= w.CreatedAt.AddMinutes(expiredCodeInMinutes) &&
+            w.UserId.Equals(Guid.Parse(user.Id)) && w.Token == token && w.ExpirationDate >= SystemClock.Now().DateTime &&
+            w.ExpirationDate <= w.CreatedAt.AddMinutes(expiredCodeInMinutes) &&
             !w.ComplateAt.HasValue);
         return entity;
     }
@@ -122,7 +123,7 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
     public async Task<int> GetTotalOtpCodesWithinExpirationDate(Guid userId, int expiredCodeInMinutes) {
         Log.Logger.Information($"Getting total otp code for user {userId}");
         var query = from w in Context.UserOtpCodes
-            where w.UserId == userId &&
+            where w.UserId.Equals(userId) &&
                   w.ExpirationDate >= SystemClock.Now().DateTime &&
                   !w.ComplateAt.HasValue
             select w;
@@ -132,7 +133,7 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
 
     public async Task<bool> IsAllowToResendOtpCode(ApplicationUser user, int expiredCodeInMinutes, int maxResendCount) {
         Log.Logger.Information($"Checking if user {user.Id} is allow to resend otp code");
-        var totalCodesSent = await GetTotalOtpCodesWithinExpirationDate(new Guid(user.Id), expiredCodeInMinutes);
+        var totalCodesSent = await GetTotalOtpCodesWithinExpirationDate(Guid.Parse(user.Id), expiredCodeInMinutes);
         return totalCodesSent <= maxResendCount;
     }
 
@@ -154,7 +155,7 @@ public class AppUserRepository : BaseRepository, IAppUserRepository {
     public async Task<ApplicationUserOtpCodes?> FetchOTP(ApplicationUser user) {
         Log.Logger.Information($"Fetching otp code for user {user.Id}");
         return (from w in Context.UserOtpCodes
-            where w.UserId.Equals(user.Id) && w.ExpirationDate >= SystemClock.Now().DateTime && !w.ComplateAt.HasValue
+            where w.UserId.Equals(Guid.Parse(user.Id)) && w.ExpirationDate >= SystemClock.Now().DateTime && !w.ComplateAt.HasValue
             orderby w.ExpirationDate descending
             select w).FirstOrDefault();
     }

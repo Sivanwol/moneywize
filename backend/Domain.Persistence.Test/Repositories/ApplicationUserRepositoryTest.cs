@@ -168,7 +168,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         var mockUser = new MockAppUserServices();
         var user = mockUser.GetOne(Guid.NewGuid());
         var mock = new MockUserOPTCodeServices();
-        var mockData = mock.GetOne(Guid.Parse(user.Id), true);
+        var mockData = mock.GetOne(Guid.Parse(user.Id), false);
         var mockEnumerable = new List<ApplicationUserOtpCodes> {
             mockData
         };
@@ -194,7 +194,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         var mockUser = new MockAppUserServices();
         var user = mockUser.GetOne(Guid.NewGuid());
         var mock = new MockUserOPTCodeServices();
-        var mockData = mock.GetMany(Guid.Parse(user.Id), true).Select(w => {
+        var mockData = mock.GetMany(Guid.Parse(user.Id), false).Select(w => {
             w.ExpirationDate = DateTime.Now.AddMinutes(3);
             return w;
         });
