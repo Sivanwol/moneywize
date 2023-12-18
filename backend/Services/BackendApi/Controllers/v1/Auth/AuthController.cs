@@ -358,7 +358,7 @@ public class AuthController : BaseApiController {
         }
     }
 
-    [HttpPut("refresh_otp")]
+    [HttpPut("refresh_tokens")]
     [SwaggerOperation("Request Mobile refresh OTP", "Send request refresh OTP for mobile user", Tags = new[] {
         "Mobile Auth"
     })]
@@ -525,6 +525,7 @@ public class AuthController : BaseApiController {
         }, HttpStatusCode.InternalServerError);
     }
 
+    // [Authorize(Roles = Roles.Admin)]
 
     // TODO : implement this  the main idea took from https://github.com/dotnet-labs/JwtAuthDemo/blob/master/webapi/JwtAuthDemo/Controllers/AccountController.cs please rebuild it 
     // [HttpPost("impersonation")]

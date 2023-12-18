@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Application.Configs;
-using Application.Configs.Providers;
 using Application.Exceptions;
 using Application.Utils;
 using Domain.Entities;
@@ -9,6 +8,7 @@ using Domain.Requests.Processor.Services.User;
 using Infrastructure.Responses.Controllers.Auth;
 using Infrastructure.Services.Auth;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Serilog;
 namespace Processor.Services.User;
@@ -17,11 +17,12 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
     private readonly IApplicationUserRepository _applicationUserRepository;
     private readonly BackendApplicationConfig _config;
     private readonly ICountriesRepository _countriesRepository;
-    private readonly InfoUSmsConfig _infoUSmsConfig;
     private readonly IJwtAuthManager _jwtAuthManager;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IMediator _mediator;
     private readonly IOTPRepository _otpRepository;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly UserManager<ApplicationUser> _userManager;
 
     public VerifyOtpHandler(IMediator mediator,
         ILoggerFactory logger,
@@ -29,14 +30,16 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
         IApplicationUserRepository applicationUserRepository,
         ICountriesRepository countriesRepository,
         IOTPRepository otpRepository,
+        UserManager<ApplicationUser> userManager,
         BackendApplicationConfig config,
-        InfoUSmsConfig infoUSmsConfig) {
+        SignInManager<ApplicationUser> signInManager) {
         _otpRepository = otpRepository;
         _applicationUserRepository = applicationUserRepository;
         _countriesRepository = countriesRepository;
-        _infoUSmsConfig = infoUSmsConfig;
+        _signInManager = signInManager;
         _jwtAuthManager = jwtAuthManager;
         _loggerFactory = logger;
+        _userManager = userManager;
         _mediator = mediator;
         _config = config;
     }
@@ -53,11 +56,16 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
             Log.Logger.Information($"Clearing OTP Codes for User: [{userId}]");
             await _applicationUserRepository.ClearOtpCodes(userId.Value);
         }
-
+        var roles = await _userManager.GetRolesAsync(user);
+        var claims = new List<Claim> {
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
+        };
+        roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
+        // await _signInManager.SignInAsync(user, true);
         return new VerifyOTPResponse {
             UserId = userId,
             Tokens = result.IsValid
-                ? _jwtAuthManager.GenerateTokens(request.UserToken, new List<Claim>(), SystemClock.Now().DateTime)
+                ? _jwtAuthManager.GenerateTokens(request.UserToken, claims.ToArray(), SystemClock.Now().DateTime)
                 : null
         };
     }

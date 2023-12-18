@@ -26,6 +26,7 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordRequest, EmptyR
         _mediator = mediator;
         _applicationUserRepository = applicationUserRepository;
         _userManager = userManager;
+        _roleManager = roleManager;
     }
 
     public async Task<EmptyResponse> Handle(ResetPasswordRequest request, CancellationToken cancellationToken) {
