@@ -52,15 +52,16 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
         var result = await _otpRepository.VerifyOTP(user, otpEntity, request.Code);
 
         Guid? userId = result.IsValid ? new Guid(user.Id) : null;
+        var claims = new List<Claim>();
         if (result.IsValid) {
             Log.Logger.Information($"Clearing OTP Codes for User: [{userId}]");
-            await _applicationUserRepository.ClearOtpCodes(userId.Value);
+            await _applicationUserRepository.ClearOtpCodes(Guid.Parse(user.Id));
+            var roles = await _userManager.GetRolesAsync(user);
+            claims = new List<Claim> {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+            };
+            roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
         }
-        var roles = await _userManager.GetRolesAsync(user);
-        var claims = new List<Claim> {
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-        };
-        roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
         // await _signInManager.SignInAsync(user, true);
         return new VerifyOTPResponse {
             UserId = userId,
