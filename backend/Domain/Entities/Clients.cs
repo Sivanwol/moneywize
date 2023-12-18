@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Application.Queries;
 using Domain.Common;
+using Elastic.Apm.Api.Constraints;
 namespace Domain.Entities;
 
 public class Clients : BaseEntity, ISoftDeletable {
     [ForeignKey("OwnerUser")]
+    [MaxLength(36)]
     public string OwnerUserId { get; set; }
 
     public ApplicationUser OwnerUser { get; set; }
