@@ -49,9 +49,8 @@ public class ConfirmEmailHandler : IRequestHandler<ConfirmEmailRequest, EmptyRes
             var hasMatchingRoles = await HasMathchingRoles(loggedUser);
             if (!hasMatchingRoles) {
                 throw new AuthenticationException("Invalid user not matching permissions");
-            } else {
-                code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             }
+            code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         }
         var result = await _userManager.ConfirmEmailAsync(user, code);
         if (!result.Succeeded) {

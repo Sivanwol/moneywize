@@ -5,6 +5,7 @@ using Application.Utils;
 using Domain.Entities;
 using Domain.Persistence.Repositories.Interfaces;
 using Domain.Requests.Processor.Services.User;
+using Infrastructure.Enums;
 using Infrastructure.Responses.Controllers.Auth;
 using Infrastructure.Services.Auth;
 using MediatR;
@@ -56,6 +57,19 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
         if (result.IsValid) {
             Log.Logger.Information($"Clearing OTP Codes for User: [{userId}]");
             await _applicationUserRepository.ClearOtpCodes(Guid.Parse(user.Id));
+            if (otpEntity.ProviderType == MFAProvider.Email) {
+                if (!user.EmailConfirmed) {
+                    Log.Logger.Information($"Confirming Email for User: [{userId}]");
+                    user.EmailConfirmed = true;
+                    await _userManager.UpdateAsync(user);
+                }
+            } else {
+                if (!user.PhoneNumberConfirmed) {
+                    Log.Logger.Information($"Confirming Phone Number for User: [{userId}]");
+                    user.PhoneNumberConfirmed = true;
+                    await _userManager.UpdateAsync(user);
+                }
+            }
             var roles = await _userManager.GetRolesAsync(user);
             claims = new List<Claim> {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
