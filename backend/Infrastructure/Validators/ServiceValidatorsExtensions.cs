@@ -13,10 +13,9 @@ public static class ServiceValidatorsExtensions {
         services.AddValidatorsFromAssemblyContaining<ResetPasswordValidator>();
         services.AddValidatorsFromAssemblyContaining<RefreshTokenValidator>();
         services.AddValidatorsFromAssemblyContaining<LoginUserValidator>();
-        services.AddValidatorsFromAssemblyContaining<SendCodeToProviderValidator>();
-        services.AddValidatorsFromAssemblyContaining<SendCodeFromProviderValidator>();
         services.AddValidatorsFromAssemblyContaining<RequestOtpValidator>();
         services.AddValidatorsFromAssemblyContaining<VerifyOTPValidator>();
+        services.AddValidatorsFromAssemblyContaining<ConfirmEmailValidator>();
 
         #endregion
 
