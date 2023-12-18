@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Domain.Persistence.Migrations
 {
     [DbContext(typeof(DomainContext))]
-    [Migration("20231213204813_Initial")]
+    [Migration("20231218221139_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -39,10 +39,14 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("EntityId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("char(36)");
 
                     b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("OperationType")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -50,9 +54,8 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 
@@ -133,7 +136,8 @@ namespace Domain.Persistence.Migrations
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("tinyint(1)");
@@ -166,7 +170,8 @@ namespace Domain.Persistence.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
 
                     b.Property<DateTime?>("ComplateAt")
                         .HasColumnType("datetime(6)");
@@ -179,9 +184,13 @@ namespace Domain.Persistence.Migrations
                     b.Property<DateTime>("ExpirationDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<byte>("ProviderType")
+                        .HasColumnType("tinyint unsigned");
+
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -196,11 +205,12 @@ namespace Domain.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Token")
+                        .IsUnique();
+
                     b.HasIndex("UserId1");
 
                     b.ToTable("ApplicationUserOtpCodes");
-
-                    b.HasAnnotation("generate_uuid_before_insert_ApplicationUserOtpCodes", "\n            CREATE TRIGGER `generate_uuid_before_insert_ApplicationUserOtpCodes` \n            BEFORE INSERT ON `ApplicationUserOtpCodes`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
                 });
 
             modelBuilder.Entity("Domain.Entities.Assets", b =>
@@ -224,6 +234,12 @@ namespace Domain.Persistence.Migrations
                     b.Property<Guid>("ExtraMediaId")
                         .HasColumnType("char(36)");
 
+                    b.Property<bool?>("IsRaidSupported")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool?>("IsVMSupported")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Label")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -245,6 +261,9 @@ namespace Domain.Persistence.Migrations
                     b.Property<Guid>("ProviderId")
                         .HasColumnType("char(36)");
 
+                    b.Property<int?>("RaidNumber")
+                        .HasColumnType("int");
+
                     b.Property<string>("ServiceTag")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -256,19 +275,19 @@ namespace Domain.Persistence.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<string>("StorageHD1")
+                    b.Property<string>("StorageHDD1")
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
-                    b.Property<string>("StorageHD2")
+                    b.Property<string>("StorageHDD2")
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
-                    b.Property<string>("StorageHD3")
+                    b.Property<string>("StorageHDD3")
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
-                    b.Property<string>("StorageHD4")
+                    b.Property<string>("StorageHDD4")
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
@@ -317,8 +336,6 @@ namespace Domain.Persistence.Migrations
                     b.HasIndex("VendorId");
 
                     b.ToTable("Assets");
-
-                    b.HasAnnotation("generate_uuid_before_insert_Assets", "\n            CREATE TRIGGER `generate_uuid_before_insert_Assets` \n            BEFORE INSERT ON `Assets`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
                 });
 
             modelBuilder.Entity("Domain.Entities.Categories", b =>
@@ -348,11 +365,88 @@ namespace Domain.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-
-                    b.HasAnnotation("generate_uuid_before_insert_Categories", "\n            CREATE TRIGGER `generate_uuid_before_insert_Categories` \n            BEFORE INSERT ON `Categories`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ClientEmployeeTags", b =>
+            modelBuilder.Entity("Domain.Entities.ClientContacts", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("City")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Company")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("CountryId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("varchar(95)");
+
+                    b.Property<string>("Fax")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("varchar(95)");
+
+                    b.Property<string>("JobTitle")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("varchar(95)");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone1")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Phone2")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("State")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<string>("whatsapp")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("CountryId", "FirstName", "LastName")
+                        .IsUnique();
+
+                    b.ToTable("ClientContacts");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ClientEmployeeHasTags", b =>
                 {
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("char(36)");
@@ -420,11 +514,45 @@ namespace Domain.Persistence.Migrations
                     b.HasIndex("ServerId");
 
                     b.ToTable("ClientEmployees");
-
-                    b.HasAnnotation("generate_uuid_before_insert_ClientEmployees", "\n            CREATE TRIGGER `generate_uuid_before_insert_ClientEmployees` \n            BEFORE INSERT ON `ClientEmployees`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ClientNetworkTags", b =>
+            modelBuilder.Entity("Domain.Entities.ClientEmployeesHasAssets", b =>
+                {
+                    b.Property<Guid>("ClientEmployeeId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("AssetId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ContactEmployeeId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<DateTime?>("DisabledAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.HasKey("ClientEmployeeId", "AssetId");
+
+                    b.HasIndex("AssetId");
+
+                    b.HasIndex("ContactEmployeeId");
+
+                    b.ToTable("ClientEmployeesHasAssets");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ClientNetworkHasTags", b =>
                 {
                     b.Property<Guid>("NetworkId")
                         .HasColumnType("char(36)");
@@ -491,11 +619,49 @@ namespace Domain.Persistence.Migrations
                     b.HasIndex("ClientId");
 
                     b.ToTable("ClientNetworks");
-
-                    b.HasAnnotation("generate_uuid_before_insert_ClientNetworks", "\n            CREATE TRIGGER `generate_uuid_before_insert_ClientNetworks` \n            BEFORE INSERT ON `ClientNetworks`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ClientServerTags", b =>
+            modelBuilder.Entity("Domain.Entities.ClientNetworksHasAssets", b =>
+                {
+                    b.Property<Guid>("ClientNetworkId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("AssetId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<DateTime?>("DisabledAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.HasKey("ClientNetworkId", "AssetId");
+
+                    b.HasIndex("AssetId");
+
+                    b.ToTable("ClientNetworksHasAssets");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ClientServerHasTags", b =>
                 {
                     b.Property<Guid>("ServerId")
                         .HasColumnType("char(36)");
@@ -562,35 +728,54 @@ namespace Domain.Persistence.Migrations
                     b.HasIndex("NetworkId");
 
                     b.ToTable("ClientServers");
-
-                    b.HasAnnotation("generate_uuid_before_insert_ClientServers", "\n            CREATE TRIGGER `generate_uuid_before_insert_ClientServers` \n            BEFORE INSERT ON `ClientServers`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ClientTags", b =>
+            modelBuilder.Entity("Domain.Entities.ClientServersHasAssets", b =>
                 {
-                    b.Property<Guid>("ClientId")
+                    b.Property<Guid>("ClientServerId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("TagId")
+                    b.Property<Guid>("AssetId")
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<DateTime?>("DisabledAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-                    b.HasKey("ClientId", "TagId");
+                    b.HasKey("ClientServerId", "AssetId");
 
-                    b.HasIndex("TagId");
+                    b.HasIndex("AssetId");
 
-                    b.ToTable("ClientTags");
+                    b.ToTable("ClientServersHasAssets");
                 });
 
             modelBuilder.Entity("Domain.Entities.Clients", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("varchar(95)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("varchar(95)");
+
+                    b.Property<Guid>("CountryId")
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -605,15 +790,16 @@ namespace Domain.Persistence.Migrations
                     b.Property<DateTime?>("DisabledAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid>("LogoId")
-                        .HasColumnType("char(36)");
-
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("OwnerId")
                         .HasColumnType("varchar(95)");
+
+                    b.Property<string>("OwnerUserId")
+                        .IsRequired()
+                        .HasColumnType("varchar(95)");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -626,13 +812,35 @@ namespace Domain.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LogoId");
+                    b.HasIndex("CountryId");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("OwnerUserId", "ParentId", "CountryId", "Address", "City", "Name")
+                        .IsUnique();
 
                     b.ToTable("Clients");
+                });
 
-                    b.HasAnnotation("generate_uuid_before_insert_Clients", "\n            CREATE TRIGGER `generate_uuid_before_insert_Clients` \n            BEFORE INSERT ON `Clients`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
+            modelBuilder.Entity("Domain.Entities.ClientsHasClientContacts", b =>
+                {
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ContactId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ClientId", "ContactId");
+
+                    b.HasIndex("ContactId");
+
+                    b.ToTable("ClientHasClientContacts");
                 });
 
             modelBuilder.Entity("Domain.Entities.Contacts", b =>
@@ -661,14 +869,15 @@ namespace Domain.Persistence.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<string>("Fax")
                         .HasColumnType("longtext");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(95)");
 
                     b.Property<string>("JobTitle")
                         .IsRequired()
@@ -676,7 +885,7 @@ namespace Domain.Persistence.Migrations
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(95)");
 
                     b.Property<string>("Notes")
                         .IsRequired()
@@ -704,11 +913,13 @@ namespace Domain.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CountryId");
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("CountryId", "FirstName", "LastName")
+                        .IsUnique();
 
                     b.ToTable("Contacts");
-
-                    b.HasAnnotation("generate_uuid_before_insert_Contacts", "\n            CREATE TRIGGER `generate_uuid_before_insert_Contacts` \n            BEFORE INSERT ON `Contacts`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
                 });
 
             modelBuilder.Entity("Domain.Entities.Countries", b =>
@@ -749,8 +960,6 @@ namespace Domain.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Countries");
-
-                    b.HasAnnotation("generate_uuid_before_insert_Countries", "\n            CREATE TRIGGER `generate_uuid_before_insert_Countries` \n            BEFORE INSERT ON `Countries`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
                 });
 
             modelBuilder.Entity("Domain.Entities.Languages", b =>
@@ -772,6 +981,10 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("TranslationKey")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
@@ -780,8 +993,6 @@ namespace Domain.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Languages");
-
-                    b.HasAnnotation("generate_uuid_before_insert_Languages", "\n            CREATE TRIGGER `generate_uuid_before_insert_Languages` \n            BEFORE INSERT ON `Languages`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
                 });
 
             modelBuilder.Entity("Domain.Entities.Media", b =>
@@ -826,11 +1037,9 @@ namespace Domain.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Media");
-
-                    b.HasAnnotation("generate_uuid_before_insert_Media", "\n            CREATE TRIGGER `generate_uuid_before_insert_Media` \n            BEFORE INSERT ON `Media`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ProviderCategories", b =>
+            modelBuilder.Entity("Domain.Entities.ProviderHasCategories", b =>
                 {
                     b.Property<Guid>("ProviderId")
                         .HasColumnType("char(36)");
@@ -851,12 +1060,15 @@ namespace Domain.Persistence.Migrations
                     b.ToTable("ProviderCategories");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ProviderContact", b =>
+            modelBuilder.Entity("Domain.Entities.ProviderHasContact", b =>
                 {
                     b.Property<Guid>("ProviderId")
                         .HasColumnType("char(36)");
 
                     b.Property<Guid>("ContactId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("ClientContactsId")
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -866,6 +1078,8 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("ProviderId", "ContactId");
+
+                    b.HasIndex("ClientContactsId");
 
                     b.HasIndex("ContactId");
 
@@ -895,7 +1109,7 @@ namespace Domain.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(95)");
 
                     b.Property<int>("ProviderType")
                         .HasColumnType("int");
@@ -917,9 +1131,10 @@ namespace Domain.Persistence.Migrations
 
                     b.HasIndex("LogoId");
 
-                    b.ToTable("Providers");
+                    b.HasIndex("Name")
+                        .IsUnique();
 
-                    b.HasAnnotation("generate_uuid_before_insert_Providers", "\n            CREATE TRIGGER `generate_uuid_before_insert_Providers` \n            BEFORE INSERT ON `Providers`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
+                    b.ToTable("Providers");
                 });
 
             modelBuilder.Entity("Domain.Entities.Tags", b =>
@@ -946,16 +1161,17 @@ namespace Domain.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tags");
-
-                    b.HasAnnotation("generate_uuid_before_insert_Tags", "\n            CREATE TRIGGER `generate_uuid_before_insert_Tags` \n            BEFORE INSERT ON `Tags`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
                 });
 
-            modelBuilder.Entity("Domain.Entities.VendorContact", b =>
+            modelBuilder.Entity("Domain.Entities.VendorHasContact", b =>
                 {
                     b.Property<Guid>("VendorId")
                         .HasColumnType("char(36)");
 
                     b.Property<Guid>("ContactId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("ClientContactsId")
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -965,6 +1181,8 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("VendorId", "ContactId");
+
+                    b.HasIndex("ClientContactsId");
 
                     b.HasIndex("ContactId");
 
@@ -1027,9 +1245,10 @@ namespace Domain.Persistence.Migrations
 
                     b.HasIndex("LogoId");
 
-                    b.ToTable("Vendors");
+                    b.HasIndex("Name")
+                        .IsUnique();
 
-                    b.HasAnnotation("generate_uuid_before_insert_Vendors", "\n            CREATE TRIGGER `generate_uuid_before_insert_Vendors` \n            BEFORE INSERT ON `Vendors`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
+                    b.ToTable("Vendors");
                 });
 
             modelBuilder.Entity("Domain.Entities.VendorsMetaData", b =>
@@ -1068,8 +1287,6 @@ namespace Domain.Persistence.Migrations
                     b.HasIndex("VendorId");
 
                     b.ToTable("VendorsMetaData");
-
-                    b.HasAnnotation("generate_uuid_before_insert_VendorsMetaData", "\n            CREATE TRIGGER `generate_uuid_before_insert_VendorsMetaData` \n            BEFORE INSERT ON `VendorsMetaData`\n            FOR EACH ROW \n            BEGIN\n                IF NEW.`Id` IS NULL THEN\n                    SET NEW.`Id` = UUID(); \n                END IF;\n            END");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1271,7 +1488,18 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("Vendor");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ClientEmployeeTags", b =>
+            modelBuilder.Entity("Domain.Entities.ClientContacts", b =>
+                {
+                    b.HasOne("Domain.Entities.Countries", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Country");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ClientEmployeeHasTags", b =>
                 {
                     b.HasOne("Domain.Entities.ClientEmployees", "Employee")
                         .WithMany("Tags")
@@ -1333,7 +1561,34 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("Server");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ClientNetworkTags", b =>
+            modelBuilder.Entity("Domain.Entities.ClientEmployeesHasAssets", b =>
+                {
+                    b.HasOne("Domain.Entities.Assets", "Asset")
+                        .WithMany("Employees")
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.ClientEmployees", "Employee")
+                        .WithMany("Assets")
+                        .HasForeignKey("ClientEmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.ClientContacts", "ContactEmployee")
+                        .WithMany()
+                        .HasForeignKey("ContactEmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Asset");
+
+                    b.Navigation("ContactEmployee");
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ClientNetworkHasTags", b =>
                 {
                     b.HasOne("Domain.Entities.ClientNetworks", "Network")
                         .WithMany("Tags")
@@ -1371,7 +1626,26 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ClientServerTags", b =>
+            modelBuilder.Entity("Domain.Entities.ClientNetworksHasAssets", b =>
+                {
+                    b.HasOne("Domain.Entities.Assets", "Asset")
+                        .WithMany("Networks")
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.ClientNetworks", "Network")
+                        .WithMany("Assets")
+                        .HasForeignKey("ClientNetworkId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Asset");
+
+                    b.Navigation("Network");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ClientServerHasTags", b =>
                 {
                     b.HasOne("Domain.Entities.ClientServers", "Server")
                         .WithMany("Tags")
@@ -1417,40 +1691,67 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("Network");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ClientTags", b =>
+            modelBuilder.Entity("Domain.Entities.ClientServersHasAssets", b =>
+                {
+                    b.HasOne("Domain.Entities.Assets", "Asset")
+                        .WithMany("Servers")
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.ClientServers", "Server")
+                        .WithMany("Assets")
+                        .HasForeignKey("ClientServerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Asset");
+
+                    b.Navigation("Server");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Clients", b =>
+                {
+                    b.HasOne("Domain.Entities.Countries", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.ApplicationUser", "OwnerUser")
+                        .WithMany("Clients")
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Clients", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Country");
+
+                    b.Navigation("OwnerUser");
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ClientsHasClientContacts", b =>
                 {
                     b.HasOne("Domain.Entities.Clients", "Client")
-                        .WithMany("Tags")
+                        .WithMany()
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Tags", "Tag")
-                        .WithMany("Clients")
-                        .HasForeignKey("TagId")
+                    b.HasOne("Domain.Entities.ClientContacts", "Contact")
+                        .WithMany()
+                        .HasForeignKey("ContactId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Client");
 
-                    b.Navigation("Tag");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Clients", b =>
-                {
-                    b.HasOne("Domain.Entities.Media", "Logo")
-                        .WithMany()
-                        .HasForeignKey("LogoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.ApplicationUser", "Owner")
-                        .WithMany()
-                        .HasForeignKey("OwnerId");
-
-                    b.Navigation("Logo");
-
-                    b.Navigation("Owner");
+                    b.Navigation("Contact");
                 });
 
             modelBuilder.Entity("Domain.Entities.Contacts", b =>
@@ -1464,7 +1765,7 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("Country");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ProviderCategories", b =>
+            modelBuilder.Entity("Domain.Entities.ProviderHasCategories", b =>
                 {
                     b.HasOne("Domain.Entities.Categories", "Category")
                         .WithMany("Providers")
@@ -1483,8 +1784,12 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("Provider");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ProviderContact", b =>
+            modelBuilder.Entity("Domain.Entities.ProviderHasContact", b =>
                 {
+                    b.HasOne("Domain.Entities.ClientContacts", null)
+                        .WithMany("Providers")
+                        .HasForeignKey("ClientContactsId");
+
                     b.HasOne("Domain.Entities.Contacts", "Contact")
                         .WithMany("Providers")
                         .HasForeignKey("ContactId")
@@ -1511,8 +1816,12 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("Logo");
                 });
 
-            modelBuilder.Entity("Domain.Entities.VendorContact", b =>
+            modelBuilder.Entity("Domain.Entities.VendorHasContact", b =>
                 {
+                    b.HasOne("Domain.Entities.ClientContacts", null)
+                        .WithMany("Vendors")
+                        .HasForeignKey("ClientContactsId");
+
                     b.HasOne("Domain.Entities.Contacts", "Contact")
                         .WithMany("Vendors")
                         .HasForeignKey("ContactId")
@@ -1601,28 +1910,50 @@ namespace Domain.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("Clients");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Assets", b =>
+                {
+                    b.Navigation("Employees");
+
+                    b.Navigation("Networks");
+
+                    b.Navigation("Servers");
+                });
+
             modelBuilder.Entity("Domain.Entities.Categories", b =>
                 {
                     b.Navigation("Providers");
                 });
 
+            modelBuilder.Entity("Domain.Entities.ClientContacts", b =>
+                {
+                    b.Navigation("Providers");
+
+                    b.Navigation("Vendors");
+                });
+
             modelBuilder.Entity("Domain.Entities.ClientEmployees", b =>
                 {
+                    b.Navigation("Assets");
+
                     b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("Domain.Entities.ClientNetworks", b =>
                 {
+                    b.Navigation("Assets");
+
                     b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("Domain.Entities.ClientServers", b =>
                 {
-                    b.Navigation("Tags");
-                });
+                    b.Navigation("Assets");
 
-            modelBuilder.Entity("Domain.Entities.Clients", b =>
-                {
                     b.Navigation("Tags");
                 });
 
@@ -1647,8 +1978,6 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("ClientNetworks");
 
                     b.Navigation("ClientServers");
-
-                    b.Navigation("Clients");
                 });
 
             modelBuilder.Entity("Domain.Entities.Vendors", b =>

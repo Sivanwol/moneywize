@@ -75,16 +75,16 @@ public class Assets : BaseEntity, ISoftDeletable {
     public string? Memory { get; set; }
 
     [StringLength(20)]
-    public string? StorageHD1 { get; set; }
+    public string? StorageHDD1 { get; set; }
 
     [StringLength(20)]
-    public string? StorageHD2 { get; set; }
+    public string? StorageHDD2 { get; set; }
 
     [StringLength(20)]
-    public string? StorageHD3 { get; set; }
+    public string? StorageHDD3 { get; set; }
 
     [StringLength(20)]
-    public string? StorageHD4 { get; set; }
+    public string? StorageHDD4 { get; set; }
 
     [StringLength(20)]
     public string? StorageSSD1 { get; set; }
@@ -99,9 +99,17 @@ public class Assets : BaseEntity, ISoftDeletable {
     public string? StorageSSD4 { get; set; }
 
     public AssetType Type { get; set; }
+    public bool? IsVMSupported { get; set; }
+    public bool? IsRaidSupported { get; set; }
+    public int? RaidNumber { get; set; }
 
     [DefaultValue(AssetStatus.UNASSIGNED)]
     public AssetStatus Status { get; set; }
+
+
+    public ICollection<ClientEmployeesHasAssets> Employees { get; set; }
+    public ICollection<ClientServersHasAssets> Servers { get; set; }
+    public ICollection<ClientNetworksHasAssets> Networks { get; set; }
 
     public DateTime? DeletedAt { get; }
 }

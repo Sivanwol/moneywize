@@ -11,13 +11,15 @@ public sealed class ActivityLogMockConfig : AutoFaker<ActivityLog> {
         if (opType > 5) {
             RuleFor(fake => fake.UserId, fake => null);
             RuleFor(fake => fake.OperationType, fake => {
-                var values = Enum.GetValues(typeof(ActivityOperationType)).Cast<ActivityOperationType>();
-                values = values.Where(val => val != ActivityOperationType.USER);
+                var values = Enum.GetValues(typeof(ActivityOperationType))
+                    .Cast<ActivityOperationType>()
+                    .Where(val => val != ActivityOperationType.USER)
+                    .Select(val => val.ToString());
                 return fake.PickRandom(values);
             });
         } else {
             RuleFor(fake => fake.UserId, fake => fake.Random.Guid());
-            RuleFor(fake => fake.OperationType, fake => ActivityOperationType.USER);
+            RuleFor(fake => fake.OperationType, fake => nameof(ActivityOperationType.USER));
         }
         RuleFor(fake => fake.EntityId, fake => fake.Random.Guid());
         RuleFor(fake => fake.Activity, fake => fake.Random.String2(10));

@@ -13,7 +13,7 @@ public class ActivityLog {
     public Guid? UserId { get; set; }
     public Guid EntityId { get; set; }
 
-    public ActivityOperationType OperationType { get; set; } = ActivityOperationType.USER;
+    public string OperationType { get; set; } = nameof(ActivityOperationType.USER);
     public string Activity { get; set; }
     public string Details { get; set; }
     public string EntityType { get; set; }

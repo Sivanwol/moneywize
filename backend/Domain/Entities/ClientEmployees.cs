@@ -30,6 +30,7 @@ public class ClientEmployees : BaseEntity, ISoftDeletable {
     public Contacts ContactEmployee { get; set; }
 
     public DateTime? DisabledAt { get; set; }
-    public ICollection<ClientEmployeeTags> Tags { get; set; }
+    public ICollection<ClientEmployeeHasTags> Tags { get; set; }
+    public ICollection<ClientEmployeesHasAssets> Assets { get; set; }
     public DateTime? DeletedAt { get; }
 }

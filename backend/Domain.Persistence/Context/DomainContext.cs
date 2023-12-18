@@ -29,24 +29,29 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
     public virtual DbSet<Vendors> Vendors { get; set; }
     public virtual DbSet<VendorsMetaData> VendorsMetaData { get; set; }
     public virtual DbSet<Contacts> Contacts { get; set; }
-    public virtual DbSet<VendorContact> VendorContacts { get; set; }
-    public virtual DbSet<ProviderContact> ProviderContacts { get; set; }
+    public virtual DbSet<VendorHasContact> VendorContacts { get; set; }
+    public virtual DbSet<ProviderHasContact> ProviderContacts { get; set; }
     public virtual DbSet<Providers> Providers { get; set; }
-    public virtual DbSet<ProviderCategories> ProviderCategories { get; set; }
+    public virtual DbSet<ProviderHasCategories> ProviderCategories { get; set; }
     public virtual DbSet<Categories> Categories { get; set; }
     public virtual DbSet<Tags> Tags { get; set; }
     public virtual DbSet<ClientServers> ClientServers { get; set; }
     public virtual DbSet<ClientNetworks> ClientNetworks { get; set; }
-    public virtual DbSet<ClientServerTags> ClientServerTags { get; set; }
-    public virtual DbSet<ClientNetworkTags> ClientNetworkTags { get; set; }
+    public virtual DbSet<ClientServerHasTags> ClientServerTags { get; set; }
+    public virtual DbSet<ClientNetworkHasTags> ClientNetworkTags { get; set; }
     public virtual DbSet<ActivityLog> ActivityLog { get; set; }
     public virtual DbSet<Clients> Clients { get; set; }
     public virtual DbSet<Media> Media { get; set; }
     public virtual DbSet<Clients> Client { get; set; }
-    public virtual DbSet<ClientTags> ClientTags { get; set; }
     public virtual DbSet<ClientEmployees> ClientEmployees { get; set; }
-    public virtual DbSet<ClientEmployeeTags> ClientEmployeeTags { get; set; }
+    public virtual DbSet<ClientEmployeeHasTags> ClientEmployeeTags { get; set; }
     public virtual DbSet<Assets> Assets { get; set; }
+    public virtual DbSet<ClientContacts> ClientContacts { get; set; }
+    public virtual DbSet<ClientsHasClientContacts> ClientHasClientContacts { get; set; }
+    public virtual DbSet<ClientServersHasAssets> ClientServersHasAssets { get; set; }
+    public virtual DbSet<ClientNetworksHasAssets> ClientNetworksHasAssets { get; set; }
+    public virtual DbSet<ClientEmployeesHasAssets> ClientEmployeesHasAssets { get; set; }
+
 
     public new void Dispose() {
         _logger.LogInformation("Disposing DomainContext instance.");
@@ -71,120 +76,174 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
 
         builder.Entity<ApplicationUserOtpCodes>().Property(x => x.ProviderType).HasConversion<byte>();
 
-        builder.Entity<VendorContact>()
+        builder.Entity<VendorHasContact>()
             .HasKey(vc => new {
                 vc.VendorId,
                 vc.ContactId
             });
         builder.Entity<Contacts>();
+        builder.Entity<Contacts>().HasIndex(x => x.Email).IsUnique();
+        builder.Entity<Contacts>().HasIndex(x => new {
+            x.CountryId,
+            x.FirstName,
+            x.LastName
+        }).IsUnique();
         builder.Entity<Vendors>();
+        builder.Entity<Vendors>().HasIndex(x => x.Name).IsUnique();
         builder.Entity<VendorsMetaData>();
         builder.Entity<Categories>();
         builder.Entity<Providers>();
+        builder.Entity<Providers>().HasIndex(x => x.Name).IsUnique();
         builder.Entity<Clients>();
-        builder.Entity<ClientTags>()
-            .HasKey(vc => new {
-                vc.ClientId,
-                vc.TagId
-            });
+        builder.Entity<Clients>().HasIndex(x => new {
+            x.OwnerUserId,
+            x.ParentId,
+            x.CountryId,
+            x.Address,
+            x.City,
+            x.Name
+        }).IsUnique();
+        builder.Entity<Clients>().HasOne(x => x.OwnerUser)
+            .WithMany(x => x.Clients)
+            .HasForeignKey(x => x.OwnerUserId);
+        builder.Entity<ClientContacts>();
+        builder.Entity<ClientContacts>().HasIndex(x => x.Email).IsUnique();
+        builder.Entity<ClientContacts>().HasIndex(x => new {
+            x.CountryId,
+            x.FirstName,
+            x.LastName
+        }).IsUnique();
+        builder.Entity<ClientsHasClientContacts>().HasKey(vc => new {
+            vc.ClientId,
+            vc.ContactId
+        });
         builder.Entity<Assets>();
         builder.Entity<ClientServers>();
-        builder.Entity<ClientServerTags>().HasKey(vc => new {
+        builder.Entity<ClientServersHasAssets>().HasKey(vc => new {
+            vc.ClientServerId,
+            vc.AssetId
+        });
+
+        builder.Entity<ClientServerHasTags>().HasKey(vc => new {
             vc.ServerId,
             vc.TagId
         });
         builder.Entity<ClientNetworks>();
-        builder.Entity<ClientNetworkTags>().HasKey(vc => new {
+        builder.Entity<ClientNetworkHasTags>().HasKey(vc => new {
             vc.NetworkId,
             vc.TagId
         });
+        builder.Entity<ClientNetworksHasAssets>().HasKey(vc => new {
+            vc.ClientNetworkId,
+            vc.AssetId
+        });
         builder.Entity<ClientEmployees>();
-        builder.Entity<ClientEmployeeTags>().HasKey(vc => new {
+        builder.Entity<ClientEmployeeHasTags>().HasKey(vc => new {
             vc.EmployeeId,
             vc.TagId
         });
+        builder.Entity<ClientEmployeesHasAssets>().HasKey(vc => new {
+            vc.ClientEmployeeId,
+            vc.AssetId
+        });
 
-        builder.Entity<ProviderCategories>().HasKey(vc => new {
+        builder.Entity<ProviderHasCategories>().HasKey(vc => new {
             vc.ProviderId,
             vc.CategoryId
         });
-        builder.Entity<ProviderContact>().HasKey(vc => new {
+        builder.Entity<ProviderHasContact>().HasKey(vc => new {
             vc.ProviderId,
             vc.ContactId
-        });
-        builder.Entity<ClientTags>().HasKey(vc => new {
-            vc.ClientId,
-            vc.TagId
         });
 
         #region Foreign Keys
 
-        builder.Entity<ClientNetworkTags>()
+        builder.Entity<ClientNetworkHasTags>()
             .HasOne(vc => vc.Tag)
             .WithMany(v => v.ClientNetworks)
             .HasForeignKey(vc => vc.TagId);
 
-        builder.Entity<ClientNetworkTags>()
+        builder.Entity<ClientNetworkHasTags>()
             .HasOne(vc => vc.Network)
             .WithMany(c => c.Tags)
             .HasForeignKey(vc => vc.NetworkId);
 
-        builder.Entity<ClientServerTags>()
+        builder.Entity<ClientNetworksHasAssets>()
+            .HasOne(vc => vc.Asset)
+            .WithMany(v => v.Networks)
+            .HasForeignKey(vc => vc.AssetId);
+
+        builder.Entity<ClientNetworksHasAssets>()
+            .HasOne(vc => vc.Network)
+            .WithMany(c => c.Assets)
+            .HasForeignKey(vc => vc.ClientNetworkId);
+
+        builder.Entity<ClientServerHasTags>()
             .HasOne(vc => vc.Tag)
             .WithMany(v => v.ClientServers)
             .HasForeignKey(vc => vc.TagId);
 
-        builder.Entity<ClientServerTags>()
+        builder.Entity<ClientServerHasTags>()
             .HasOne(vc => vc.Server)
             .WithMany(c => c.Tags)
             .HasForeignKey(vc => vc.ServerId);
 
-        builder.Entity<ClientEmployeeTags>()
+        builder.Entity<ClientServersHasAssets>()
+            .HasOne(vc => vc.Asset)
+            .WithMany(v => v.Servers)
+            .HasForeignKey(vc => vc.AssetId);
+
+        builder.Entity<ClientServersHasAssets>()
+            .HasOne(vc => vc.Server)
+            .WithMany(c => c.Assets)
+            .HasForeignKey(vc => vc.ClientServerId);
+
+        builder.Entity<ClientEmployeeHasTags>()
             .HasOne(vc => vc.Tag)
             .WithMany(v => v.ClientEmployees)
             .HasForeignKey(vc => vc.TagId);
 
-        builder.Entity<ClientEmployeeTags>()
+        builder.Entity<ClientEmployeeHasTags>()
             .HasOne(vc => vc.Employee)
             .WithMany(c => c.Tags)
             .HasForeignKey(vc => vc.EmployeeId);
 
-        builder.Entity<ClientTags>()
-            .HasOne(vc => vc.Tag)
-            .WithMany(v => v.Clients)
-            .HasForeignKey(vc => vc.TagId);
+        builder.Entity<ClientEmployeesHasAssets>()
+            .HasOne(vc => vc.Asset)
+            .WithMany(v => v.Employees)
+            .HasForeignKey(vc => vc.AssetId);
 
-        builder.Entity<ClientTags>()
-            .HasOne(vc => vc.Client)
-            .WithMany(c => c.Tags)
-            .HasForeignKey(vc => vc.ClientId);
+        builder.Entity<ClientEmployeesHasAssets>()
+            .HasOne(vc => vc.Employee)
+            .WithMany(c => c.Assets)
+            .HasForeignKey(vc => vc.ClientEmployeeId);
 
-        builder.Entity<ProviderCategories>()
+        builder.Entity<ProviderHasCategories>()
             .HasOne(vc => vc.Provider)
             .WithMany(v => v.Categories)
             .HasForeignKey(vc => vc.ProviderId);
 
-        builder.Entity<ProviderCategories>()
+        builder.Entity<ProviderHasCategories>()
             .HasOne(vc => vc.Category)
             .WithMany(c => c.Providers)
             .HasForeignKey(vc => vc.CategoryId);
 
-        builder.Entity<ProviderContact>()
+        builder.Entity<ProviderHasContact>()
             .HasOne(vc => vc.Provider)
             .WithMany(v => v.Contacts)
             .HasForeignKey(vc => vc.ProviderId);
 
-        builder.Entity<ProviderContact>()
+        builder.Entity<ProviderHasContact>()
             .HasOne(vc => vc.Contact)
             .WithMany(c => c.Providers)
             .HasForeignKey(vc => vc.ContactId);
 
-        builder.Entity<VendorContact>()
+        builder.Entity<VendorHasContact>()
             .HasOne(vc => vc.Vendor)
             .WithMany(v => v.Contacts)
             .HasForeignKey(vc => vc.VendorId);
 
-        builder.Entity<VendorContact>()
+        builder.Entity<VendorHasContact>()
             .HasOne(vc => vc.Contact)
             .WithMany(c => c.Vendors)
             .HasForeignKey(vc => vc.ContactId);

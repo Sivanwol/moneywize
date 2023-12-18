@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Application.Queries;
 using Domain.Common;
@@ -6,7 +7,10 @@ namespace Domain.Entities;
 public class Contacts : BaseEntity, ISoftDeletable {
     public string FirstName { get; set; }
     public string LastName { get; set; }
+
+    [MaxLength(500)]
     public string Email { get; set; }
+
     public string? Phone1 { get; set; }
     public string? Phone2 { get; set; }
     public string? Fax { get; set; }
@@ -26,7 +30,7 @@ public class Contacts : BaseEntity, ISoftDeletable {
     [Column(TypeName = "text")]
     public string Notes { get; set; }
 
-    public ICollection<VendorContact> Vendors { get; set; }
-    public ICollection<ProviderContact> Providers { get; set; }
+    public ICollection<VendorHasContact> Vendors { get; set; }
+    public ICollection<ProviderHasContact> Providers { get; set; }
     public DateTime? DeletedAt { get; }
 }

@@ -1,7 +1,7 @@
 using Domain.Common;
 namespace Domain.Entities;
 
-public class VendorContact : BaseEntityWithoutId {
+public class VendorHasContact : BaseEntityWithoutId {
     public Guid VendorId { get; set; }
     public Vendors Vendor { get; set; }
     public Guid ContactId { get; set; }

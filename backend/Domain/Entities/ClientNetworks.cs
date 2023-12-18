@@ -25,6 +25,7 @@ public class ClientNetworks : BaseEntity, ISoftDeletable {
     public string Notes { get; set; }
 
     public DateTime? DisabledAt { get; set; }
-    public ICollection<ClientNetworkTags> Tags { get; set; }
+    public ICollection<ClientNetworkHasTags> Tags { get; set; }
+    public ICollection<ClientNetworksHasAssets> Assets { get; set; }
     public DateTime? DeletedAt { get; }
 }

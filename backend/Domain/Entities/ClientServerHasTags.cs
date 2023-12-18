@@ -1,7 +1,7 @@
 using Domain.Common;
 namespace Domain.Entities;
 
-public class ClientServerTags : BaseEntityWithoutId {
+public class ClientServerHasTags : BaseEntityWithoutId {
     public Guid ServerId { get; set; }
     public ClientServers Server { get; set; }
     public Guid TagId { get; set; }

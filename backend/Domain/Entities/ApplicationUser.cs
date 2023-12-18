@@ -17,5 +17,6 @@ public class ApplicationUser : IdentityUser, ISoftDeletable {
     [PersonalData] public double Latitude { get; set; }
     [PersonalData] public double Longitude { get; set; }
     public bool TermsApproved { get; set; }
+    public ICollection<Clients> Clients { get; set; }
     public DateTime? DeletedAt { get; }
 }
