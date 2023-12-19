@@ -40,4 +40,9 @@ public class RegisterNewUserRequest {
     [Required]
     [Display(Name = "Country Id")]
     public string CountryId { get; set; }
+
+    [SwaggerSchema("Display Language Id of the user")]
+    [Required]
+    [Display(Name = "Display Language Id")]
+    public string DisplayLanguageId { get; set; }
 }

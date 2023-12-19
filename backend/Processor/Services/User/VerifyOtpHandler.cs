@@ -10,7 +10,6 @@ using Infrastructure.Responses.Controllers.Auth;
 using Infrastructure.Services.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 using Serilog;
 namespace Processor.Services.User;
 
@@ -19,27 +18,21 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
     private readonly BackendApplicationConfig _config;
     private readonly ICountriesRepository _countriesRepository;
     private readonly IJwtAuthManager _jwtAuthManager;
-    private readonly ILoggerFactory _loggerFactory;
     private readonly IMediator _mediator;
     private readonly IOTPRepository _otpRepository;
-    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
 
     public VerifyOtpHandler(IMediator mediator,
-        ILoggerFactory logger,
         IJwtAuthManager jwtAuthManager,
         IApplicationUserRepository applicationUserRepository,
         ICountriesRepository countriesRepository,
         IOTPRepository otpRepository,
         UserManager<ApplicationUser> userManager,
-        BackendApplicationConfig config,
-        SignInManager<ApplicationUser> signInManager) {
+        BackendApplicationConfig config) {
         _otpRepository = otpRepository;
         _applicationUserRepository = applicationUserRepository;
         _countriesRepository = countriesRepository;
-        _signInManager = signInManager;
         _jwtAuthManager = jwtAuthManager;
-        _loggerFactory = logger;
         _userManager = userManager;
         _mediator = mediator;
         _config = config;

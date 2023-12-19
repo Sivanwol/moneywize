@@ -2,7 +2,6 @@ using Application.Constraints;
 using Application.Exceptions;
 using Application.Responses.Base;
 using Domain.Entities;
-using Domain.Persistence.Repositories.Interfaces;
 using Infrastructure.Requests.Processor.Services.User;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -10,19 +9,13 @@ using Serilog;
 namespace Processor.Services.User;
 
 public class ConfirmEmailHandler : IRequestHandler<ConfirmEmailRequest, EmptyResponse> {
-    private readonly IApplicationUserRepository _applicationUserRepository;
     private readonly IMediator _mediator;
-    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly UserManager<ApplicationUser> _userManager;
 
     public ConfirmEmailHandler(IMediator mediator,
-        UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager,
-        IApplicationUserRepository applicationUserRepository) {
+        UserManager<ApplicationUser> userManager) {
         _mediator = mediator;
-        _applicationUserRepository = applicationUserRepository;
         _userManager = userManager;
-        _roleManager = roleManager;
     }
 
     public async Task<EmptyResponse> Handle(ConfirmEmailRequest request, CancellationToken cancellationToken) {
@@ -46,10 +39,12 @@ public class ConfirmEmailHandler : IRequestHandler<ConfirmEmailRequest, EmptyRes
             if (loggedUser == null) {
                 throw new EntityNotFoundException("User", request.LoggedUserId.ToString());
             }
+
             var hasMatchingRoles = await HasMathchingRoles(loggedUser);
             if (!hasMatchingRoles) {
                 throw new AuthenticationException("Invalid user not matching permissions");
             }
+
             code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         }
         var result = await _userManager.ConfirmEmailAsync(user, code);

@@ -7,6 +7,9 @@ public enum ActivityOperationType {
 }
 
 public class ActivityLog {
+    public string? IpAddress;
+    public string? UserAgent;
+
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
 

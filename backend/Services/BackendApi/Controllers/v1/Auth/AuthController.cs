@@ -465,7 +465,9 @@ public class AuthController : BaseApiController {
     [SwaggerResponse(StatusCodes.Status200OK, "Register new User", typeof(DataResponse<AuthResponse>))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "bad register data", typeof(DataResponse<EmptyResponse>))]
     [AllowAnonymous]
-    public async Task<IActionResult> Register([SwaggerRequestBody("register user payload", Required = true)] RegisterNewUserRequest request, bool automaticLogin = false) {
+    public async Task<IActionResult> Register(
+        [SwaggerRequestBody("register user payload", Required = true)]
+        RegisterNewUserRequest request) {
         var response = new AuthResponse();
         var validator = await _registerNewUserValidator.ValidateAsync(request);
         if (!validator.IsValid) {
@@ -598,9 +600,5 @@ public class AuthController : BaseApiController {
     // }
     private List<string> HandlerErrorResponse(ValidationResult result) {
         return result.Errors.Select(error => error.ErrorMessage).ToList();
-    }
-
-    private Task<ApplicationUser> GetCurrentUserAsync() {
-        return _userManager.GetUserAsync(HttpContext.User);
     }
 }
