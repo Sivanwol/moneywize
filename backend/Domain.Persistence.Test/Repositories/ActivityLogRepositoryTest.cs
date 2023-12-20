@@ -33,14 +33,16 @@ public class ActivityLogRepositoryTest : BaseTest {
             activityLog.Status);
         var result = await repository.GetById(activityLog.Id);
         Assert.That(result, Is.Not.Null);
-        Assert.That(result!.Id, Is.EqualTo(activityLog.Id));
-        Assert.That(result!.UserId, Is.EqualTo(activityLog.UserId));
-        Assert.That(result!.EntityId, Is.EqualTo(activityLog.EntityId));
-        Assert.That(result!.EntityType, Is.EqualTo(activityLog.EntityType));
-        Assert.That(result!.OperationType, Is.EqualTo(activityLog.OperationType));
-        Assert.That(result!.Activity, Is.EqualTo(activityLog.Activity));
-        Assert.That(result!.Details, Is.EqualTo(activityLog.Details));
-        Assert.That(result!.Status, Is.EqualTo(activityLog.Status));
+        Assert.Multiple(() => {
+            Assert.That(result!.Id, Is.EqualTo(activityLog.Id));
+            Assert.That(result!.UserId, Is.EqualTo(activityLog.UserId));
+            Assert.That(result!.EntityId, Is.EqualTo(activityLog.EntityId));
+            Assert.That(result!.EntityType, Is.EqualTo(activityLog.EntityType));
+            Assert.That(result!.OperationType, Is.EqualTo(activityLog.OperationType));
+            Assert.That(result!.Activity, Is.EqualTo(activityLog.Activity));
+            Assert.That(result!.Details, Is.EqualTo(activityLog.Details));
+            Assert.That(result!.Status, Is.EqualTo(activityLog.Status));
+        });
     }
 
     [Test, Description("Add a new activity log With IP and UserAgent")]
@@ -58,15 +60,17 @@ public class ActivityLogRepositoryTest : BaseTest {
             activityLog.Status, activityLog.IpAddress, activityLog.UserAgent);
         var result = await repository.GetById(activityLog.Id);
         Assert.That(result, Is.Not.Null);
-        Assert.That(result!.Id, Is.EqualTo(activityLog.Id));
-        Assert.That(result!.UserId, Is.EqualTo(activityLog.UserId));
-        Assert.That(result!.EntityId, Is.EqualTo(activityLog.EntityId));
-        Assert.That(result!.EntityType, Is.EqualTo(activityLog.EntityType));
-        Assert.That(result!.OperationType, Is.EqualTo(activityLog.OperationType));
-        Assert.That(result!.Activity, Is.EqualTo(activityLog.Activity));
-        Assert.That(result!.Details, Is.EqualTo(activityLog.Details));
-        Assert.That(result!.Status, Is.EqualTo(activityLog.Status));
-        Assert.That(result!.IpAddress, Is.EqualTo(activityLog.IpAddress));
-        Assert.That(result!.UserAgent, Is.EqualTo(activityLog.UserAgent));
+        Assert.Multiple(() => {
+            Assert.That(result!.Id, Is.EqualTo(activityLog.Id));
+            Assert.That(result!.UserId, Is.EqualTo(activityLog.UserId));
+            Assert.That(result!.EntityId, Is.EqualTo(activityLog.EntityId));
+            Assert.That(result!.EntityType, Is.EqualTo(activityLog.EntityType));
+            Assert.That(result!.OperationType, Is.EqualTo(activityLog.OperationType));
+            Assert.That(result!.Activity, Is.EqualTo(activityLog.Activity));
+            Assert.That(result!.Details, Is.EqualTo(activityLog.Details));
+            Assert.That(result!.Status, Is.EqualTo(activityLog.Status));
+            Assert.That(result!.IpAddress, Is.EqualTo(activityLog.IpAddress));
+            Assert.That(result!.UserAgent, Is.EqualTo(activityLog.UserAgent));
+        });
     }
 }
