@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 namespace Domain.Entities;
 
 public enum ActivityOperationType {
@@ -6,9 +7,8 @@ public enum ActivityOperationType {
     USER
 }
 
+[Table("ActivityLogs")]
 public class ActivityLog {
-    public string? IpAddress;
-    public string? UserAgent;
 
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -24,5 +24,7 @@ public class ActivityLog {
     public string Details { get; set; }
     public string EntityType { get; set; }
     public string Status { get; set; }
+    public string IpAddress { get; set; }
+    public string UserAgent { get; set; }
     public DateTime CreatedAt { get; set; }
 }

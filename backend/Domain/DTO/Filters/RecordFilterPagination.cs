@@ -57,7 +57,7 @@ public class RecordFilterPagination<TFilter> where TFilter : IFilter {
         var type = typeof(T);
         var property = type.GetProperty(SortByField);
         var parameter = Expression.Parameter(type, "p");
-        var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+        var propertyAccess = Expression.MakeMemberAccess(parameter, property!);
         var orderByExp = Expression.Lambda(propertyAccess, parameter);
         var typeArguments = new Type[] {
             type, property.PropertyType

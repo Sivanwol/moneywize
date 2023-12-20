@@ -214,4 +214,108 @@ public class ActivityLogRepositoryTest : BaseTest {
             });
         }
     }
+    [Test, Description("Get Activities without filters and pagination With Sort")]
+    [TestCase(30, "Id", SortDirection.Ascending)]
+    [TestCase(30, "Id", SortDirection.Descending)]
+    [TestCase(30, "UserId", SortDirection.Ascending)]
+    [TestCase(30, "UserId", SortDirection.Descending)]
+    [TestCase(30, "EntityId", SortDirection.Ascending)]
+    [TestCase(30, "EntityId", SortDirection.Descending)]
+    [TestCase(30, "EntityType", SortDirection.Ascending)]
+    [TestCase(30, "EntityType", SortDirection.Descending)]
+    [TestCase(30, "Activity", SortDirection.Ascending)]
+    [TestCase(30, "Activity", SortDirection.Descending)]
+    [TestCase(30, "Status", SortDirection.Ascending)]
+    [TestCase(30, "Status", SortDirection.Descending)]
+    [TestCase(30, "IpAddress", SortDirection.Ascending)]
+    [TestCase(30, "IpAddress", SortDirection.Descending)]
+    [TestCase(30, "UserAgent", SortDirection.Ascending)]
+    [TestCase(30, "UserAgent", SortDirection.Descending)]
+    [TestCase(30, "CreatedAt", SortDirection.Ascending)]
+    [TestCase(30, "CreatedAt", SortDirection.Descending)]
+    public async Task GetActivitiesWithoutFilltersAndPaginationWithSortBy(int tottalEntities, string sortByField, SortDirection sortDirection) {
+        var mock = new MockActivityLogService();
+        var mockData = mock.GetMany(tottalEntities); // Use a fixed number of entries for testing
+        var repository = new ActivityLogRepository(Context.Object);
+
+        var mockEnumerable = mockData.ToList();
+        var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
+
+        var result = await repository.GetActivities(new RecordFilterPagination<ActivityLogFilters>() {
+            SortByField = sortByField,
+            SortDirection = sortDirection
+        });
+        if (string.IsNullOrEmpty(sortByField))
+            Assert.Fail("SortByField is null or empty");
+        //apply sorting
+        if (!string.IsNullOrEmpty(sortByField)) {
+            switch (sortByField) {
+                case "Id":
+                    mockData = (sortDirection == SortDirection.Ascending
+                        ? mockData.OrderBy(a => a.Id)
+                        : mockData.OrderByDescending(a => a.Id)).ToList();
+                    break;
+                case "UserId":
+                    mockData = (sortDirection == SortDirection.Ascending
+                        ? mockData.OrderBy(a => a.UserId)
+                        : mockData.OrderByDescending(a => a.UserId)).ToList();
+                    break;
+                case "EntityId":
+                    mockData = (sortDirection == SortDirection.Ascending
+                        ? mockData.OrderBy(a => a.EntityId)
+                        : mockData.OrderByDescending(a => a.EntityId)).ToList();
+                    break;
+                case "EntityType":
+                    mockData = (sortDirection == SortDirection.Ascending
+                        ? mockData.OrderBy(a => a.EntityType)
+                        : mockData.OrderByDescending(a => a.EntityType)).ToList();
+                    break;
+                case "Activity":
+                    mockData = (sortDirection == SortDirection.Ascending
+                        ? mockData.OrderBy(a => a.Activity)
+                        : mockData.OrderByDescending(a => a.Activity)).ToList();
+                    break;
+                case "Status":
+                    mockData = (sortDirection == SortDirection.Ascending
+                        ? mockData.OrderBy(a => a.Status)
+                        : mockData.OrderByDescending(a => a.Status)).ToList();
+                    break;
+                case "IpAddress":
+                    mockData = (sortDirection == SortDirection.Ascending
+                        ? mockData.OrderBy(a => a.IpAddress)
+                        : mockData.OrderByDescending(a => a.IpAddress)).ToList();
+                    break;
+                case "UserAgent":
+                    mockData = (sortDirection == SortDirection.Ascending
+                        ? mockData.OrderBy(a => a.UserAgent)
+                        : mockData.OrderByDescending(a => a.UserAgent)).ToList();
+                    break;
+                case "CreatedAt":
+                    mockData = (sortDirection == SortDirection.Ascending
+                        ? mockData.OrderBy(a => a.CreatedAt)
+                        : mockData.OrderByDescending(a => a.CreatedAt)).ToList();
+                    break;
+            }
+        }
+
+        mockData = mockData.Skip(0).Take(10).ToList();
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Count, Is.EqualTo(10)); // Should return all entries
+
+        foreach (var item in result) {
+            Assert.Multiple(() => {
+                Assert.That(mockData.Any(x => x.Id == item.Id), Is.True);
+                Assert.That(mockData.Any(x => x.UserId == item.UserId), Is.True);
+                Assert.That(mockData.Any(x => x.EntityId == item.EntityId), Is.True);
+                Assert.That(mockData.Any(x => x.EntityType == item.EntityType), Is.True);
+                Assert.That(mockData.Any(x => x.OperationType == item.OperationType), Is.True);
+                Assert.That(mockData.Any(x => x.Activity == item.Activity), Is.True);
+                Assert.That(mockData.Any(x => x.Details == item.Details), Is.True);
+                Assert.That(mockData.Any(x => x.Status == item.Status), Is.True);
+                Assert.That(mockData.Any(x => x.IpAddress == item.IpAddress), Is.True);
+                Assert.That(mockData.Any(x => x.UserAgent == item.UserAgent), Is.True);
+            });
+        }
+    }
 }
