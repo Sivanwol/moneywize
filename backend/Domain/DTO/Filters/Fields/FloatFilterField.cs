@@ -3,17 +3,21 @@ namespace Domain.DTO.Filters.Fields;
 
 public class FloatFilterField : BaseFilterField<FilterNumberOperation, float> {
 
+    public FloatFilterField(string fillterField) : base(fillterField) { }
+    public FloatFilterField(string fillterField, bool isDisabled) : base(fillterField) {
+        IsFilterDisabled = isDisabled;
+    }
     public override IQueryable<T> ApplyFilter<T>(IQueryable<T> query) {
+        if (IsFilterDisabled) {
+            return query;
+        }
         Expression valuesExpression = null;
         Expression filterExpression = null;
         Expression valueExpression = null;
         // Accessing the property with provided field name
         var parameter = Expression.Parameter(typeof(T), "t");
         var property = Expression.Property(parameter, FillterField); // Creating filter expression based on operation and type of TFilterValue
-        if (FilterOperation == FilterNumberOperation.Between ||
-            FilterOperation == FilterNumberOperation.NotBetween ||
-            FilterOperation == FilterNumberOperation.In ||
-            FilterOperation == FilterNumberOperation.NotIn) {
+        if (FilterOperation is FilterNumberOperation.Between or FilterNumberOperation.NotBetween or FilterNumberOperation.In or FilterNumberOperation.NotIn) {
             if (FilterValues == null) {
                 throw new InvalidOperationException("Filter values are not provided.");
             }

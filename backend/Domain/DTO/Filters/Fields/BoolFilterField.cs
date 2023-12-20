@@ -3,7 +3,14 @@ namespace Domain.DTO.Filters.Fields;
 
 public class BoolFilterField : BaseFilterField<FilterBooleanOperation, bool> {
 
+    public BoolFilterField(string fillterField) : base(fillterField) { }
+    public BoolFilterField(string fillterField, bool isDisabled) : base(fillterField) {
+        IsFilterDisabled = isDisabled;
+    }
     public override IQueryable<T> ApplyFilter<T>(IQueryable<T> query) {
+        if (IsFilterDisabled) {
+            return query;
+        }
         Expression filterExpression = null;
         Expression valueExpression = null;
         // Accessing the property with provided field name

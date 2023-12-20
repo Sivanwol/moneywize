@@ -3,9 +3,12 @@ namespace Domain.DTO.Filters.Fields;
 public abstract class BaseFilterField<TFilterOperation, TFilterValue>
     where TFilterOperation : Enum {
     private TFilterValue? filterValue;
-
     private ICollection<TFilterValue>? filterValues;
-    public string FillterField { get; set; }
+    public BaseFilterField(string fillterField) {
+        FillterField = fillterField;
+    }
+    public bool IsFilterDisabled { get; set; } = false;
+    public string FillterField { get; }
     public TFilterOperation FilterOperation { get; set; }
 
     public TFilterValue? FilterValue
