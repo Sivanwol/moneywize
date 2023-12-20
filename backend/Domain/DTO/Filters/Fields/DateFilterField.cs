@@ -3,40 +3,42 @@ namespace Domain.DTO.Filters.Fields;
 
 public class DateFilterField : BaseFilterField<FilterDateOperation, DateTime> {
 
-    public DateFilterField(string fillterField) : base(fillterField) { }
-    public DateFilterField(string fillterField, bool isDisabled) : base(fillterField) {
+    public DateFilterField(string filterField, FilterDateOperation operation) : base(filterField, operation) { }
+    public DateFilterField(string filterField, FilterDateOperation operation, bool isDisabled) : base(filterField, operation) {
         IsFilterDisabled = isDisabled;
     }
-    public override IQueryable<T> ApplyFilter<T>(IQueryable<T> query) {
+
+
+    public override Expression<Func<T, bool>> ApplyFilter<T>() {
         if (IsFilterDisabled) {
-            return query;
+            return null;
         }
         Expression valuesExpression = null;
         Expression filterExpression = null;
         Expression valueExpression = null;
         // Accessing the property with provided field name
         var parameter = Expression.Parameter(typeof(T), "t");
-        var property = Expression.Property(parameter, FillterField); // Creating filter expression based on operation and type of TFilterValue
+        var property = Expression.Property(parameter, FilterField); // Creating filter expression based on operation and type of TFilterValue
         if (FilterOperation is FilterDateOperation.Between or FilterDateOperation.NotBetween or FilterDateOperation.In or FilterDateOperation.NotIn) {
             if (FilterValues == null) {
                 throw new InvalidOperationException("Filter values are not provided.");
             }
-            valuesExpression = Expression.Constant(FilterValues, typeof(ICollection<int>));
+            valuesExpression = Expression.Constant(FilterValues, typeof(ICollection<DateTime>));
         } else {
             if (FilterValue == null) {
                 throw new InvalidOperationException("Filter value is not provided.");
             }
-            valueExpression = Expression.Constant(FilterValue, typeof(int));
+            valueExpression = Expression.Constant(FilterValue, typeof(DateTime));
         }
         switch (FilterOperation) {
             case FilterDateOperation.In:
                 filterExpression = Expression.Call(typeof(Enumerable), nameof(Enumerable.Contains), new[] {
-                    typeof(int)
+                    typeof(DateTime)
                 }, valuesExpression!, property);
                 break;
             case FilterDateOperation.NotIn:
                 filterExpression = Expression.Not(Expression.Call(typeof(Enumerable), nameof(Enumerable.Contains), new[] {
-                    typeof(int)
+                    typeof(DateTime)
                 }, valuesExpression!, property));
                 break;
             case FilterDateOperation.Equal:
@@ -62,8 +64,8 @@ public class DateFilterField : BaseFilterField<FilterDateOperation, DateTime> {
                     throw new InvalidOperationException("Filter values count must be 2.");
                 }
                 filterExpression = Expression.And(
-                    Expression.GreaterThanOrEqual(property, Expression.Constant(FilterValues!.First(), typeof(int))),
-                    Expression.LessThanOrEqual(property, Expression.Constant(FilterValues!.Last(), typeof(int)))
+                    Expression.GreaterThanOrEqual(property, Expression.Constant(FilterValues!.First(), typeof(DateTime))),
+                    Expression.LessThanOrEqual(property, Expression.Constant(FilterValues!.Last(), typeof(DateTime)))
                 );
                 break;
             case FilterDateOperation.NotBetween:
@@ -71,8 +73,8 @@ public class DateFilterField : BaseFilterField<FilterDateOperation, DateTime> {
                     throw new InvalidOperationException("Filter values count must be 2.");
                 }
                 filterExpression = Expression.Not(Expression.And(
-                    Expression.LessThan(property, Expression.Constant(FilterValues!.First(), typeof(int))),
-                    Expression.GreaterThan(property, Expression.Constant(FilterValues!.Last(), typeof(int)))
+                    Expression.LessThan(property, Expression.Constant(FilterValues!.First(), typeof(DateTime))),
+                    Expression.GreaterThan(property, Expression.Constant(FilterValues!.Last(), typeof(DateTime)))
                 ));
                 break;
             default:
@@ -80,7 +82,6 @@ public class DateFilterField : BaseFilterField<FilterDateOperation, DateTime> {
         }
 
 
-        var whereExpression = Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
-        return query.Where(whereExpression);
+        return Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
     }
 }

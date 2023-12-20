@@ -3,19 +3,23 @@ namespace Domain.DTO.Filters.Fields;
 
 public class IntFilterField : BaseFilterField<FilterNumberOperation, int> {
 
-    public IntFilterField(string fillterField) : base(fillterField) { }
-    public override IQueryable<T> ApplyFilter<T>(IQueryable<T> query) {
+    public IntFilterField(string filterField, FilterNumberOperation operation) : base(filterField, operation) { }
+    public IntFilterField(string filterField, FilterNumberOperation operation, bool isDisabled) : base(filterField, operation) {
+        IsFilterDisabled = isDisabled;
+    }
+
+    public override Expression<Func<T, bool>> ApplyFilter<T>() {
         if (IsFilterDisabled) {
-            return query;
+            return null;
         }
         Expression valuesExpression = null;
         Expression filterExpression = null;
         Expression valueExpression = null;
         // Accessing the property with provided field name
         var parameter = Expression.Parameter(typeof(T), "t");
-        var property = Expression.Property(parameter, FillterField); // Creating filter expression based on operation and type of TFilterValue
+        var property = Expression.Property(parameter, FilterField); // Creating filter expression based on operation and type of TFilterValue
         if (FilterOperation is FilterNumberOperation.Between or FilterNumberOperation.NotBetween or FilterNumberOperation.In or FilterNumberOperation.NotIn) {
-            if (FilterValues == null) {
+            if (FilterValues == null || FilterValues.Count == 0) {
                 throw new InvalidOperationException("Filter values are not provided.");
             }
             valuesExpression = Expression.Constant(FilterValues, typeof(ICollection<int>));
@@ -76,8 +80,6 @@ public class IntFilterField : BaseFilterField<FilterNumberOperation, int> {
                 throw new InvalidOperationException("Filter operation is not supported.");
         }
 
-
-        var whereExpression = Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
-        return query.Where(whereExpression);
+        return Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
     }
 }

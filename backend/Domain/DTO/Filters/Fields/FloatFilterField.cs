@@ -3,40 +3,42 @@ namespace Domain.DTO.Filters.Fields;
 
 public class FloatFilterField : BaseFilterField<FilterNumberOperation, float> {
 
-    public FloatFilterField(string fillterField) : base(fillterField) { }
-    public FloatFilterField(string fillterField, bool isDisabled) : base(fillterField) {
+    public FloatFilterField(string filterField, FilterNumberOperation operation) : base(filterField, operation) { }
+    public FloatFilterField(string filterField, FilterNumberOperation operation, bool isDisabled) : base(filterField, operation) {
         IsFilterDisabled = isDisabled;
     }
-    public override IQueryable<T> ApplyFilter<T>(IQueryable<T> query) {
+
+
+    public override Expression<Func<T, bool>> ApplyFilter<T>() {
         if (IsFilterDisabled) {
-            return query;
+            return null;
         }
         Expression valuesExpression = null;
         Expression filterExpression = null;
         Expression valueExpression = null;
         // Accessing the property with provided field name
         var parameter = Expression.Parameter(typeof(T), "t");
-        var property = Expression.Property(parameter, FillterField); // Creating filter expression based on operation and type of TFilterValue
+        var property = Expression.Property(parameter, FilterField); // Creating filter expression based on operation and type of TFilterValue
         if (FilterOperation is FilterNumberOperation.Between or FilterNumberOperation.NotBetween or FilterNumberOperation.In or FilterNumberOperation.NotIn) {
             if (FilterValues == null) {
                 throw new InvalidOperationException("Filter values are not provided.");
             }
-            valuesExpression = Expression.Constant(FilterValues, typeof(ICollection<int>));
+            valuesExpression = Expression.Constant(FilterValues, typeof(ICollection<float>));
         } else {
             if (FilterValue == null) {
                 throw new InvalidOperationException("Filter value is not provided.");
             }
-            valueExpression = Expression.Constant(FilterValue, typeof(int));
+            valueExpression = Expression.Constant(FilterValue, typeof(float));
         }
         switch (FilterOperation) {
             case FilterNumberOperation.In:
                 filterExpression = Expression.Call(typeof(Enumerable), nameof(Enumerable.Contains), new[] {
-                    typeof(int)
+                    typeof(float)
                 }, valuesExpression!, property);
                 break;
             case FilterNumberOperation.NotIn:
                 filterExpression = Expression.Not(Expression.Call(typeof(Enumerable), nameof(Enumerable.Contains), new[] {
-                    typeof(int)
+                    typeof(float)
                 }, valuesExpression!, property));
                 break;
             case FilterNumberOperation.Equal:
@@ -62,8 +64,8 @@ public class FloatFilterField : BaseFilterField<FilterNumberOperation, float> {
                     throw new InvalidOperationException("Filter values count must be 2.");
                 }
                 filterExpression = Expression.And(
-                    Expression.GreaterThanOrEqual(property, Expression.Constant(FilterValues!.First(), typeof(int))),
-                    Expression.LessThanOrEqual(property, Expression.Constant(FilterValues!.Last(), typeof(int)))
+                    Expression.GreaterThanOrEqual(property, Expression.Constant(FilterValues!.First(), typeof(float))),
+                    Expression.LessThanOrEqual(property, Expression.Constant(FilterValues!.Last(), typeof(float)))
                 );
                 break;
             case FilterNumberOperation.NotBetween:
@@ -71,15 +73,14 @@ public class FloatFilterField : BaseFilterField<FilterNumberOperation, float> {
                     throw new InvalidOperationException("Filter values count must be 2.");
                 }
                 filterExpression = Expression.Not(Expression.And(
-                    Expression.LessThan(property, Expression.Constant(FilterValues!.First(), typeof(int))),
-                    Expression.GreaterThan(property, Expression.Constant(FilterValues!.Last(), typeof(int)))
+                    Expression.LessThan(property, Expression.Constant(FilterValues!.First(), typeof(float))),
+                    Expression.GreaterThan(property, Expression.Constant(FilterValues!.Last(), typeof(float)))
                 ));
                 break;
             default:
                 throw new InvalidOperationException("Filter operation is not supported.");
         }
 
-        var whereExpression = Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
-        return query.Where(whereExpression);
+        return Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
     }
 }

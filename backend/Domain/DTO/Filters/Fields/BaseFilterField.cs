@@ -1,14 +1,15 @@
+using System.Linq.Expressions;
 namespace Domain.DTO.Filters.Fields;
 
-public abstract class BaseFilterField<TFilterOperation, TFilterValue>
+public abstract class BaseFilterField<TFilterOperation, TFilterValue> : IFilterField<TFilterValue>
     where TFilterOperation : Enum {
     private TFilterValue? filterValue;
     private ICollection<TFilterValue>? filterValues;
-    public BaseFilterField(string fillterField) {
-        FillterField = fillterField;
+    public BaseFilterField(string filterField, TFilterOperation operation) {
+        FilterField = filterField;
+        FilterOperation = operation;
     }
-    public bool IsFilterDisabled { get; set; } = false;
-    public string FillterField { get; }
+    public string FilterField { get; }
     public TFilterOperation FilterOperation { get; set; }
 
     public TFilterValue? FilterValue
@@ -35,5 +36,7 @@ public abstract class BaseFilterField<TFilterOperation, TFilterValue>
         }
     }
 
-    public abstract IQueryable<T> ApplyFilter<T>(IQueryable<T> query) where T : class;
+    public bool IsFilterDisabled { get; set; } = false;
+
+    public abstract Expression<Func<T, bool>> ApplyFilter<T>();
 }

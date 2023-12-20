@@ -54,7 +54,7 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
 
 
     public new void Dispose() {
-        _logger.LogInformation("Disposing DomainContext instance.");
+        _logger?.LogInformation("Disposing DomainContext instance.");
         base.Dispose();
     }
 
@@ -64,7 +64,7 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
 
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
-        _logger.LogInformation("Configuring DomainContext model.");
+        _logger?.LogInformation("Configuring DomainContext model.");
         builder.SetDefaultValuesTableName();
         builder.SetDefaultForIdsAndDates();
         builder.Entity<ActivityLog>();

@@ -3,30 +3,31 @@ namespace Domain.DTO.Filters.Fields;
 
 public class StringFilterField : BaseFilterField<FilterStringOperation, string> {
 
-    public StringFilterField(string fillterField) : base(fillterField) { }
-    public StringFilterField(string fillterField, bool isDisabled) : base(fillterField) {
+    public StringFilterField(string filterField, FilterStringOperation operation) : base(filterField, operation) { }
+    public StringFilterField(string filterField, FilterStringOperation operation, bool isDisabled) : base(filterField, operation) {
         IsFilterDisabled = isDisabled;
     }
-    public override IQueryable<T> ApplyFilter<T>(IQueryable<T> query) {
+
+    public override Expression<Func<T, bool>> ApplyFilter<T>() {
         if (IsFilterDisabled) {
-            return query;
+            return null;
         }
         Expression valuesExpression = null;
         Expression filterExpression = null;
         Expression valueExpression = null;
         // Accessing the property with provided field name
         var parameter = Expression.Parameter(typeof(T), "t");
-        var property = Expression.Property(parameter, FillterField); // Creating filter expression based on operation and type of TFilterValue
+        var property = Expression.Property(parameter, FilterField); // Creating filter expression based on operation and type of TFilterValue
         if (FilterOperation is FilterStringOperation.In or FilterStringOperation.NotIn) {
-            if (FilterValues == null) {
+            if (FilterValues == null || FilterValues.Count == 0) {
                 throw new InvalidOperationException("Filter values are not provided.");
             }
-            valuesExpression = Expression.Constant(FilterValues, typeof(ICollection<int>));
+            valuesExpression = Expression.Constant(FilterValues, typeof(ICollection<string>));
         } else {
             if (FilterValue == null) {
                 throw new InvalidOperationException("Filter value is not provided.");
             }
-            valueExpression = Expression.Constant(FilterValue, typeof(int));
+            valueExpression = Expression.Constant(FilterValue, typeof(string));
         }
         switch (FilterOperation) {
             case FilterStringOperation.In:
@@ -75,9 +76,6 @@ public class StringFilterField : BaseFilterField<FilterStringOperation, string> 
             default:
                 throw new InvalidOperationException("Filter operation is not supported.");
         }
-
-
-        var whereExpression = Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
-        return query.Where(whereExpression);
+        return Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
     }
 }

@@ -1,4 +1,6 @@
 using Domain.DTO.Filters;
+using Domain.DTO.Filters.Fields;
+using Domain.Entities;
 using Domain.Persistence.Mock.Services;
 using Domain.Persistence.Repositories;
 using Microsoft.Extensions.DependencyInjection;
@@ -315,6 +317,56 @@ public class ActivityLogRepositoryTest : BaseTest {
                 Assert.That(mockData.Any(x => x.Status == item.Status), Is.True);
                 Assert.That(mockData.Any(x => x.IpAddress == item.IpAddress), Is.True);
                 Assert.That(mockData.Any(x => x.UserAgent == item.UserAgent), Is.True);
+            });
+        }
+    }
+
+    [Test, Description("Get Activities with string filter and disabled string filter")]
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task GetActivitiesWithStringFilter(bool DisableFilter) {
+        var mock = new MockActivityLogService();
+        var mockData = mock.GetMany(10); // Use a fixed number of entries for testing
+        var repository = new ActivityLogRepository(Context.Object);
+
+        var mockEnumerable = mockData.ToList();
+        var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
+        var fillters = new RecordFilterPagination<ActivityLogFilters>();
+        fillters.Filter.ActivityFilters.Add(new StringFilterField("Activity", FilterStringOperation.Equal) {
+            FilterValue = mockEnumerable.First().Activity
+        });
+        fillters.Filter.ActivityFilters.Add(new StringFilterField("Activity", FilterStringOperation.Equal, DisableFilter) {
+            FilterValue = mockEnumerable.Last().Activity
+        });
+        var result = await repository.GetActivities(fillters);
+
+        mockData = mockData.Where(x => x.Activity == mockEnumerable.First().Activity).ToList();
+        var expected = new List<ActivityLog>();
+        expected.AddRange(!DisableFilter
+            ? new List<ActivityLog> {
+                mockEnumerable.Last(),
+                mockEnumerable.First()
+            }
+            : new List<ActivityLog> {
+                mockEnumerable.First()
+            });
+        mockData = mockData.Skip(0).Take(10).ToList();
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Count, Is.EqualTo(expected.Count)); // Should return all entries
+
+        foreach (var item in result) {
+            Assert.Multiple(() => {
+                Assert.That(expected.Any(x => x.Id == item.Id), Is.True);
+                Assert.That(expected.Any(x => x.UserId == item.UserId), Is.True);
+                Assert.That(expected.Any(x => x.EntityId == item.EntityId), Is.True);
+                Assert.That(expected.Any(x => x.EntityType == item.EntityType), Is.True);
+                Assert.That(expected.Any(x => x.OperationType == item.OperationType), Is.True);
+                Assert.That(expected.Any(x => x.Activity == item.Activity), Is.True);
+                Assert.That(expected.Any(x => x.Details == item.Details), Is.True);
+                Assert.That(expected.Any(x => x.Status == item.Status), Is.True);
+                Assert.That(expected.Any(x => x.IpAddress == item.IpAddress), Is.True);
+                Assert.That(expected.Any(x => x.UserAgent == item.UserAgent), Is.True);
             });
         }
     }
