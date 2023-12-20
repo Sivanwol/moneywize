@@ -4,10 +4,12 @@ using Domain.Persistence.Repositories.Common.Interfaces;
 namespace Domain.Persistence.Repositories.Interfaces;
 
 public enum PurgeActivityLogOlderThan {
-    TwoWeeks,
-    OneMonth,
-    ThreeMonths,
-    SixMonths
+    FromThreeMonths,
+    FromSixMonths,
+    FromOneYear,
+    FromTwoYears,
+    FromThreeYears,
+    FromFiveYears
 }
 
 public interface IActivityLogRepository : IGenericRepository<ActivityLog> {

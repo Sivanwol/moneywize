@@ -13,7 +13,7 @@ public class ActivityLogRepository : BaseRepository, IActivityLogRepository {
 
     public Task<ActivityLog?> GetById(Guid id) {
         Log.Logger.Information($"Fetching activity log with id {id}");
-        return Context.ActivityLog.FirstOrDefaultAsync(w => w.Id == id);
+        return Context.ActivityLogs.FirstOrDefaultAsync(w => w.Id == id);
     }
 
     public Task AddActivity(Guid? userId, Guid entityId, string entityType, string operationType, string activity, string details, string status) {
@@ -27,7 +27,7 @@ public class ActivityLogRepository : BaseRepository, IActivityLogRepository {
             Details = details,
             Status = status
         };
-        Context.ActivityLog.Add(activityLog);
+        Context.ActivityLogs.Add(activityLog);
         return Context.Instance.SaveChangesAsync();
     }
 
@@ -45,39 +45,45 @@ public class ActivityLogRepository : BaseRepository, IActivityLogRepository {
             IpAddress = ipAddress,
             UserAgent = userAgent
         };
-        Context.ActivityLog.Add(activityLog);
+        Context.ActivityLogs.Add(activityLog);
         return Context.Instance.SaveChangesAsync();
     }
 
     public async Task<ICollection<ActivityLog>> GetActivities(RecordFilterPagination<ActivityLogFilters> filter) {
         Log.Logger.Information($"Fetching activity log with filter {filter}");
-        var query = Context.ActivityLog.AsQueryable();
+        var query = Context.ActivityLogs.AsQueryable();
         return filter.ApplyQuery(query).ToList();
     }
 
     public async Task<int> GetActivitiesCount(RecordFilterPagination<ActivityLogFilters> filter) {
         Log.Logger.Information($"Fetching activity log count with filter {filter}");
-        var query = Context.ActivityLog.AsQueryable();
+        var query = Context.ActivityLogs.AsQueryable();
         return filter.ApplyQuery(query).Count();
     }
 
     public Task DeleteOldActivities(PurgeActivityLogOlderThan priorToDelete) {
         Log.Logger.Information($"Deleting old activity log with filter {priorToDelete}");
-        var query = Context.ActivityLog.AsQueryable();
+        var query = Context.ActivityLogs.AsQueryable();
         switch (priorToDelete) {
-            case PurgeActivityLogOlderThan.TwoWeeks:
-                query = query.Where(w => w.CreatedAt < DateTime.Now.AddDays(-14));
-                break;
-            case PurgeActivityLogOlderThan.OneMonth:
-                query = query.Where(w => w.CreatedAt < DateTime.Now.AddMonths(-1));
-                break;
-            case PurgeActivityLogOlderThan.ThreeMonths:
+            case PurgeActivityLogOlderThan.FromThreeMonths:
                 query = query.Where(w => w.CreatedAt < DateTime.Now.AddMonths(-3));
                 break;
-            case PurgeActivityLogOlderThan.SixMonths:
+            case PurgeActivityLogOlderThan.FromSixMonths:
                 query = query.Where(w => w.CreatedAt < DateTime.Now.AddMonths(-6));
                 break;
+            case PurgeActivityLogOlderThan.FromOneYear:
+                query = query.Where(w => w.CreatedAt < DateTime.Now.AddYears(-1));
+                break;
+            case PurgeActivityLogOlderThan.FromTwoYears:
+                query = query.Where(w => w.CreatedAt < DateTime.Now.AddYears(-2));
+                break;
+            case PurgeActivityLogOlderThan.FromThreeYears:
+                query = query.Where(w => w.CreatedAt < DateTime.Now.AddYears(-3));
+                break;
+            case PurgeActivityLogOlderThan.FromFiveYears:
+                query = query.Where(w => w.CreatedAt < DateTime.Now.AddYears(-5));
+                break;
         }
-        return query.ForEachAsync(w => Context.ActivityLog.Remove(w));
+        return query.ForEachAsync(w => Context.ActivityLogs.Remove(w));
     }
 }

@@ -14,6 +14,7 @@ public class ActivityLog {
     public Guid Id { get; set; } = Guid.NewGuid();
 
     public Guid? UserId { get; set; }
+    public ApplicationUser? User { get; set; }
     public Guid EntityId { get; set; }
 
     public string OperationType { get; set; } = nameof(ActivityOperationType.USER);

@@ -23,7 +23,7 @@ public interface IDomainContext : IDisposable {
     DbSet<ClientServersHasAssets> ClientServersHasAssets { get; set; }
     DbSet<ClientNetworkHasTags> ClientNetworkTags { get; set; }
     DbSet<ClientNetworksHasAssets> ClientNetworksHasAssets { get; set; }
-    DbSet<ActivityLog> ActivityLog { get; set; }
+    DbSet<ActivityLog> ActivityLogs { get; set; }
     DbSet<Clients> Clients { get; set; }
     DbSet<Media> Media { get; set; }
     DbSet<Clients> Client { get; set; }

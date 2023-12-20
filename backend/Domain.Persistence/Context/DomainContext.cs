@@ -39,7 +39,7 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
     public virtual DbSet<ClientNetworks> ClientNetworks { get; set; }
     public virtual DbSet<ClientServerHasTags> ClientServerTags { get; set; }
     public virtual DbSet<ClientNetworkHasTags> ClientNetworkTags { get; set; }
-    public virtual DbSet<ActivityLog> ActivityLog { get; set; }
+    public virtual DbSet<ActivityLog> ActivityLogs { get; set; }
     public virtual DbSet<Clients> Clients { get; set; }
     public virtual DbSet<Media> Media { get; set; }
     public virtual DbSet<Clients> Client { get; set; }
@@ -68,6 +68,10 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
         builder.SetDefaultValuesTableName();
         builder.SetDefaultForIdsAndDates();
         builder.Entity<ActivityLog>();
+        builder.Entity<ActivityLog>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.ActivityLogs)
+            .HasForeignKey(x => x.UserId);
         builder.Entity<Countries>();
         builder.Entity<Languages>();
         builder.Entity<Tags>();
