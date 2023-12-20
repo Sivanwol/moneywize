@@ -26,7 +26,9 @@ public enum FilterStringOperation {
     Contains,
     NotContains,
     StartsWith,
+    NotStartsWith,
     EndsWith,
+    NotEndsWith,
     In,
     NotIn
 }
