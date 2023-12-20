@@ -54,11 +54,17 @@ public class ActivityLogRepository : BaseRepository, IActivityLogRepository {
         var query = Context.ActivityLogs.AsQueryable();
         return filter.ApplyQuery(query).ToList();
     }
+    public async Task<int> GetActivitiesTotalPages(RecordFilterPagination<ActivityLogFilters> filter) {
+        Log.Logger.Information($"Fetching activity log total pages with filter {filter}");
+        var query = Context.ActivityLogs.AsQueryable();
+        var entitiesCount = filter.ApplyQueryWithoutPagination(query).Count();
+        return (int)Math.Ceiling((double)entitiesCount / filter.PageSize);
+    }
 
     public async Task<int> GetActivitiesCount(RecordFilterPagination<ActivityLogFilters> filter) {
         Log.Logger.Information($"Fetching activity log count with filter {filter}");
         var query = Context.ActivityLogs.AsQueryable();
-        return filter.ApplyQuery(query).Count();
+        return filter.ApplyQueryWithoutPagination(query).Count();
     }
 
     public Task DeleteOldActivities(PurgeActivityLogOlderThan priorToDelete) {

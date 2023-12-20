@@ -14,8 +14,11 @@ public class MockActivityLogService : IActivityLogMockService {
         log.UserId = userId;
         return log;
     }
-    public ICollection<ActivityLog> GetMany(Guid userId) {
-        var logs = Faker.Generate(10);
+    public ICollection<ActivityLog> GetMany(int totalEntries = 10) {
+        return Faker.Generate(totalEntries);
+    }
+    public ICollection<ActivityLog> GetMany(Guid userId, int totalEntries = 10) {
+        var logs = Faker.Generate(totalEntries);
         foreach (var log in logs) {
             log.UserId = userId;
         }

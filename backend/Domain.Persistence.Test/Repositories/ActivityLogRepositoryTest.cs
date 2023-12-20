@@ -1,3 +1,4 @@
+using Domain.DTO.Filters;
 using Domain.Persistence.Mock.Services;
 using Domain.Persistence.Repositories;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,5 +73,36 @@ public class ActivityLogRepositoryTest : BaseTest {
             Assert.That(result!.IpAddress, Is.EqualTo(activityLog.IpAddress));
             Assert.That(result!.UserAgent, Is.EqualTo(activityLog.UserAgent));
         });
+    }
+
+
+    [Test, Description("Get Total amount of pages")]
+    [TestCase(10, 1)]
+    [TestCase(20, 2)]
+    [TestCase(30, 3)]
+    public async Task GetActivitiesTotalPages(int totalEntries, int totalPages) {
+        var mock = new MockActivityLogService();
+        var mockData = mock.GetMany(totalEntries);
+        var repository = new ActivityLogRepository(Context.Object);
+        var mockEnumerable = mockData.ToList();
+        var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
+        var result = await repository.GetActivitiesTotalPages(new RecordFilterPagination<ActivityLogFilters>());
+        Assert.That(result, Is.EqualTo(totalPages));
+    }
+
+    [Test, Description("Get Total amount of entries")]
+    [TestCase(10)]
+    [TestCase(20)]
+    [TestCase(30)]
+    public async Task GetActivitiesTotalEntities(int totalEntries) {
+        var mock = new MockActivityLogService();
+        var mockData = mock.GetMany(totalEntries);
+        var repository = new ActivityLogRepository(Context.Object);
+        var mockEnumerable = mockData.ToList();
+        var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
+        var result = await repository.GetActivitiesCount(new RecordFilterPagination<ActivityLogFilters>());
+        Assert.That(result, Is.EqualTo(totalEntries));
     }
 }
