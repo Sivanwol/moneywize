@@ -51,12 +51,15 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("char(36)");
+                    b.Property<string>("UserId")
+                        .HasMaxLength(36)
+                        .HasColumnType("varchar(36)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("ActivityLog");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ActivityLogs");
                 });
 
             modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
@@ -1414,6 +1417,15 @@ namespace Domain.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.ActivityLog", b =>
+                {
+                    b.HasOne("Domain.Entities.ApplicationUser", "User")
+                        .WithMany("ActivityLogs")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
                 {
                     b.HasOne("Domain.Entities.Countries", "Country")
@@ -1909,6 +1921,8 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
                 {
+                    b.Navigation("ActivityLogs");
+
                     b.Navigation("Clients");
                 });
 

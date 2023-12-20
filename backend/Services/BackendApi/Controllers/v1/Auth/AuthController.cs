@@ -511,9 +511,6 @@ public class AuthController : BaseApiController {
                 //     protocol: HttpContext.Request.Scheme);
                 // await _emailSender.SendEmailAsync(request.Email, "Confirm your account",
                 //     $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
-                if (automaticLogin) {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                }
 
                 _logger.LogInformation(4, "User created a new account with password.");
                 return ResponseHelper.CreateResponse(new AuthResponse {

@@ -19,7 +19,7 @@ public class ActivityLogRepository : BaseRepository, IActivityLogRepository {
     public Task AddActivity(Guid? userId, Guid entityId, string entityType, string operationType, string activity, string details, string status) {
         Log.Logger.Information($"Adding activity log with id {userId}-{entityId}-{entityType}-{operationType}");
         var activityLog = new ActivityLog {
-            UserId = userId,
+            UserId = userId.HasValue ? userId.Value.ToString() : null,
             EntityId = entityId,
             EntityType = entityType,
             OperationType = operationType,
@@ -35,7 +35,7 @@ public class ActivityLogRepository : BaseRepository, IActivityLogRepository {
         string? userAgent) {
         Log.Logger.Information($"Adding activity log with id {userId}-{entityId}-{entityType}-{operationType}");
         var activityLog = new ActivityLog {
-            UserId = userId,
+            UserId = userId.HasValue ? userId.Value.ToString() : null,
             EntityId = entityId,
             EntityType = entityType,
             OperationType = operationType,

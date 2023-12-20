@@ -30,7 +30,8 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         Context.Setup(x => x.Instance.SaveChanges()).Returns(1);
-        await repository.AddActivity(activityLog.UserId, activityLog.EntityId, activityLog.EntityType, activityLog.OperationType, activityLog.Activity, activityLog.Details,
+        await repository.AddActivity(Guid.Parse(activityLog.UserId), activityLog.EntityId, activityLog.EntityType, activityLog.OperationType, activityLog.Activity,
+            activityLog.Details,
             activityLog.Status);
         var result = await repository.GetById(activityLog.Id);
         Assert.That(result, Is.Not.Null);
@@ -57,7 +58,8 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         Context.Setup(x => x.Instance.SaveChanges()).Returns(1);
-        await repository.AddActivity(activityLog.UserId, activityLog.EntityId, activityLog.EntityType, activityLog.OperationType, activityLog.Activity, activityLog.Details,
+        await repository.AddActivity(Guid.Parse(activityLog.UserId), activityLog.EntityId, activityLog.EntityType, activityLog.OperationType, activityLog.Activity,
+            activityLog.Details,
             activityLog.Status, activityLog.IpAddress, activityLog.UserAgent);
         var result = await repository.GetById(activityLog.Id);
         Assert.That(result, Is.Not.Null);

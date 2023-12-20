@@ -18,7 +18,7 @@ public sealed class ActivityLogMockConfig : AutoFaker<ActivityLog> {
                 return fake.PickRandom(values);
             });
         } else {
-            RuleFor(fake => fake.UserId, fake => fake.Random.Guid());
+            RuleFor(fake => fake.UserId, fake => fake.Random.Guid().ToString());
             RuleFor(fake => fake.OperationType, fake => nameof(ActivityOperationType.USER));
         }
         RuleFor(fake => fake.EntityId, fake => fake.Random.Guid());

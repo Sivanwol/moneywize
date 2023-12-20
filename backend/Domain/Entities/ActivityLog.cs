@@ -13,7 +13,9 @@ public class ActivityLog {
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    public Guid? UserId { get; set; }
+    [StringLength(36)]
+    public string? UserId { get; set; }
+
     public ApplicationUser? User { get; set; }
     public Guid EntityId { get; set; }
 
