@@ -20,6 +20,13 @@ public enum FilterNumberOperation {
     NotIn
 }
 
+public enum FilterIDOperation {
+    Equal,
+    NotEqual,
+    In,
+    NotIn
+}
+
 public enum FilterStringOperation {
     Equal,
     NotEqual,
