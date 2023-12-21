@@ -2,6 +2,7 @@ using Application.Constraints;
 using Application.Exceptions;
 using Application.Responses.Base;
 using Domain.Entities;
+using Domain.Persistence.Repositories.Interfaces;
 using Infrastructure.Requests.Processor.Services.User;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -9,12 +10,15 @@ using Serilog;
 namespace Processor.Services.User;
 
 public class ConfirmEmailHandler : IRequestHandler<ConfirmEmailRequest, EmptyResponse> {
+    private readonly IActivityLogRepository _activityLogRepository;
     private readonly IMediator _mediator;
     private readonly UserManager<ApplicationUser> _userManager;
 
     public ConfirmEmailHandler(IMediator mediator,
+        IActivityLogRepository activityLogRepository,
         UserManager<ApplicationUser> userManager) {
         _mediator = mediator;
+        _activityLogRepository = activityLogRepository;
         _userManager = userManager;
     }
 
@@ -52,6 +56,9 @@ public class ConfirmEmailHandler : IRequestHandler<ConfirmEmailRequest, EmptyRes
             result.Errors.ToList().ForEach(e => Log.Logger.Error("unable confirm email - error: {0}", e.Description ?? ""));
             throw new AuthenticationException("unable confirm email");
         }
+        Log.Logger.Information("New Register User email confirmed -  {UserId}", user.Id);
+        await _activityLogRepository.AddActivity(Guid.Parse(user.Id), user.Id, nameof(ApplicationUser), "Register", "User Request Registered", "User Request Registered",
+            "Success");
         return new EmptyResponse();
     }
 
