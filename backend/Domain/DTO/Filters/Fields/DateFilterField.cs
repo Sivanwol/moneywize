@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Reflection;
 namespace Domain.DTO.Filters.Fields;
 
 public class DateFilterField : BaseFilterField<FilterDateOperation, DateTime> {
@@ -30,16 +31,45 @@ public class DateFilterField : BaseFilterField<FilterDateOperation, DateTime> {
             }
             valueExpression = Expression.Constant(FilterValue, typeof(DateTime));
         }
+        MethodCallExpression? compareWithOrdinal;
+        MethodInfo? methodInfo;
         switch (FilterOperation) {
             case FilterDateOperation.In:
-                filterExpression = Expression.Call(typeof(Enumerable), nameof(Enumerable.Contains), new[] {
-                    typeof(DateTime)
-                }, valuesExpression!, property);
+                methodInfo = typeof(Enumerable).GetMethods()
+                    .Where(m => m.Name == nameof(Enumerable.Contains))
+                    .Select(m => new {
+                        M = m,
+                        P = m.GetParameters(),
+                        G = m.GetGenericArguments()
+                    })
+                    .Where(x => x.P.Length == 2
+                                && x.G.Length == 1
+                                && x.P[0].ParameterType == typeof(IEnumerable<>).MakeGenericType(x.G[0])
+                                && x.P[1].ParameterType == x.G[0])
+                    .Select(x => x.M)
+                    .First()
+                    .MakeGenericMethod(typeof(DateTime));
+
+                filterExpression = Expression.Call(methodInfo, valuesExpression, property);
                 break;
             case FilterDateOperation.NotIn:
-                filterExpression = Expression.Not(Expression.Call(typeof(Enumerable), nameof(Enumerable.Contains), new[] {
-                    typeof(DateTime)
-                }, valuesExpression!, property));
+                methodInfo = typeof(Enumerable).GetMethods()
+                    .Where(m => m.Name == nameof(Enumerable.Contains))
+                    .Select(m => new {
+                        M = m,
+                        P = m.GetParameters(),
+                        G = m.GetGenericArguments()
+                    })
+                    .Where(x => x.P.Length == 2
+                                && x.G.Length == 1
+                                && x.P[0].ParameterType == typeof(IEnumerable<>).MakeGenericType(x.G[0])
+                                && x.P[1].ParameterType == x.G[0])
+                    .Select(x => x.M)
+                    .First()
+                    .MakeGenericMethod(typeof(DateTime));
+
+                filterExpression = Expression.Call(methodInfo, valuesExpression, property);
+                filterExpression = Expression.Not(filterExpression);
                 break;
             case FilterDateOperation.Equal:
                 filterExpression = Expression.Equal(property, valueExpression!);

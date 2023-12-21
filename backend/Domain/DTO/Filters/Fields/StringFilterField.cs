@@ -33,18 +33,46 @@ public class StringFilterField : BaseFilterField<FilterStringOperation, string> 
 
         MethodInfo compareInfo = typeof(string).GetMethod("IndexOf", new[] {
             typeof(string), typeof(StringComparison)
-        });
+        })!;
         MethodCallExpression? compareWithOrdinal;
+        MethodInfo? methodInfo;
         switch (FilterOperation) {
             case FilterStringOperation.In:
-                filterExpression = Expression.Call(typeof(Enumerable), nameof(Enumerable.Contains), new[] {
-                    typeof(int)
-                }, valuesExpression!, property);
+                methodInfo = typeof(Enumerable).GetMethods()
+                    .Where(m => m.Name == nameof(Enumerable.Contains))
+                    .Select(m => new {
+                        M = m,
+                        P = m.GetParameters(),
+                        G = m.GetGenericArguments()
+                    })
+                    .Where(x => x.P.Length == 2
+                                && x.G.Length == 1
+                                && x.P[0].ParameterType == typeof(IEnumerable<>).MakeGenericType(x.G[0])
+                                && x.P[1].ParameterType == x.G[0])
+                    .Select(x => x.M)
+                    .First()
+                    .MakeGenericMethod(typeof(string));
+
+                filterExpression = Expression.Call(methodInfo, valuesExpression, property);
                 break;
             case FilterStringOperation.NotIn:
-                filterExpression = Expression.Not(Expression.Call(typeof(Enumerable), nameof(Enumerable.Contains), new[] {
-                    typeof(int)
-                }, valuesExpression!, property));
+                methodInfo = typeof(Enumerable).GetMethods()
+                    .Where(m => m.Name == nameof(Enumerable.Contains))
+                    .Select(m => new {
+                        M = m,
+                        P = m.GetParameters(),
+                        G = m.GetGenericArguments()
+                    })
+                    .Where(x => x.P.Length == 2
+                                && x.G.Length == 1
+                                && x.P[0].ParameterType == typeof(IEnumerable<>).MakeGenericType(x.G[0])
+                                && x.P[1].ParameterType == x.G[0])
+                    .Select(x => x.M)
+                    .First()
+                    .MakeGenericMethod(typeof(string));
+
+                filterExpression = Expression.Call(methodInfo, valuesExpression, property);
+                filterExpression = Expression.Not(filterExpression);
                 break;
             case FilterStringOperation.Equal:
                 filterExpression = Expression.Equal(property, valueExpression!);

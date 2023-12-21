@@ -3,8 +3,6 @@ namespace Domain.DTO.Filters.Fields;
 
 public abstract class BaseFilterField<TFilterOperation, TFilterValue> : IFilterField<TFilterValue>
     where TFilterOperation : Enum {
-    private TFilterValue? filterValue;
-    private ICollection<TFilterValue>? filterValues;
     public BaseFilterField(string filterField, TFilterOperation operation) {
         FilterField = filterField;
         FilterOperation = operation;
@@ -12,29 +10,9 @@ public abstract class BaseFilterField<TFilterOperation, TFilterValue> : IFilterF
     public string FilterField { get; }
     public TFilterOperation FilterOperation { get; set; }
 
-    public TFilterValue? FilterValue
-    {
-        get => filterValue;
-        set
-        {
-            if (FilterValues != null) {
-                throw new ArgumentException("Both value and collection can't be filled at the same time");
-            }
-            filterValue = value;
-        }
-    }
+    public TFilterValue? FilterValue { get; set; }
 
-    public ICollection<TFilterValue>? FilterValues
-    {
-        get => filterValues;
-        set
-        {
-            if (value != null) {
-                throw new ArgumentException("Both value and collection can't be filled at the same time");
-            }
-            filterValues = value;
-        }
-    }
+    public ICollection<TFilterValue>? FilterValues { get; set; }
 
     public bool IsFilterDisabled { get; set; } = false;
 
