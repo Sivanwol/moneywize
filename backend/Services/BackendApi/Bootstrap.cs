@@ -45,7 +45,7 @@ public class Bootstrap {
         Log.Information("Start Configure Server");
         // Load configuration from Azure App Configuration
         services.AddAzureAppConfiguration()
-            .AddFeatureManagement();
+            .AddFeatureManagement(Configuration.GetSection("FeatureManagement"));
         if (!IsLocalConfiguration) {
             services.Configure<BackendApplicationConfig>(Configuration.GetSection("ApplicationConfig"));
         }
