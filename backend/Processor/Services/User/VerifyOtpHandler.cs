@@ -14,6 +14,7 @@ using Serilog;
 namespace Processor.Services.User;
 
 public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPResponse> {
+    private readonly IActivityLogRepository _activityLogRepository;
     private readonly IApplicationUserRepository _applicationUserRepository;
     private readonly BackendApplicationConfig _config;
     private readonly ICountriesRepository _countriesRepository;
@@ -25,6 +26,7 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
     public VerifyOtpHandler(IMediator mediator,
         IJwtAuthManager jwtAuthManager,
         IApplicationUserRepository applicationUserRepository,
+        IActivityLogRepository activityLogRepository,
         ICountriesRepository countriesRepository,
         IOTPRepository otpRepository,
         UserManager<ApplicationUser> userManager,
@@ -34,6 +36,7 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
         _countriesRepository = countriesRepository;
         _jwtAuthManager = jwtAuthManager;
         _userManager = userManager;
+        _activityLogRepository = activityLogRepository;
         _mediator = mediator;
         _config = config;
     }
@@ -69,6 +72,8 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
             };
             roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
         }
+        await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), "Login", "User Received access tokens", "User Request Logged In",
+            result.IsValid ? "Success" : "Failed", request.IpAddress, request.UserAgent);
         // await _signInManager.SignInAsync(user, true);
         return new VerifyOTPResponse {
             UserId = userId,

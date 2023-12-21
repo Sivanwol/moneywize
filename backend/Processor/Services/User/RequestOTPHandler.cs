@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace Processor.Services.User;
 
 public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPResponse> {
+    private readonly IActivityLogRepository _activityLogRepository;
     private readonly IApplicationUserRepository _applicationUserRepository;
     private readonly BackendApplicationConfig _config;
     private readonly ICountriesRepository _countriesRepository;
@@ -27,6 +28,7 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
         ILoggerFactory logger,
         IOTPRepository otpRepository,
         IApplicationUserRepository applicationUserRepository,
+        IActivityLogRepository activityLogRepository,
         ICountriesRepository countriesRepository,
         BackendApplicationConfig config,
         InfoUSmsConfig infoUSmsConfig) {
@@ -36,6 +38,7 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
         _logger = logger.CreateLogger<RequestOtpHandler>();
         _mediator = mediator;
         _loggerFactory = logger;
+        _activityLogRepository = activityLogRepository;
         _infoUSmsConfig = infoUSmsConfig;
         _config = config;
     }
@@ -108,11 +111,15 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
         var otpEntity = await _applicationUserRepository.GenerateOtpCode(user, _infoUSmsConfig.ExpiredInMinutes, forceResent, request.Provider);
         if (otpEntity == null) {
             _logger.LogInformation($"User {user.Id} has within the expiration date and won't able to sent or been reached max resend limit");
+            await _activityLogRepository.AddActivity(Guid.Parse(user.Id), "", nameof(ApplicationUserOtpCodes), "Send OTP Code to User",
+                $"Send OTP COde for the user from {request.IpAddress} under user agent {request.UserAgent}", "Sending code pass checks", "Failed");
             return await FetchOtpResponse(user);
         }
         _logger.LogInformation($"OTP Entity for user {user.Id} has been generated otp entity id {otpEntity.Id}");
         var result = await _otpRepository.RequestOTP(request.BaseUrl, request.BaseUrl + "/assets", user.Country, user, otpEntity, request.Provider);
         _logger.LogInformation($"Sendt OTP for user {user.Id}");
+        await _activityLogRepository.AddActivity(Guid.Parse(user.Id), otpEntity.Id.ToString(), nameof(ApplicationUserOtpCodes), "Send OTP Code to User",
+            $"Send OTP COde for the user from {request.IpAddress} under user agent {request.UserAgent}", "Sending code pass checks", "Success");
         return new RequestOTPResponse {
             UserToken = result.UserToken,
             OTPExpired = result.OTPExpired,

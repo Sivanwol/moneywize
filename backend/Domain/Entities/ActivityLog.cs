@@ -20,9 +20,7 @@ public class ActivityLog {
 
     public ApplicationUser? User { get; set; }
 
-    [Required]
-    [StringLength(36)]
-    public Guid EntityId { get; set; }
+    public string? EntityId { get; set; }
 
     [Required]
     [MaxLength(100)]

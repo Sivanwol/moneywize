@@ -10,4 +10,6 @@ public class SendOTPRequest : IRequest<RequestOTPResponse> {
     public int? CountryId { get; set; }
     public MFAProvider Provider { get; set; }
     public bool ReSend { get; set; }
+    public string IpAddress { get; set; }
+    public string UserAgent { get; set; }
 }

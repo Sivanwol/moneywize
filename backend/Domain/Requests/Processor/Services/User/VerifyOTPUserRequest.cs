@@ -6,4 +6,6 @@ public class VerifyOtpUserRequest : IRequest<VerifyOTPResponse> {
     public string Code { get; set; }
     public string OTPToken { get; set; }
     public string UserToken { get; set; }
+    public string IpAddress { get; set; }
+    public string UserAgent { get; set; }
 }

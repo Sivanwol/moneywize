@@ -10,7 +10,7 @@ public class ActivityLogFilters : BaseFilters {
         UserAgentFilters = new List<StringFilterField>();
         IdFilters = new List<IdFilterField>();
         UserIdFilters = new List<GuidFilterField>();
-        EntityIdFilters = new List<IdFilterField>();
+        EntityIdFilters = new List<StringFilterField>();
         OperationTypeFilters = new List<StringFilterField>();
         ActivityFilters = new List<StringFilterField>();
         EntityTypeFilters = new List<StringFilterField>();
@@ -21,7 +21,7 @@ public class ActivityLogFilters : BaseFilters {
     public ICollection<StringFilterField> UserAgentFilters { get; }
     public ICollection<IdFilterField> IdFilters { get; }
     public ICollection<GuidFilterField> UserIdFilters { get; }
-    public ICollection<IdFilterField> EntityIdFilters { get; }
+    public ICollection<StringFilterField> EntityIdFilters { get; }
     public ICollection<StringFilterField> OperationTypeFilters { get; }
     public ICollection<StringFilterField> ActivityFilters { get; }
     public ICollection<StringFilterField> EntityTypeFilters { get; }
@@ -54,7 +54,7 @@ public class ActivityLogFilters : BaseFilters {
         predicate = ApplyFiltersPredicate<T, string, StringFilterField>(UserAgentFilters, predicate, operatorFunc);
         predicate = ApplyFiltersPredicate<T, int, IdFilterField>(IdFilters, predicate, operatorFunc);
         predicate = ApplyFiltersPredicate<T, Guid, GuidFilterField>(UserIdFilters, predicate, operatorFunc);
-        predicate = ApplyFiltersPredicate<T, int, IdFilterField>(EntityIdFilters, predicate, operatorFunc);
+        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(EntityIdFilters, predicate, operatorFunc);
         predicate = ApplyFiltersPredicate<T, string, StringFilterField>(OperationTypeFilters, predicate, operatorFunc);
         predicate = ApplyFiltersPredicate<T, string, StringFilterField>(ActivityFilters, predicate, operatorFunc);
         predicate = ApplyFiltersPredicate<T, string, StringFilterField>(EntityTypeFilters, predicate, operatorFunc);

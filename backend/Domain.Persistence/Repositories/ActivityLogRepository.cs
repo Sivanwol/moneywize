@@ -16,7 +16,7 @@ public class ActivityLogRepository : BaseRepository, IActivityLogRepository {
         return Context.ActivityLogs.FirstOrDefaultAsync(w => w.Id == id);
     }
 
-    public Task AddActivity(Guid? userId, Guid entityId, string entityType, string operationType, string activity, string details, string status) {
+    public Task AddActivity(Guid? userId, string entityId, string entityType, string operationType, string activity, string details, string status) {
         Log.Logger.Information($"Adding activity log with id {userId}-{entityId}-{entityType}-{operationType}");
         var activityLog = new ActivityLog {
             UserId = userId.HasValue ? userId.Value.ToString() : null,
@@ -31,7 +31,7 @@ public class ActivityLogRepository : BaseRepository, IActivityLogRepository {
         return Context.Instance.SaveChangesAsync();
     }
 
-    public Task AddActivity(Guid? userId, Guid entityId, string entityType, string operationType, string activity, string details, string status, string? ipAddress,
+    public Task AddActivity(Guid? userId, string entityId, string entityType, string operationType, string activity, string details, string status, string? ipAddress,
         string? userAgent) {
         Log.Logger.Information($"Adding activity log with id {userId}-{entityId}-{entityType}-{operationType}");
         var activityLog = new ActivityLog {
