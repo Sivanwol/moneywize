@@ -21,7 +21,9 @@ namespace Domain.Persistence.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-
+            migrationBuilder.DeleteData("AspNetRoles", "Id", new object[] { "Admin" });
+            migrationBuilder.DeleteData("AspNetRoles", "Id", new object[] { "IT" });
+            migrationBuilder.DeleteData("AspNetRoles", "Id", new object[] { "Client" });
         }
     }
 }
