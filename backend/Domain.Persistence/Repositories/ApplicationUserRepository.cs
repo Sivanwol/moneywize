@@ -87,10 +87,10 @@ public class ApplicationUserRepository : BaseRepository, IApplicationUserReposit
         var entity = new ApplicationUserOtpCodes {
             UserId = Guid.Parse(user.Id),
             Token = StringExtensions.GenerateToken(),
-            Code = (provider == MFAProvider.Email) ? ApplicationUserOtpCodes.GenerateCodeAsToken() : ApplicationUserOtpCodes.GenerateCode(),
+            Code = provider == MFAProvider.Email ? ApplicationUserOtpCodes.GenerateCodeAsToken() : ApplicationUserOtpCodes.GenerateCode(),
             ExpirationDate = SystemClock.Now().DateTime.AddMinutes(expiredCodeInMinutes),
             CreatedAt = SystemClock.Now().DateTime,
-            UpdatedAt = SystemClock.Now().DateTime,
+            UpdatedAt = SystemClock.Now().DateTime
         };
         var expiredDate = SystemClock.Now().DateTime.AddMinutes(forceSent ? 0 : expiredCodeInMinutes);
         var entities = Context.UserOtpCodes.Where(w =>

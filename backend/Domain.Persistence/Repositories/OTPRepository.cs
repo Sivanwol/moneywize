@@ -55,7 +55,7 @@ public class OTPRepository : BaseRepository, IOTPRepository {
         var res = new RequestOTPResponseData {
             UserToken = user.Token,
             OTPToken = codeEntity.Token,
-            OTPExpired = codeEntity.ExpirationDate,
+            OTPExpired = codeEntity.ExpirationDate
         };
         return res;
     }
@@ -86,7 +86,7 @@ public class OTPRepository : BaseRepository, IOTPRepository {
         var res = new RequestOTPResponseData {
             UserToken = user.Token,
             OTPToken = codeEntity.Token,
-            OTPExpired = codeEntity.ExpirationDate,
+            OTPExpired = codeEntity.ExpirationDate
         };
         return res;
     }

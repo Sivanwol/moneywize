@@ -10,7 +10,7 @@ using Moq;
 using Test.Shared.Common;
 namespace Domain.Persistence.Test.Repositories;
 
-[TestFixture, Description("Test the ApplicationUserRepository")]
+[TestFixture] [Description("Test the ApplicationUserRepository")]
 [Category("Users")]
 public class ApplicationUserRepositoryTest : BaseTest {
     [SetUp]
@@ -26,7 +26,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
     protected ILoggerFactory factory;
     protected ILogger logger;
 
-    [Test, Description("Test the SaveDisplayLanguage method")]
+    [Test] [Description("Test the SaveDisplayLanguage method")]
     public async Task SaveDisplayLanguage() {
         var newLanguage = new MockLanguagesServices().GetOne();
         var mockUser = new MockAppUserServices();
@@ -47,7 +47,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         Context.Verify(x => x.Instance.SaveChangesAsync(It.IsAny<CancellationToken>()));
     }
 
-    [Test, Description("Test the GetById method")]
+    [Test] [Description("Test the GetById method")]
     public async Task GetById() {
         var mockUser = new MockAppUserServices();
         var user = mockUser.GetOne(Guid.NewGuid());
@@ -70,7 +70,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         });
     }
 
-    [Test, Description("Test the GetUserByToken method")]
+    [Test] [Description("Test the GetUserByToken method")]
     public async Task GetUserByToken() {
         var mockUser = new MockAppUserServices();
         var user = mockUser.GetOne(Guid.NewGuid());
@@ -92,7 +92,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
             Assert.That(result.Country.Id, Is.EqualTo(user.Country.Id));
         });
     }
-    [Test, Description("Test the LocateUserByPhone method")]
+    [Test] [Description("Test the LocateUserByPhone method")]
     public async Task LocateUserByPhone() {
         var mockUser = new MockAppUserServices();
         var user = mockUser.GetOne(Guid.NewGuid());
@@ -115,7 +115,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         });
     }
 
-    [Test, Description("Test the FetchOTP method")]
+    [Test] [Description("Test the FetchOTP method")]
     public async Task FetchOTP() {
         var mockUser = new MockAppUserServices();
         var user = mockUser.GetOne(Guid.NewGuid());
@@ -144,7 +144,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         });
     }
 
-    [Test, Description("Test the ClearOtpCodes method")]
+    [Test] [Description("Test the ClearOtpCodes method")]
     public async Task ClearOtpCodes() {
         var mockUser = new MockAppUserServices();
         var user = mockUser.GetOne(Guid.NewGuid());
@@ -162,7 +162,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         mockRepository.Verify(x => x.ClearOtpCodes(It.IsAny<Guid>()), Times.Once);
     }
 
-    [Test, Description("Test the GetTotalOtpCodesWithinExpirationDate method")]
+    [Test] [Description("Test the GetTotalOtpCodesWithinExpirationDate method")]
     public async Task GetTotalOtpCodesWithinExpirationDate() {
         var mockUser = new MockAppUserServices();
         var user = mockUser.GetOne(Guid.NewGuid());
@@ -185,7 +185,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         Assert.That(result, Is.EqualTo(1));
     }
 
-    [Test, Description("Test the GetTotalOtpCodesWithinExpirationDate method")]
+    [Test] [Description("Test the GetTotalOtpCodesWithinExpirationDate method")]
     [TestCase(5)]
     [TestCase(3)]
     public async Task IsAllowToResendOtpCode(int totalMaxSent) {
@@ -210,7 +210,7 @@ public class ApplicationUserRepositoryTest : BaseTest {
         Assert.That(result, Is.EqualTo(totalMaxSent != 3));
     }
 
-    [Test, Description("Test the GenerateOtpCode method")]
+    [Test] [Description("Test the GenerateOtpCode method")]
     [TestCase(5, true, MFAProvider.Email)]
     [TestCase(5, false, MFAProvider.SMS)]
     [TestCase(10, false, MFAProvider.SMS)]

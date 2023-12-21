@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Application.Configs;
 using Application.Contract;
 using Application.Utils.Service;
+using Domain.DTO.Test;
 using Infrastructure.Services.Email;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -19,8 +20,8 @@ public class MetaController : BaseApiController {
     [HttpGet("/test-mail")]
     public async Task<ActionResult<string>> TestMail() {
         var random = new Random();
-        List<Domain.DTO.Test.TestList> testList = new List<Domain.DTO.Test.TestList> {
-            new Domain.DTO.Test.TestList {
+        var testList = new List<TestList> {
+            new() {
                 Id = random.Next(1, 100),
                 Name = $"Test {random.Next(1, 100)}",
                 AddedOn = DateTime.Now.ToString("dd/MM/yyyy"),
@@ -29,7 +30,7 @@ public class MetaController : BaseApiController {
                 ColorCode = "#000000",
                 UpdatedOn = DateTime.Now.ToString("dd/MM/yyyy")
             },
-            new Domain.DTO.Test.TestList {
+            new() {
                 Id = random.Next(1, 100),
                 Name = $"Test {random.Next(1, 100)}",
                 AddedOn = DateTime.Now.ToString("dd/MM/yyyy"),
@@ -37,7 +38,7 @@ public class MetaController : BaseApiController {
                 Class = "Test Class",
                 ColorCode = "#000000",
                 UpdatedOn = DateTime.Now.ToString("dd/MM/yyyy")
-            },
+            }
         };
         try {
             var template = await _templateService.GetTemplateHtmlAsStringAsync("MailingTemplates/test", testList);
@@ -52,9 +53,8 @@ public class MetaController : BaseApiController {
             var result = await _mailService.SendAsync(mailData, new CancellationToken());
             if (result) {
                 return StatusCode(StatusCodes.Status200OK, "Mail has successfully been sent.");
-            } else {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occured. The Mail could not be sent.");
             }
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occured. The Mail could not be sent.");
         }
         catch (Exception ex) {
             Log.Error(ex, "An error occured while sending the mail.");

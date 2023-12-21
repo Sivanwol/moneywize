@@ -14,7 +14,7 @@ using Moq;
 using Test.Shared.Common;
 namespace Domain.Persistence.Test.Repositories;
 
-[TestFixture, Description("Test the OTPRepositoryTest")]
+[TestFixture] [Description("Test the OTPRepositoryTest")]
 [Category("Users")]
 public class OTPRepositoryTest : BaseTest {
     [SetUp]
@@ -37,7 +37,7 @@ public class OTPRepositoryTest : BaseTest {
     protected ILogger logger;
 
 
-    [Test, Description("Test the VerifyOTP method")]
+    [Test] [Description("Test the VerifyOTP method")]
     [TestCase(false, "aa654321bb")]
     [TestCase(false, "123456")]
     [TestCase(true, "654321")]
@@ -62,7 +62,7 @@ public class OTPRepositoryTest : BaseTest {
         var user = mockUser.GetOne(Guid.NewGuid());
         var mock = new MockUserOPTCodeServices();
         var mockData = new List<ApplicationUserOtpCodes> {
-            (overrideCode ? mock.GetOne(Guid.Parse(user.Id), true, code) : mock.GetOne(Guid.Parse(user.Id), true))
+            overrideCode ? mock.GetOne(Guid.Parse(user.Id), true, code) : mock.GetOne(Guid.Parse(user.Id), true)
         };
         var expected = mockData.First();
         var mockObj = mockData.AsQueryable().BuildMockDbSet();

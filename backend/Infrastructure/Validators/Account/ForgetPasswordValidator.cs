@@ -6,7 +6,7 @@ namespace Infrastructure.Validators.Account;
 
 public class ForgetPasswordValidator : AbstractValidator<ForgetPasswordRequest> {
     public ForgetPasswordValidator() {
-        When(x => !string.IsNullOrEmpty(x.Email) && (string.IsNullOrEmpty(x.PhoneNumber) && !x.CountryId.HasValue), () => {
+        When(x => !string.IsNullOrEmpty(x.Email) && string.IsNullOrEmpty(x.PhoneNumber) && !x.CountryId.HasValue, () => {
             RuleFor(x => x.Email)
                 .NotEmpty()
                 .WithMessage("Email is required")
@@ -15,7 +15,7 @@ public class ForgetPasswordValidator : AbstractValidator<ForgetPasswordRequest> 
                 .EmailAddress()
                 .WithMessage("Email is not valid");
         });
-        When(x => string.IsNullOrEmpty(x.Email) && (!string.IsNullOrEmpty(x.PhoneNumber) && x.CountryId.HasValue), () => {
+        When(x => string.IsNullOrEmpty(x.Email) && !string.IsNullOrEmpty(x.PhoneNumber) && x.CountryId.HasValue, () => {
             RuleFor(x => x.CountryId)
                 .NotEmpty()
                 .WithMessage("CountyId is required")
@@ -31,7 +31,7 @@ public class ForgetPasswordValidator : AbstractValidator<ForgetPasswordRequest> 
                 .MatchPhoneNumber();
         });
         RuleFor(x => x.Provider)
-            .IsEnumName(typeof(MFAProvider), caseSensitive: false)
+            .IsEnumName(typeof(MFAProvider), false)
             .WithMessage("Provider is not valid");
     }
 }

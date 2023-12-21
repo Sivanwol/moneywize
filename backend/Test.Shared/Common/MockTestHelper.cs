@@ -4,8 +4,8 @@ using Moq;
 namespace Test.Shared.Common;
 
 public static class MockTestHelper {
-    private static Mock<IDomainContext> Context = null;
-    public static List<Countries> Countries { get; set; } = new List<Countries>();
+    private static Mock<IDomainContext> Context;
+    public static List<Countries> Countries { get; set; } = new();
 
     public static Mock<IDomainContext> SetupContext() {
         var context = SetupEntities();

@@ -80,7 +80,7 @@ public class AuthController : BaseApiController {
     }
 
     /// <summary>
-    /// will be called when user request to login
+    ///     will be called when user request to login
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
@@ -127,7 +127,7 @@ public class AuthController : BaseApiController {
     }
 
     /// <summary>
-    /// will be called when user confirm email and request to reset password
+    ///     will be called when user confirm email and request to reset password
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
@@ -145,7 +145,7 @@ public class AuthController : BaseApiController {
             return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
         }
         try {
-            return ResponseHelper.CreateResponse(await Mediator.Send(new Domain.Requests.Processor.Services.User.VerifyOtpUserRequest {
+            return ResponseHelper.CreateResponse(await Mediator.Send(new VerifyOtpUserRequest {
                 Code = request.Code,
                 OTPToken = request.OTPToken,
                 UserToken = request.UserToken
@@ -166,7 +166,7 @@ public class AuthController : BaseApiController {
     }
 
     /// <summary>
-    /// will be called when user request to logout
+    ///     will be called when user request to logout
     /// </summary>
     /// <returns></returns>
     [HttpDelete("logout")]
@@ -192,7 +192,7 @@ public class AuthController : BaseApiController {
     }
 
     /// <summary>
-    /// will be called when user forgot password and request to reset password link
+    ///     will be called when user forgot password and request to reset password link
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
@@ -240,8 +240,8 @@ public class AuthController : BaseApiController {
     }
 
     /// <summary>
-    /// will be called when user confirm email and request to reset password
-    /// the output is redirect to login page
+    ///     will be called when user confirm email and request to reset password
+    ///     the output is redirect to login page
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
@@ -256,7 +256,7 @@ public class AuthController : BaseApiController {
             _logger.LogError($"unable to confirm OTP for user [{request.UserToken} , {request.OTPToken}] with error [{HandlerErrorResponse(validator)}]");
         }
         try {
-            var result = await Mediator.Send(new Domain.Requests.Processor.Services.User.VerifyOtpUserRequest {
+            var result = await Mediator.Send(new VerifyOtpUserRequest {
                 Code = request.Code,
                 OTPToken = request.OTPToken,
                 UserToken = request.UserToken
@@ -275,7 +275,7 @@ public class AuthController : BaseApiController {
     }
 
     /// <summary>
-    /// will be called when user request to reset password
+    ///     will be called when user request to reset password
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -404,7 +404,7 @@ public class AuthController : BaseApiController {
     }
 
     /// <summary>
-    /// this will be called when user request to confirm email
+    ///     this will be called when user request to confirm email
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
@@ -453,7 +453,7 @@ public class AuthController : BaseApiController {
     }
 
     /// <summary>
-    /// this will be called when user request to register new account
+    ///     this will be called when user request to register new account
     /// </summary>
     /// <param name="request"></param>
     /// <param name="automaticLogin">only for admin uses</param>

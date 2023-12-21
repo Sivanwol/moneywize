@@ -1,37 +1,16 @@
+using System.Linq.Expressions;
 using Domain.DTO.Filters.Fields;
 using LinqKit;
 namespace Domain.DTO.Filters.Common;
 
-public enum FilterCollectionOperation {
-    Or,
-    And
-}
-
 public abstract class BaseFilters : IFilter {
-    public abstract IQueryable<T> ApplyFilters<T>(IQueryable<T> query) where T : class;
+    public abstract IQueryable<T> ApplyFilters<T>(IQueryable<T> query, FilterCollectionOperation filterCollectionOperation) where T : class;
     public abstract void ResetFilters();
-    protected IQueryable<T> ApplyFilterToQuery<T, TCast, TFilter>(IQueryable<T> query,
-        ICollection<TFilter> filterList, FilterCollectionOperation operation)
+    protected Expression<Func<T, bool>> ApplyFilterToQuery<T, TCast, TFilter>(ICollection<TFilter> filterList )
         where T : class where TFilter : IFilterField<TCast> {
         if (!filterList.Any())
-            return query;
+            return null;
         var predicate = PredicateBuilder.New<T>(false);
-        foreach (var filter in filterList) {
-            if (!filter.IsFilterDisabled) {
-                if (operation == FilterCollectionOperation.Or) {
-                    predicate = predicate.Or(filter.ApplyFilter<T>());
-                    continue;
-                }
-                if (operation == FilterCollectionOperation.And) {
-                    predicate = predicate.And(filter.ApplyFilter<T>());
-                    continue;
-                }
-
-                throw new ArgumentException("Invalid filter operation");
-            }
-        }
-        query = query.Where(predicate);
-
-        return query;
+        return filterList.Where(filter => !filter.IsFilterDisabled).Aggregate(predicate, (current, filter) => current.Or(filter.ApplyFilter<T>()));
     }
 }

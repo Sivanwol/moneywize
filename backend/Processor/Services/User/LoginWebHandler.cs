@@ -23,7 +23,7 @@ public class LoginWebHandler : IRequestHandler<LoginWebUserRequest, LoginRespons
     public async Task<LoginResponse> Handle(LoginWebUserRequest request, CancellationToken cancellationToken) {
         Log.Logger.Information($"LogoutUserHandler: [{request.Email}]");
         var result =
-            await _signInManager.PasswordSignInAsync(request.Email, request.Password, request.RememberMe, lockoutOnFailure: true);
+            await _signInManager.PasswordSignInAsync(request.Email, request.Password, request.RememberMe, true);
         var user = await _userManager.FindByEmailAsync(request.Email);
         // user not found
         if (user == null) {

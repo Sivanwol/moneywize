@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Reflection;
 namespace Domain.DTO.Filters.Fields;
 
 public class StringFilterField : BaseFilterField<FilterStringOperation, string> {
@@ -29,6 +30,11 @@ public class StringFilterField : BaseFilterField<FilterStringOperation, string> 
             }
             valueExpression = Expression.Constant(FilterValue, typeof(string));
         }
+
+        MethodInfo compareInfo = typeof(string).GetMethod("IndexOf", new[] {
+            typeof(string), typeof(StringComparison)
+        });
+        MethodCallExpression? compareWithOrdinal;
         switch (FilterOperation) {
             case FilterStringOperation.In:
                 filterExpression = Expression.Call(typeof(Enumerable), nameof(Enumerable.Contains), new[] {
@@ -47,10 +53,12 @@ public class StringFilterField : BaseFilterField<FilterStringOperation, string> 
                 filterExpression = Expression.NotEqual(property, valueExpression!);
                 break;
             case FilterStringOperation.Contains:
-                filterExpression = Expression.Call(property, typeof(string).GetMethod(nameof(string.Contains)), valueExpression!);
+                compareWithOrdinal = Expression.Call(property, compareInfo, valueExpression, Expression.Constant(StringComparison.OrdinalIgnoreCase));
+                filterExpression = Expression.GreaterThanOrEqual(compareWithOrdinal, Expression.Constant(0));
                 break;
             case FilterStringOperation.NotContains:
-                filterExpression = Expression.Not(Expression.Call(property, typeof(string).GetMethod(nameof(string.Contains)), valueExpression!));
+                compareWithOrdinal = Expression.Call(property, compareInfo, valueExpression, Expression.Constant(StringComparison.OrdinalIgnoreCase));
+                filterExpression = Expression.Not(Expression.GreaterThanOrEqual(compareWithOrdinal, Expression.Constant(0)));
                 break;
             case FilterStringOperation.StartsWith:
                 filterExpression = Expression.Call(property, typeof(string).GetMethod(nameof(string.StartsWith), new[] {

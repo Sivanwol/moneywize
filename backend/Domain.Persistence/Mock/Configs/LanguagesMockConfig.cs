@@ -9,7 +9,7 @@ public sealed class LanguagesMockConfig : AutoFaker<Languages> {
         RuleFor(fake => fake.Id, fake => fake.Random.Guid());
         RuleFor(fake => fake.Name, fake => $"Language {fake.Random.Number(1, 1000)}");
         RuleFor(fake => fake.Code, fake => $"{fake.Locale}-{fake.Random.Number(1, 1000)}");
-        RuleFor(fake => fake.CreatedAt, fake => fake.Date.Past(1));
+        RuleFor(fake => fake.CreatedAt, fake => fake.Date.Past());
         RuleFor(fake => fake.UpdatedAt, fake => fake.Date.Recent());
     }
 }

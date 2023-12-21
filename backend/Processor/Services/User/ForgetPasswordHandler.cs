@@ -40,7 +40,7 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
 
     public async Task<RequestOTPResponse> Handle(ForgotPasswordRequest request, CancellationToken cancellationToken) {
         Log.Logger.Information($"RequestOtpHandler: [{request.Provider},{request.CountryId}, {request.PhoneNumber}]");
-        Log.Logger.Information($"Start Prep for Sending SMS OTP");
+        Log.Logger.Information("Start Prep for Sending SMS OTP");
         Log.Logger.Information($"Locating User By Phone: {request.CountryId}-{request.PhoneNumber}");
         if (IsIdentifyByPhoneNumber(request)) {
             var country = await _countriesRepository.GetById(request.CountryId!.Value);
@@ -53,9 +53,8 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
         }
         if (request.ReSend) {
             return await HandleResend(user, request);
-        } else {
-            return await SendOTP(user, request);
         }
+        return await SendOTP(user, request);
     }
 
     private bool IsIdentifyByEmailAddress(ForgotPasswordRequest request) {
@@ -82,7 +81,7 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
         var totalCodesSent = await _applicationUserRepository.GetTotalOtpCodesWithinExpirationDate(new Guid(user.Id), _config.OTPCodeTotalRetriesWithinSession);
 
         if (totalCodesSent >= _config.OTPCodeTotalRetriesWithinSession) {
-            Log.Logger.Information(($"User {user.Id} has reached max resend limit"));
+            Log.Logger.Information($"User {user.Id} has reached max resend limit");
             return await FetchOtpResponse(user);
         }
 

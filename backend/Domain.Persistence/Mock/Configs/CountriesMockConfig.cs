@@ -11,7 +11,7 @@ public sealed class CountriesMockConfig : AutoFaker<Countries> {
         RuleFor(fake => fake.CountryCode, fake => fake.Address.CountryCode());
         RuleFor(fake => fake.CountryCode3, fake => fake.Address.CountryCode());
         RuleFor(fake => fake.CountryNumber, fake => "972");
-        RuleFor(fake => fake.CreatedAt, fake => fake.Date.Past(1));
+        RuleFor(fake => fake.CreatedAt, fake => fake.Date.Past());
         RuleFor(fake => fake.UpdatedAt, fake => fake.Date.Recent());
     }
 }

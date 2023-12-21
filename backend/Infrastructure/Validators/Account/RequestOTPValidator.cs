@@ -23,7 +23,7 @@ public class RequestOtpValidator : AbstractValidator<MobileRequestOTPUserRequest
             .WithMessage("CountyId is not valid");
 
         RuleFor(x => x.Provider)
-            .IsEnumName(typeof(MFAProvider), caseSensitive: false)
+            .IsEnumName(typeof(MFAProvider), false)
             .WithMessage("Provider is not valid");
 
     }

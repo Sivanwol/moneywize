@@ -9,26 +9,26 @@ using Microsoft.AspNetCore.Routing;
 namespace Infrastructure.Services.Email;
 
 public class TemplateService : ITemplateService {
-    private IRazorViewEngine _razorViewEngine;
-    private IServiceProvider _serviceProvider;
-    private ITempDataProvider _tempDataProvider;
+    private readonly IRazorViewEngine _razorViewEngine;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ITempDataProvider _tempDataProvider;
 
     public TemplateService(
         IRazorViewEngine engine,
         IServiceProvider serviceProvider,
         ITempDataProvider tempDataProvider) {
-        this._razorViewEngine = engine;
-        this._serviceProvider = serviceProvider;
-        this._tempDataProvider = tempDataProvider;
+        _razorViewEngine = engine;
+        _serviceProvider = serviceProvider;
+        _tempDataProvider = tempDataProvider;
     }
 
     public async Task<string> GetTemplateHtmlAsStringAsync<T>(string viewName, T model) where T : class, new() {
-        var httpContext = new DefaultHttpContext() {
+        var httpContext = new DefaultHttpContext {
             RequestServices = _serviceProvider
         };
         var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
 
-        using (StringWriter sw = new StringWriter()) {
+        using (var sw = new StringWriter()) {
             var viewResult = _razorViewEngine.FindView(actionContext, viewName, false);
 
             if (viewResult.View == null) {

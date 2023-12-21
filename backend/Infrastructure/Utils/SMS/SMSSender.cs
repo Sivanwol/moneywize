@@ -5,8 +5,8 @@ using Microsoft.Extensions.Logging;
 namespace Infrastructure.Utils.SMS;
 
 public class SMSSender {
-    static BaseSMSProvider _provider;
-    static SMSSender _instance;
+    private static BaseSMSProvider _provider;
+    private static SMSSender _instance;
     private static ILoggerFactory _loggerFaactory;
     private static InfoUSmsConfig _config;
     private static ILogger _logger;

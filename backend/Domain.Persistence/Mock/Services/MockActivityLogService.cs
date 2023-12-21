@@ -8,7 +8,7 @@ public class MockActivityLogService : IActivityLogMockService {
     public MockActivityLogService() {
         Faker = new ActivityLogMockConfig();
     }
-    private ActivityLogMockConfig Faker { get; set; }
+    private ActivityLogMockConfig Faker { get; }
     public ActivityLog GetOne(Guid userId) {
         var log = Faker.Generate(1).First();
         if (log.OperationType != nameof(ActivityOperationType.SYSTEM)) {

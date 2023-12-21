@@ -1,11 +1,7 @@
 using Application.Utils;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Serilog;
-
-namespace Application.Extensions; 
+namespace Application.Extensions;
 
 public static class SerilogExtension {
 

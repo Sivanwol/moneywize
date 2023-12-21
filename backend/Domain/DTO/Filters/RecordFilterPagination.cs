@@ -9,6 +9,11 @@ public enum SortDirection {
     Descending
 }
 
+public enum FilterCollectionOperation {
+    Or,
+    And
+}
+
 public class RecordFilterPagination<TFilter> where TFilter : IFilter {
 
     public RecordFilterPagination() {
@@ -17,18 +22,19 @@ public class RecordFilterPagination<TFilter> where TFilter : IFilter {
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 10;
     public TFilter Filter { get; set; }
+    public FilterCollectionOperation FilterCollectionOperation { get; set; } = FilterCollectionOperation.Or;
     public SortDirection SortDirection { get; set; } = SortDirection.Descending;
     public string SortByField { get; set; } = "CreatedAt";
 
     public IQueryable<T> ApplyQueryWithoutPagination<T>(IQueryable<T> query) where T : class {
 
-        query = Filter.ApplyFilters(query);
+        query = Filter.ApplyFilters(query, FilterCollectionOperation);
         var type = typeof(T);
         var property = type.GetProperty(SortByField);
         var parameter = Expression.Parameter(type, "p");
         var propertyAccess = Expression.MakeMemberAccess(parameter, property);
         var orderByExp = Expression.Lambda(propertyAccess, parameter);
-        var typeArguments = new Type[] {
+        var typeArguments = new[] {
             type, property.PropertyType
         };
 
@@ -58,13 +64,13 @@ public class RecordFilterPagination<TFilter> where TFilter : IFilter {
     }
 
     public IQueryable<T> ApplyQuery<T>(IQueryable<T> query) where T : class {
-        query = Filter!.ApplyFilters(query);
+        query = Filter!.ApplyFilters(query, FilterCollectionOperation);
         var type = typeof(T);
         var property = type.GetProperty(SortByField);
         var parameter = Expression.Parameter(type, "p");
         var propertyAccess = Expression.MakeMemberAccess(parameter, property!);
         var orderByExp = Expression.Lambda(propertyAccess, parameter);
-        var typeArguments = new Type[] {
+        var typeArguments = new[] {
             type, property.PropertyType
         };
 

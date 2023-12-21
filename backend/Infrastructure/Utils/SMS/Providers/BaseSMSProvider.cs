@@ -1,3 +1,4 @@
+using System.Security;
 using Microsoft.Extensions.Logging;
 namespace Infrastructure.Utils.SMS.Providers;
 
@@ -13,7 +14,7 @@ public class BaseSMSProvider {
     }
     public virtual void Init(string countryNumber, string phoneNumber, string messageTemplate) {
         _logger.LogInformation("BaseSMSProvider init");
-        _messageTemplate = System.Security.SecurityElement.Escape(messageTemplate);
+        _messageTemplate = SecurityElement.Escape(messageTemplate);
         _countryNumber = countryNumber;
         _phoneNumber = phoneNumber;
     }

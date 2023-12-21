@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Infrastructure.Enums;
+using Infrastructure.Requests.Processor.Services.User;
 using Swashbuckle.AspNetCore.Annotations;
 namespace Infrastructure.Requests.Controllers.Auth;
 
@@ -31,8 +32,8 @@ public class ForgetPasswordRequest {
     [SwaggerSchema("Resent OTP")]
     public bool Resent { get; set; }
 
-    public Processor.Services.User.ForgotPasswordRequest ToProcessorEntity() {
-        return new Processor.Services.User.ForgotPasswordRequest {
+    public ForgotPasswordRequest ToProcessorEntity() {
+        return new ForgotPasswordRequest {
             Email = Email,
             CountryId = CountryId,
             PhoneNumber = PhoneNumber,

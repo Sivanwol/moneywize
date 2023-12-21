@@ -1,7 +1,5 @@
-using Application;
 using Application.Configs;
 using Application.Extensions;
-using Application.Utils;
 using Domain.Persistence.Context;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -9,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
 using Serilog;
-
 namespace DevopsTools;
 
 public class Bootstrap {
@@ -38,7 +35,7 @@ public class Bootstrap {
             services.AddDbContext<DomainContext>(options => options.UseSqlServer(ActiveConnectionString));
             services.AddTransient<IDomainContext>(provider => provider.GetService<DomainContext>());
         });
-        if (Environment.IsDevelopment()  || applicationConfig.EnableSwagger) {
+        if (Environment.IsDevelopment() || applicationConfig.EnableSwagger) {
             services.AddSwaggerExtension(applicationConfig, "Devops Tools Docs");
         }
 
@@ -63,7 +60,7 @@ public class Bootstrap {
                 ResultStatusCodes = {
                     [HealthStatus.Healthy] = StatusCodes.Status200OK,
                     [HealthStatus.Degraded] = StatusCodes.Status500InternalServerError,
-                    [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable,
+                    [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
                 }
             }).UseHealthChecksUI(setup => {
                 setup.ApiPath = "/healthcheck";

@@ -14,7 +14,7 @@ public abstract class BaseFilterField<TFilterOperation, TFilterValue> : IFilterF
 
     public TFilterValue? FilterValue
     {
-        get { return filterValue; }
+        get => filterValue;
         set
         {
             if (FilterValues != null) {
@@ -26,7 +26,7 @@ public abstract class BaseFilterField<TFilterOperation, TFilterValue> : IFilterF
 
     public ICollection<TFilterValue>? FilterValues
     {
-        get { return filterValues; }
+        get => filterValues;
         set
         {
             if (value != null) {

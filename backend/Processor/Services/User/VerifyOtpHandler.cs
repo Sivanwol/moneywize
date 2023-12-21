@@ -39,9 +39,9 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
     }
 
     public async Task<VerifyOTPResponse> Handle(VerifyOtpUserRequest request, CancellationToken cancellationToken) {
-        ApplicationUser user = await GetValidUserByToken(request.UserToken);
-        Countries country = await GetValidCountryByUser(user);
-        int expiredCodeInMinutes = _config.OTPCodeExpiredInMinutes;
+        var user = await GetValidUserByToken(request.UserToken);
+        var country = await GetValidCountryByUser(user);
+        var expiredCodeInMinutes = _config.OTPCodeExpiredInMinutes;
         var otpEntity = await GetOtpEntity(request, expiredCodeInMinutes, user);
         var result = await _otpRepository.VerifyOTP(user, otpEntity, request.Code);
 
@@ -65,7 +65,7 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
             }
             var roles = await _userManager.GetRolesAsync(user);
             claims = new List<Claim> {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new(ClaimTypes.NameIdentifier, user.Id)
             };
             roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
         }

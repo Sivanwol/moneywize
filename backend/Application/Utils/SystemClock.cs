@@ -12,6 +12,8 @@ public static class SystemClock {
     }
 
     private class DefaultClock : IClock {
-        public DateTimeOffset Now() => new DateTimeOffset(DateTime.Now.ToUniversalTime());
+        public DateTimeOffset Now() {
+            return new DateTimeOffset(DateTime.Now.ToUniversalTime());
+        }
     }
 }

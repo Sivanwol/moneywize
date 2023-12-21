@@ -23,8 +23,8 @@ public class ResetPasswordRequest {
     [Display(Name = "New password")]
     public string NewPassword { get; set; }
 
-    public Infrastructure.Requests.Processor.Services.User.ResetPasswordRequest ToProcessorEntity(Guid loggedUserId) {
-        return new Infrastructure.Requests.Processor.Services.User.ResetPasswordRequest {
+    public Processor.Services.User.ResetPasswordRequest ToProcessorEntity(Guid loggedUserId) {
+        return new Processor.Services.User.ResetPasswordRequest {
             LoggedUserId = loggedUserId,
             UserId = Guid.Parse(UserId),
             OldPassword = OldPassword,

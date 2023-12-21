@@ -94,9 +94,9 @@ public class Bootstrap {
                 options.UseMySql(ActiveConnectionString, serverVersion,
                         mySqlOptions => {
                             mySqlOptions.EnableRetryOnFailure(
-                                maxRetryCount: 3,
-                                maxRetryDelay: TimeSpan.FromSeconds(30),
-                                errorNumbersToAdd: null);
+                                3,
+                                TimeSpan.FromSeconds(30),
+                                null);
                         })
                     .LogTo(Console.WriteLine, LogLevel.Information);
                 if (Environment.IsDevelopment()) {
@@ -134,7 +134,7 @@ public class Bootstrap {
         services.AddMassTransitExtension(ActiveConnectionString, applicationConfig, bus => {
             ServiceProcessExtensions.AddConsumersExtension(applicationConfig, bus);
         }, cfg => {
-            ServiceProcessExtensions.AddJobsExtension(cfg, applicationConfig);
+            cfg.AddJobsExtension(applicationConfig);
         }, bus => {
             bus.AddSagaStateMachine<GeneralEventStateMachineFlow, EventStage>(cfg => {
                 cfg.ConcurrentMessageLimit = 8;
@@ -193,7 +193,7 @@ public class Bootstrap {
                 ResultStatusCodes = {
                     [HealthStatus.Healthy] = StatusCodes.Status200OK,
                     [HealthStatus.Degraded] = StatusCodes.Status500InternalServerError,
-                    [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable,
+                    [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
                 }
             });
         }

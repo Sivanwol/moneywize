@@ -8,5 +8,7 @@ public class MockClock : IClock {
         _utcNow = utcNow;
     }
 
-    public DateTimeOffset Now() => _utcNow;
+    public DateTimeOffset Now() {
+        return _utcNow;
+    }
 }

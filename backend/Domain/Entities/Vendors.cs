@@ -6,7 +6,7 @@ namespace Domain.Entities;
 
 public enum VendorSupportResponseType {
     API,
-    SCRAPING,
+    SCRAPING
 }
 
 [Table("Vendors")]

@@ -6,8 +6,8 @@ using Microsoft.Extensions.Logging;
 namespace Infrastructure.Utils.SMS.Providers;
 
 public class InfoUProvider : BaseSMSProvider {
+    private readonly StringBuilder _buffer = new();
     private readonly InfoUSmsConfig _config;
-    private StringBuilder _buffer = new StringBuilder();
     private string _requestContent;
     public InfoUProvider(ILoggerFactory logger, InfoUSmsConfig config) : base(logger) {
         _logger.LogInformation("InfoUProvider Loaded");
@@ -39,14 +39,14 @@ public class InfoUProvider : BaseSMSProvider {
         _buffer.Append("</Settings>");
         _buffer.Append("</Inforu >");
         _logger.LogInformation("InfoUProvider Parse XML {0}", _buffer.ToString());
-        return HttpUtility.UrlEncode(_buffer.ToString(), System.Text.Encoding.UTF8);
+        return HttpUtility.UrlEncode(_buffer.ToString(), Encoding.UTF8);
     }
     public override void SendSMS(string code) {
         base.SendSMS(code);
         _logger.LogInformation("InfoUProvider SendSMS");
         var recipientPhoneNumberMessage = string.Format("Recipient phone number: {0}", _phoneNumber);
         _requestContent = _requestContent.Replace("%23%23code%23%23", code);
-        string szResult = PostDataToURL("https://uapi.inforu.co.il/SendMessageXml.ashx", $"InforuXML={_requestContent}");
+        var szResult = PostDataToURL("https://uapi.inforu.co.il/SendMessageXml.ashx", $"InforuXML={_requestContent}");
         var stringBuilder = new StringBuilder();
         stringBuilder.AppendLine(recipientPhoneNumberMessage);
         stringBuilder.AppendLine(szResult);
@@ -55,7 +55,7 @@ public class InfoUProvider : BaseSMSProvider {
 
     private string PostDataToURL(string szUrl, string szData) {
         //Setup the web request
-        string szResult = string.Empty;
+        var szResult = string.Empty;
         var request = WebRequest.Create(szUrl);
         request.Timeout = 30000;
         request.Method = "POST";
@@ -69,7 +69,7 @@ public class InfoUProvider : BaseSMSProvider {
             buf = Encoding.UTF8.GetBytes(szData);
             request.ContentLength = buf.Length;
             //Open up a request stream
-            Stream rstream = request.GetRequestStream();
+            var rstream = request.GetRequestStream();
             //Write the POST data
             rstream.Write(buf, 0, buf.Length);
             //Close the stream
@@ -78,7 +78,7 @@ public class InfoUProvider : BaseSMSProvider {
             WebResponse response;
             response = request.GetResponse();
             //Create the reader for the response
-            StreamReader sr = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
+            var sr = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
             //Read the response
             szResult = sr.ReadToEnd();
             //Close the reader, and response

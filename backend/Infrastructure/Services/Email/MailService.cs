@@ -2,9 +2,9 @@ using Application.Configs.Providers;
 using Application.Contract;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using Newtonsoft.Json;
 using Serilog;
 namespace Infrastructure.Services.Email;
 
@@ -19,9 +19,9 @@ public class MailService : IMailService {
 
     public async Task<bool> SendWithAttachmentsAsync(MailDataWithAttachments mailData, CancellationToken ct = default) {
         try {
-            var jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(mailData);
+            var jsonString = JsonConvert.SerializeObject(mailData);
             Log.Information($"MailDataWithAttachments: {jsonString}");
-            jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(_settings);
+            jsonString = JsonConvert.SerializeObject(_settings);
             Log.Information($"Mail Settings: {jsonString}");
             // Initialize a new instance of the MimeKit.MimeMessage class
             var mail = new MimeMessage();
@@ -33,7 +33,7 @@ public class MailService : IMailService {
             mail.Sender = new MailboxAddress(mailData.DisplayName ?? _settings.DisplayName, mailData.From ?? _settings.FromAddress);
 
             // Receiver
-            foreach (string mailAddress in mailData.To)
+            foreach (var mailAddress in mailData.To)
                 mail.To.Add(MailboxAddress.Parse(mailAddress));
 
             // Set Reply to if specified in mail data
@@ -44,14 +44,14 @@ public class MailService : IMailService {
             // Check if a BCC was supplied in the request
             if (mailData.Bcc != null) {
                 // Get only addresses where value is not null or with whitespace. x = value of address
-                foreach (string mailAddress in mailData.Bcc.Where(x => !string.IsNullOrWhiteSpace(x)))
+                foreach (var mailAddress in mailData.Bcc.Where(x => !string.IsNullOrWhiteSpace(x)))
                     mail.Bcc.Add(MailboxAddress.Parse(mailAddress.Trim()));
             }
 
             // CC
             // Check if a CC address was supplied in the request
             if (mailData.Cc != null) {
-                foreach (string mailAddress in mailData.Cc.Where(x => !string.IsNullOrWhiteSpace(x)))
+                foreach (var mailAddress in mailData.Cc.Where(x => !string.IsNullOrWhiteSpace(x)))
                     mail.Cc.Add(MailboxAddress.Parse(mailAddress.Trim()));
             }
 
@@ -66,9 +66,9 @@ public class MailService : IMailService {
             // Check if we got any attachments and add the to the builder for our message
             if (mailData.Attachments != null) {
                 byte[] attachmentFileByteArray;
-                foreach (IFormFile attachment in mailData.Attachments) {
+                foreach (var attachment in mailData.Attachments) {
                     if (attachment.Length > 0) {
-                        using (MemoryStream memoryStream = new MemoryStream()) {
+                        using (var memoryStream = new MemoryStream()) {
                             attachment.CopyTo(memoryStream);
                             attachmentFileByteArray = memoryStream.ToArray();
                         }
@@ -110,9 +110,9 @@ public class MailService : IMailService {
 
     public async Task<bool> SendAsync(MailData mailData, CancellationToken ct = default) {
         try {
-            var jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(mailData);
+            var jsonString = JsonConvert.SerializeObject(mailData);
             Log.Information($"MailData: {jsonString}");
-            jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(_settings);
+            jsonString = JsonConvert.SerializeObject(_settings);
             Log.Information($"Mail Settings: {jsonString}");
 
             // Initialize a new instance of the MimeKit.MimeMessage class
@@ -125,7 +125,7 @@ public class MailService : IMailService {
             mail.Sender = new MailboxAddress(mailData.DisplayName ?? _settings.DisplayName, mailData.From ?? _settings.FromAddress);
 
             // Receiver
-            foreach (string mailAddress in mailData.To)
+            foreach (var mailAddress in mailData.To)
                 mail.To.Add(MailboxAddress.Parse(mailAddress));
 
             // Set Reply to if specified in mail data
@@ -136,14 +136,14 @@ public class MailService : IMailService {
             // Check if a BCC was supplied in the request
             if (mailData.Bcc != null) {
                 // Get only addresses where value is not null or with whitespace. x = value of address
-                foreach (string mailAddress in mailData.Bcc.Where(x => !string.IsNullOrWhiteSpace(x)))
+                foreach (var mailAddress in mailData.Bcc.Where(x => !string.IsNullOrWhiteSpace(x)))
                     mail.Bcc.Add(MailboxAddress.Parse(mailAddress.Trim()));
             }
 
             // CC
             // Check if a CC address was supplied in the request
             if (mailData.Cc != null) {
-                foreach (string mailAddress in mailData.Cc.Where(x => !string.IsNullOrWhiteSpace(x)))
+                foreach (var mailAddress in mailData.Cc.Where(x => !string.IsNullOrWhiteSpace(x)))
                     mail.Cc.Add(MailboxAddress.Parse(mailAddress.Trim()));
             }
 

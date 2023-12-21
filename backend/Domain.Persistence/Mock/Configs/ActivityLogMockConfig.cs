@@ -28,6 +28,6 @@ public sealed class ActivityLogMockConfig : AutoFaker<ActivityLog> {
         RuleFor(fake => fake.IpAddress, fake => fake.Internet.Ip());
         RuleFor(fake => fake.UserAgent, fake => fake.Internet.UserAgent());
         RuleFor(fake => fake.EntityType, fake => fake.Random.String2(10));
-        RuleFor(fake => fake.CreatedAt, fake => fake.Date.Past(1));
+        RuleFor(fake => fake.CreatedAt, fake => fake.Date.Past());
     }
 }

@@ -1,9 +1,7 @@
-
 using Application.Utils;
 using Domain.Persistence.Context;
 using MediatR;
 using Moq;
-using Nest;
 using Serilog;
 namespace Test.Shared.Common;
 

@@ -42,7 +42,7 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
 
     public async Task<RequestOTPResponse> Handle(SendOTPRequest request, CancellationToken cancellationToken) {
         _logger.LogInformation($"RequestOtpHandler: [{request.Provider},{request.CountryId}, {request.PhoneNumber}]");
-        _logger.LogInformation($"Start Prep for Sending SMS OTP");
+        _logger.LogInformation("Start Prep for Sending SMS OTP");
         _logger.LogInformation($"Locating User By Phone: {request.CountryId}-{request.PhoneNumber}");
         if (IsIdentifyByPhoneNumber(request)) {
             var country = await _countriesRepository.GetById(request.CountryId!.Value);
@@ -53,9 +53,8 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
         LoadProvider(user.Country.Provider);
         if (request.ReSend) {
             return await HandleResend(user, request);
-        } else {
-            return await SendOTP(user, request);
         }
+        return await SendOTP(user, request);
     }
 
     private bool IsIdentifyByEmailAddress(SendOTPRequest request) {

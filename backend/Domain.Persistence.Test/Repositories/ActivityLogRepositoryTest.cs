@@ -8,7 +8,7 @@ using MockQueryable.Moq;
 using Test.Shared.Common;
 namespace Domain.Persistence.Test.Repositories;
 
-[TestFixture, Description("Test the ApplicationUserRepository")]
+[TestFixture] [Description("Test the ApplicationUserRepository")]
 [Category("Activitys")]
 public class ActivityLogRepositoryTest : BaseTest {
 
@@ -49,7 +49,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         });
     }
 
-    [Test, Description("Add a new activity log With IP and UserAgent")]
+    [Test] [Description("Add a new activity log With IP and UserAgent")]
     public async Task AddActivityWithIpAndUserAgent() {
         var mock = new MockActivityLogService();
         var mockData = mock.GetMany(Guid.NewGuid());
@@ -95,7 +95,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         Assert.That(result, Is.EqualTo(totalPages));
     }
 
-    [Test, Description("Get Total amount of entries")]
+    [Test] [Description("Get Total amount of entries")]
     [TestCase(10)]
     [TestCase(20)]
     [TestCase(30)]
@@ -156,7 +156,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
 
-        var result = await repository.GetActivities(new RecordFilterPagination<ActivityLogFilters>() {
+        var result = await repository.GetActivities(new RecordFilterPagination<ActivityLogFilters> {
             PageSize = pageSize
         });
 
@@ -193,7 +193,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
 
-        var result = await repository.GetActivities(new RecordFilterPagination<ActivityLogFilters>() {
+        var result = await repository.GetActivities(new RecordFilterPagination<ActivityLogFilters> {
             Page = page,
             PageSize = pageSize
         });
@@ -244,7 +244,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
 
-        var result = await repository.GetActivities(new RecordFilterPagination<ActivityLogFilters>() {
+        var result = await repository.GetActivities(new RecordFilterPagination<ActivityLogFilters> {
             SortByField = sortByField,
             SortDirection = sortDirection
         });
@@ -326,7 +326,7 @@ public class ActivityLogRepositoryTest : BaseTest {
     [TestCase(false)]
     public async Task GetActivitiesWithStringFilter(bool DisableFilter) {
         var mock = new MockActivityLogService();
-        var mockData = mock.GetMany(10); // Use a fixed number of entries for testing
+        var mockData = mock.GetMany(); // Use a fixed number of entries for testing
         var repository = new ActivityLogRepository(Context.Object);
 
         var mockEnumerable = mockData.ToList();
@@ -340,18 +340,60 @@ public class ActivityLogRepositoryTest : BaseTest {
             FilterValue = mockEnumerable.Last().Activity
         });
         var result = await repository.GetActivities(fillters);
+        var expected = new List<ActivityLog> {
+            mockEnumerable.First()
+        };
+        if (!DisableFilter) {
+            expected.Add(mockEnumerable.Last());
+        }
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Count, Is.EqualTo(expected.Count)); // Should return all entries
 
-        mockData = mockData.Where(x => x.Activity == mockEnumerable.First().Activity).ToList();
-        var expected = new List<ActivityLog>();
-        expected.AddRange(!DisableFilter
-            ? new List<ActivityLog> {
-                mockEnumerable.Last(),
-                mockEnumerable.First()
-            }
-            : new List<ActivityLog> {
-                mockEnumerable.First()
+        foreach (var item in result) {
+            Assert.Multiple(() => {
+                Assert.That(expected.Any(x => x.Id == item.Id), Is.True);
+                Assert.That(expected.Any(x => x.UserId == item.UserId), Is.True);
+                Assert.That(expected.Any(x => x.EntityId == item.EntityId), Is.True);
+                Assert.That(expected.Any(x => x.EntityType == item.EntityType), Is.True);
+                Assert.That(expected.Any(x => x.OperationType == item.OperationType), Is.True);
+                Assert.That(expected.Any(x => x.Activity == item.Activity), Is.True);
+                Assert.That(expected.Any(x => x.Details == item.Details), Is.True);
+                Assert.That(expected.Any(x => x.Status == item.Status), Is.True);
+                Assert.That(expected.Any(x => x.IpAddress == item.IpAddress), Is.True);
+                Assert.That(expected.Any(x => x.UserAgent == item.UserAgent), Is.True);
             });
-        mockData = mockData.Skip(0).Take(10).ToList();
+        }
+    }
+    [Test, Description("Get Activities with string filter That has two filters with multi filters")]
+    [TestCase("Test", "AABBCCDD", 2)]
+    [TestCase("KOKKK", "HHGGFFDD", 5)]
+    [TestCase("HFHFHJJ", "UISDYABJKH", 4)]
+    public async Task GetActivitiesWithStringFilterWithMultiFilters(string filterValue1, string filterValue2, int idx) {
+        var mock = new MockActivityLogService();
+        var mockData = mock.GetMany();
+        mockData.Last().Activity = $"{filterValue1}";
+        mockData.First().Activity = $"{filterValue2}";
+        var repository = new ActivityLogRepository(Context.Object);
+
+        var mockEnumerable = mockData.ToList();
+        var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
+        var fillters = new RecordFilterPagination<ActivityLogFilters>();
+        fillters.Filter.ActivityFilters.Add(new StringFilterField("Activity", FilterStringOperation.Equal) {
+            FilterValue = filterValue1
+        });
+        fillters.Filter.ActivityFilters.Add(new StringFilterField("Activity", FilterStringOperation.Equal) {
+            FilterValue = filterValue2
+        });
+        fillters.Filter.IpAddressFilters.Add(new StringFilterField("IpAddress", FilterStringOperation.Equal) {
+            FilterValue = mockEnumerable[idx].IpAddress
+        });
+        var result = await repository.GetActivities(fillters);
+        var expected = new List<ActivityLog> {
+            mockEnumerable.First(),
+            mockEnumerable[idx],
+            mockEnumerable.Last()
+        };
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count, Is.EqualTo(expected.Count)); // Should return all entries
 

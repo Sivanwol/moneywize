@@ -6,7 +6,7 @@ using MockQueryable.Moq;
 using Test.Shared.Common;
 namespace Domain.Persistence.Test.Repositories;
 
-[TestFixture, Description("Test the LanguagesRepository")]
+[TestFixture] [Description("Test the LanguagesRepository")]
 [Category("Languages")]
 public class LanguagesRepositoryTest : BaseTest {
     [SetUp]
@@ -22,7 +22,7 @@ public class LanguagesRepositoryTest : BaseTest {
     protected ILoggerFactory factory;
     protected ILogger logger;
 
-    [Test, Description("Test the GetAll method")]
+    [Test] [Description("Test the GetAll method")]
     public async Task GetAll() {
         var mock = new MockLanguagesServices();
         var mockData = mock.GetAll();
@@ -37,7 +37,7 @@ public class LanguagesRepositoryTest : BaseTest {
         Assert.That(result.First().TranslationKey, Is.EqualTo(mockEnumerable.First().TranslationKey));
     }
 
-    [Test, Description("Test the GetById method")]
+    [Test] [Description("Test the GetById method")]
     public async Task GetById() {
         var mock = new MockLanguagesServices();
         var mockData = mock.GetAll();
@@ -52,7 +52,7 @@ public class LanguagesRepositoryTest : BaseTest {
         Assert.That(result!.TranslationKey, Is.EqualTo(mockEnumerable.First().TranslationKey));
     }
 
-    [Test, Description("Test the GetByCode method")]
+    [Test] [Description("Test the GetByCode method")]
     public async Task GetByCode() {
         var mock = new MockLanguagesServices();
         var mockData = mock.GetAll();
