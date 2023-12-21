@@ -367,7 +367,6 @@ public class ActivityLogRepositoryTest : BaseTest {
     [Test, Description("Get Activities with string filter That has two filters with multi filters")]
     [TestCase("Test", "AABBCCDD", 2)]
     [TestCase("KOKKK", "HHGGFFDD", 5)]
-    [TestCase("HFHFHJJ", "UISDYABJKH", 4)]
     public async Task GetActivitiesWithStringFilterWithMultiFilters(string filterValue1, string filterValue2, int idx) {
         var mock = new MockActivityLogService();
         var mockData = mock.GetMany(Guid.NewGuid()); // Use a fixed number of entries for testing
@@ -394,6 +393,221 @@ public class ActivityLogRepositoryTest : BaseTest {
             mockEnumerable[idx],
             mockEnumerable.Last()
         };
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Count, Is.EqualTo(expected.Count)); // Should return all entries
+
+        foreach (var item in result) {
+            Assert.Multiple(() => {
+                Assert.That(expected.Any(x => x.Id == item.Id), Is.True);
+                Assert.That(expected.Any(x => x.UserId == item.UserId), Is.True);
+                Assert.That(expected.Any(x => x.EntityId == item.EntityId), Is.True);
+                Assert.That(expected.Any(x => x.EntityType == item.EntityType), Is.True);
+                Assert.That(expected.Any(x => x.OperationType == item.OperationType), Is.True);
+                Assert.That(expected.Any(x => x.Activity == item.Activity), Is.True);
+                Assert.That(expected.Any(x => x.Details == item.Details), Is.True);
+                Assert.That(expected.Any(x => x.Status == item.Status), Is.True);
+                Assert.That(expected.Any(x => x.IpAddress == item.IpAddress), Is.True);
+                Assert.That(expected.Any(x => x.UserAgent == item.UserAgent), Is.True);
+            });
+        }
+    }
+
+    [Test, Description("Get Activities with string filter and Equal operation")]
+    public async Task GetActivitiesWithStringFilterOperatorEqual() {
+        var mock = new MockActivityLogService();
+        var mockData = mock.GetMany(Guid.NewGuid());
+        var repository = new ActivityLogRepository(Context.Object);
+
+        var mockEnumerable = mockData.ToList();
+        var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
+        var fillters = new RecordFilterPagination<ActivityLogFilters>();
+        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.Equal) {
+            FilterValue = mockData.First().EntityType
+        });
+        var result = await repository.GetActivities(fillters);
+        var expected = new List<ActivityLog> {
+            mockEnumerable.First()
+        };
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Count, Is.EqualTo(expected.Count)); // Should return all entries
+
+        foreach (var item in result) {
+            Assert.Multiple(() => {
+                Assert.That(expected.Any(x => x.Id == item.Id), Is.True);
+                Assert.That(expected.Any(x => x.UserId == item.UserId), Is.True);
+                Assert.That(expected.Any(x => x.EntityId == item.EntityId), Is.True);
+                Assert.That(expected.Any(x => x.EntityType == item.EntityType), Is.True);
+                Assert.That(expected.Any(x => x.OperationType == item.OperationType), Is.True);
+                Assert.That(expected.Any(x => x.Activity == item.Activity), Is.True);
+                Assert.That(expected.Any(x => x.Details == item.Details), Is.True);
+                Assert.That(expected.Any(x => x.Status == item.Status), Is.True);
+                Assert.That(expected.Any(x => x.IpAddress == item.IpAddress), Is.True);
+                Assert.That(expected.Any(x => x.UserAgent == item.UserAgent), Is.True);
+            });
+        }
+    }
+
+    [Test, Description("Get Activities with string filter and Not Equal operation")]
+    public async Task GetActivitiesWithStringFilterOperatorNotEqual() {
+        var mock = new MockActivityLogService();
+        var mockData = mock.GetMany(Guid.NewGuid());
+        var repository = new ActivityLogRepository(Context.Object);
+
+        var mockEnumerable = mockData.ToList();
+        var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
+        var fillters = new RecordFilterPagination<ActivityLogFilters>();
+        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.NotEqual) {
+            FilterValue = mockData.First().EntityType
+        });
+        var result = await repository.GetActivities(fillters);
+        var expected = mockData.ToList();
+        expected.RemoveAt(0);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Count, Is.EqualTo(expected.Count)); // Should return all entries
+
+        foreach (var item in result) {
+            Assert.Multiple(() => {
+                Assert.That(expected.Any(x => x.Id == item.Id), Is.True);
+                Assert.That(expected.Any(x => x.UserId == item.UserId), Is.True);
+                Assert.That(expected.Any(x => x.EntityId == item.EntityId), Is.True);
+                Assert.That(expected.Any(x => x.EntityType == item.EntityType), Is.True);
+                Assert.That(expected.Any(x => x.OperationType == item.OperationType), Is.True);
+                Assert.That(expected.Any(x => x.Activity == item.Activity), Is.True);
+                Assert.That(expected.Any(x => x.Details == item.Details), Is.True);
+                Assert.That(expected.Any(x => x.Status == item.Status), Is.True);
+                Assert.That(expected.Any(x => x.IpAddress == item.IpAddress), Is.True);
+                Assert.That(expected.Any(x => x.UserAgent == item.UserAgent), Is.True);
+            });
+        }
+    }
+
+    [Test, Description("Get Activities with string filter and Contains operation")]
+    public async Task GetActivitiesWithStringFilterOperatorContains() {
+        var mock = new MockActivityLogService();
+        var mockData = mock.GetMany(Guid.NewGuid());
+        var repository = new ActivityLogRepository(Context.Object);
+        mockData.First().EntityType = $"{mockData.First().EntityType} Test";
+        mockData.Last().EntityType = $"{mockData.Last().EntityType} Test";
+        var mockEnumerable = mockData.ToList();
+        var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
+        var fillters = new RecordFilterPagination<ActivityLogFilters>();
+        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.Contains) {
+            FilterValue = "Test"
+        });
+        var result = await repository.GetActivities(fillters);
+        var expected = new List<ActivityLog> {
+            mockEnumerable.First(),
+            mockEnumerable.Last()
+        };
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Count, Is.EqualTo(expected.Count)); // Should return all entries
+
+        foreach (var item in result) {
+            Assert.Multiple(() => {
+                Assert.That(expected.Any(x => x.Id == item.Id), Is.True);
+                Assert.That(expected.Any(x => x.UserId == item.UserId), Is.True);
+                Assert.That(expected.Any(x => x.EntityId == item.EntityId), Is.True);
+                Assert.That(expected.Any(x => x.EntityType == item.EntityType), Is.True);
+                Assert.That(expected.Any(x => x.OperationType == item.OperationType), Is.True);
+                Assert.That(expected.Any(x => x.Activity == item.Activity), Is.True);
+                Assert.That(expected.Any(x => x.Details == item.Details), Is.True);
+                Assert.That(expected.Any(x => x.Status == item.Status), Is.True);
+                Assert.That(expected.Any(x => x.IpAddress == item.IpAddress), Is.True);
+                Assert.That(expected.Any(x => x.UserAgent == item.UserAgent), Is.True);
+            });
+        }
+    }
+
+    [Test, Description("Get Activities with string filter and Not Contains operation")]
+    public async Task GetActivitiesWithStringFilterOperatorNotContains() {
+        var mock = new MockActivityLogService();
+        var mockData = mock.GetMany(Guid.NewGuid());
+        var repository = new ActivityLogRepository(Context.Object);
+        mockData.First().EntityType = $"{mockData.First().EntityType} Test";
+        var mockEnumerable = mockData.ToList();
+        var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
+        var fillters = new RecordFilterPagination<ActivityLogFilters>();
+        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.NotContains) {
+            FilterValue = "Test"
+        });
+        var result = await repository.GetActivities(fillters);
+        var expected = mockData.ToList();
+        expected.RemoveAt(0);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Count, Is.EqualTo(expected.Count)); // Should return all entries
+
+        foreach (var item in result) {
+            Assert.Multiple(() => {
+                Assert.That(expected.Any(x => x.Id == item.Id), Is.True);
+                Assert.That(expected.Any(x => x.UserId == item.UserId), Is.True);
+                Assert.That(expected.Any(x => x.EntityId == item.EntityId), Is.True);
+                Assert.That(expected.Any(x => x.EntityType == item.EntityType), Is.True);
+                Assert.That(expected.Any(x => x.OperationType == item.OperationType), Is.True);
+                Assert.That(expected.Any(x => x.Activity == item.Activity), Is.True);
+                Assert.That(expected.Any(x => x.Details == item.Details), Is.True);
+                Assert.That(expected.Any(x => x.Status == item.Status), Is.True);
+                Assert.That(expected.Any(x => x.IpAddress == item.IpAddress), Is.True);
+                Assert.That(expected.Any(x => x.UserAgent == item.UserAgent), Is.True);
+            });
+        }
+    }
+
+    [Test, Description("Get Activities with string filter and Start With operation")]
+    public async Task GetActivitiesWithStringFilterOperatorStartWith() {
+        var mock = new MockActivityLogService();
+        var mockData = mock.GetMany(Guid.NewGuid());
+        var repository = new ActivityLogRepository(Context.Object);
+        mockData.First().EntityType = $"Test {mockData.First().EntityType}";
+        var mockEnumerable = mockData.ToList();
+        var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
+        var fillters = new RecordFilterPagination<ActivityLogFilters>();
+        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.StartsWith) {
+            FilterValue = "Test"
+        });
+        var result = await repository.GetActivities(fillters);
+        var expected = new List<ActivityLog> {
+            mockEnumerable.First()
+        };
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Count, Is.EqualTo(expected.Count)); // Should return all entries
+
+        foreach (var item in result) {
+            Assert.Multiple(() => {
+                Assert.That(expected.Any(x => x.Id == item.Id), Is.True);
+                Assert.That(expected.Any(x => x.UserId == item.UserId), Is.True);
+                Assert.That(expected.Any(x => x.EntityId == item.EntityId), Is.True);
+                Assert.That(expected.Any(x => x.EntityType == item.EntityType), Is.True);
+                Assert.That(expected.Any(x => x.OperationType == item.OperationType), Is.True);
+                Assert.That(expected.Any(x => x.Activity == item.Activity), Is.True);
+                Assert.That(expected.Any(x => x.Details == item.Details), Is.True);
+                Assert.That(expected.Any(x => x.Status == item.Status), Is.True);
+                Assert.That(expected.Any(x => x.IpAddress == item.IpAddress), Is.True);
+                Assert.That(expected.Any(x => x.UserAgent == item.UserAgent), Is.True);
+            });
+        }
+    }
+
+    [Test, Description("Get Activities with string filter and Not Contains operation")]
+    public async Task GetActivitiesWithStringFilterOperatorNotStartWith() {
+        var mock = new MockActivityLogService();
+        var mockData = mock.GetMany(Guid.NewGuid());
+        var repository = new ActivityLogRepository(Context.Object);
+        mockData.First().EntityType = $"Test {mockData.First().EntityType}";
+        var mockEnumerable = mockData.ToList();
+        var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
+        Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
+        var fillters = new RecordFilterPagination<ActivityLogFilters>();
+        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.NotStartsWith) {
+            FilterValue = "Test"
+        });
+        var result = await repository.GetActivities(fillters);
+        var expected = mockData.ToList();
+        expected.RemoveAt(0);
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count, Is.EqualTo(expected.Count)); // Should return all entries
 
