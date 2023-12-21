@@ -4,7 +4,7 @@ namespace Domain.Entities;
 
 public class VendorsMetaData : BaseEntity {
     [ForeignKey("Vendor")]
-    public Guid VendorId { get; set; }
+    public int VendorId { get; set; }
 
     public Vendors Vendor { get; set; }
     public string Key { get; set; }

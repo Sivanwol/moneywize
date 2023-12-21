@@ -19,7 +19,7 @@ public class ForgetPasswordValidator : AbstractValidator<ForgetPasswordRequest> 
             RuleFor(x => x.CountryId)
                 .NotEmpty()
                 .WithMessage("CountyId is required")
-                .IsGuid()
+                .GreaterThan(0)
                 .WithMessage("CountyId is not valid");
             RuleFor(x => x.PhoneNumber)
                 .NotEmpty()

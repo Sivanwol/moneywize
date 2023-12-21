@@ -16,31 +16,6 @@ namespace Domain.Persistence.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "ActivityLog",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    UserId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
-                    EntityId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    OperationType = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Activity = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Details = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    EntityType = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Status = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ActivityLog", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
                 {
@@ -63,7 +38,8 @@ namespace Domain.Persistence.Migrations
                 name: "Categories",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Description = table.Column<string>(type: "longtext", nullable: false)
@@ -81,7 +57,8 @@ namespace Domain.Persistence.Migrations
                 name: "Countries",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     CountryName = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CountryCode = table.Column<string>(type: "longtext", nullable: false)
@@ -104,7 +81,8 @@ namespace Domain.Persistence.Migrations
                 name: "Languages",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Code = table.Column<string>(type: "longtext", nullable: false)
@@ -124,7 +102,8 @@ namespace Domain.Persistence.Migrations
                 name: "Media",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     FileName = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Path = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
@@ -147,7 +126,8 @@ namespace Domain.Persistence.Migrations
                 name: "Tags",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)"),
@@ -188,7 +168,8 @@ namespace Domain.Persistence.Migrations
                 name: "ClientContacts",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     FirstName = table.Column<string>(type: "varchar(95)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     LastName = table.Column<string>(type: "varchar(95)", nullable: false)
@@ -203,7 +184,7 @@ namespace Domain.Persistence.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     whatsapp = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    CountryId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    CountryId = table.Column<int>(type: "int", nullable: false),
                     PostalCode = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Address = table.Column<string>(type: "longtext", nullable: true)
@@ -237,7 +218,8 @@ namespace Domain.Persistence.Migrations
                 name: "Contacts",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     FirstName = table.Column<string>(type: "varchar(95)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     LastName = table.Column<string>(type: "varchar(95)", nullable: false)
@@ -252,7 +234,7 @@ namespace Domain.Persistence.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     whatsapp = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    CountryId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    CountryId = table.Column<int>(type: "int", nullable: false),
                     PostalCode = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Address = table.Column<string>(type: "longtext", nullable: true)
@@ -288,8 +270,8 @@ namespace Domain.Persistence.Migrations
                 {
                     Id = table.Column<string>(type: "varchar(95)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    CountryId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    DisplayLanguageId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    CountryId = table.Column<int>(type: "int", nullable: false),
+                    DisplayLanguageId = table.Column<int>(type: "int", nullable: false),
                     Token = table.Column<string>(type: "varchar(128)", maxLength: 128, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     FirstName = table.Column<string>(type: "longtext", nullable: false)
@@ -346,12 +328,13 @@ namespace Domain.Persistence.Migrations
                 name: "Providers",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "varchar(95)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Description = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    LogoId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    LogoId = table.Column<int>(type: "int", nullable: true),
                     SiteUtl = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     SuportUtl = table.Column<string>(type: "longtext", nullable: false)
@@ -376,12 +359,13 @@ namespace Domain.Persistence.Migrations
                 name: "Vendors",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Description = table.Column<string>(type: "text", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    LogoId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    LogoId = table.Column<int>(type: "int", nullable: true),
                     SiteUrl = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     SuportUrl = table.Column<string>(type: "longtext", nullable: false)
@@ -409,10 +393,47 @@ namespace Domain.Persistence.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "ActivityLogs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    UserId = table.Column<string>(type: "varchar(36)", maxLength: 36, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    EntityId = table.Column<Guid>(type: "char(36)", maxLength: 36, nullable: false, collation: "ascii_general_ci"),
+                    EntityType = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    OperationType = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Activity = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Details = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Status = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    IpAddress = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    UserAgent = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ActivityLogs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ActivityLogs_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "ApplicationUserOtpCodes",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     UserId1 = table.Column<string>(type: "varchar(95)", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -543,10 +564,11 @@ namespace Domain.Persistence.Migrations
                 name: "Clients",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     OwnerUserId = table.Column<string>(type: "varchar(95)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    ParentId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    ParentId = table.Column<int>(type: "int", nullable: true),
                     Name = table.Column<string>(type: "varchar(95)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Description = table.Column<string>(type: "longtext", nullable: false)
@@ -554,7 +576,7 @@ namespace Domain.Persistence.Migrations
                     Website = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     DisabledAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CountryId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    CountryId = table.Column<int>(type: "int", nullable: false),
                     Address = table.Column<string>(type: "varchar(95)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     City = table.Column<string>(type: "varchar(95)", nullable: false)
@@ -589,8 +611,8 @@ namespace Domain.Persistence.Migrations
                 name: "ProviderCategories",
                 columns: table => new
                 {
-                    ProviderId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    CategoryId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    ProviderId = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -616,9 +638,9 @@ namespace Domain.Persistence.Migrations
                 name: "ProviderContacts",
                 columns: table => new
                 {
-                    ProviderId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ContactId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ClientContactsId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    ProviderId = table.Column<int>(type: "int", nullable: false),
+                    ContactId = table.Column<int>(type: "int", nullable: false),
+                    ClientContactsId = table.Column<int>(type: "int", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -649,9 +671,9 @@ namespace Domain.Persistence.Migrations
                 name: "VendorContacts",
                 columns: table => new
                 {
-                    VendorId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ContactId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ClientContactsId = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
+                    VendorId = table.Column<int>(type: "int", nullable: false),
+                    ContactId = table.Column<int>(type: "int", nullable: false),
+                    ClientContactsId = table.Column<int>(type: "int", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -682,8 +704,9 @@ namespace Domain.Persistence.Migrations
                 name: "VendorsMetaData",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    VendorId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    VendorId = table.Column<int>(type: "int", nullable: false),
                     Key = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Description = table.Column<string>(type: "longtext", nullable: false)
@@ -709,10 +732,11 @@ namespace Domain.Persistence.Migrations
                 name: "Assets",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ClientId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    VendorId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ProviderId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    ClientId = table.Column<int>(type: "int", nullable: false),
+                    VendorId = table.Column<int>(type: "int", nullable: false),
+                    ProviderId = table.Column<int>(type: "int", nullable: false),
                     Label = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Notes = table.Column<string>(type: "text", nullable: false)
@@ -723,8 +747,8 @@ namespace Domain.Persistence.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ServiceTag = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    ServiceTagMediaId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ExtraMediaId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    ServiceTagMediaId = table.Column<int>(type: "int", nullable: false),
+                    ExtraMediaId = table.Column<int>(type: "int", nullable: false),
                     Cpu = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Memory = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true)
@@ -769,12 +793,6 @@ namespace Domain.Persistence.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Assets_Media_ServiceTagMediaId",
-                        column: x => x.ServiceTagMediaId,
-                        principalTable: "Media",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_Assets_Providers_ProviderId",
                         column: x => x.ProviderId,
                         principalTable: "Providers",
@@ -793,8 +811,8 @@ namespace Domain.Persistence.Migrations
                 name: "ClientHasClientContacts",
                 columns: table => new
                 {
-                    ClientId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ContactId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    ClientId = table.Column<int>(type: "int", nullable: false),
+                    ContactId = table.Column<int>(type: "int", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -820,9 +838,10 @@ namespace Domain.Persistence.Migrations
                 name: "ClientNetworks",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ClientId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    AssetId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    ClientId = table.Column<int>(type: "int", nullable: false),
+                    AssetId = table.Column<int>(type: "int", nullable: false),
                     Label = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Color = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
@@ -855,16 +874,15 @@ namespace Domain.Persistence.Migrations
                 name: "ClientNetworksHasAssets",
                 columns: table => new
                 {
-                    ClientNetworkId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    AssetId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    ClientNetworkId = table.Column<int>(type: "int", nullable: false),
+                    AssetId = table.Column<int>(type: "int", nullable: false),
                     Label = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Notes = table.Column<string>(type: "text", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     DisabledAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)"),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)")
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -888,8 +906,8 @@ namespace Domain.Persistence.Migrations
                 name: "ClientNetworkTags",
                 columns: table => new
                 {
-                    NetworkId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    TagId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    NetworkId = table.Column<int>(type: "int", nullable: false),
+                    TagId = table.Column<int>(type: "int", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -915,10 +933,11 @@ namespace Domain.Persistence.Migrations
                 name: "ClientServers",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ClientId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    NetworkId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    AssetId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    ClientId = table.Column<int>(type: "int", nullable: false),
+                    NetworkId = table.Column<int>(type: "int", nullable: false),
+                    AssetId = table.Column<int>(type: "int", nullable: false),
                     Label = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Notes = table.Column<string>(type: "text", nullable: false)
@@ -955,12 +974,13 @@ namespace Domain.Persistence.Migrations
                 name: "ClientEmployees",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ClientId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    NetworkId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ServerId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    AssetId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ContactEmployeeId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    ClientId = table.Column<int>(type: "int", nullable: false),
+                    NetworkId = table.Column<int>(type: "int", nullable: false),
+                    ServerId = table.Column<int>(type: "int", nullable: false),
+                    AssetId = table.Column<int>(type: "int", nullable: false),
+                    ContactEmployeeId = table.Column<int>(type: "int", nullable: false),
                     DisabledAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)")
@@ -1005,12 +1025,11 @@ namespace Domain.Persistence.Migrations
                 name: "ClientServersHasAssets",
                 columns: table => new
                 {
-                    ClientServerId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    AssetId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    ClientServerId = table.Column<int>(type: "int", nullable: false),
+                    AssetId = table.Column<int>(type: "int", nullable: false),
                     DisabledAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)"),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)")
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1034,8 +1053,8 @@ namespace Domain.Persistence.Migrations
                 name: "ClientServerTags",
                 columns: table => new
                 {
-                    ServerId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    TagId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    ServerId = table.Column<int>(type: "int", nullable: false),
+                    TagId = table.Column<int>(type: "int", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -1061,13 +1080,12 @@ namespace Domain.Persistence.Migrations
                 name: "ClientEmployeesHasAssets",
                 columns: table => new
                 {
-                    ClientEmployeeId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    AssetId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    ContactEmployeeId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    ClientEmployeeId = table.Column<int>(type: "int", nullable: false),
+                    AssetId = table.Column<int>(type: "int", nullable: false),
+                    ContactEmployeeId = table.Column<int>(type: "int", nullable: false),
                     DisabledAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)"),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)")
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1097,8 +1115,8 @@ namespace Domain.Persistence.Migrations
                 name: "ClientEmployeeTags",
                 columns: table => new
                 {
-                    EmployeeId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    TagId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    EmployeeId = table.Column<int>(type: "int", nullable: false),
+                    TagId = table.Column<int>(type: "int", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -1119,6 +1137,11 @@ namespace Domain.Persistence.Migrations
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ActivityLogs_UserId",
+                table: "ActivityLogs",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApplicationUserOtpCodes_Token",
@@ -1192,11 +1215,6 @@ namespace Domain.Persistence.Migrations
                 name: "IX_Assets_ProviderId",
                 table: "Assets",
                 column: "ProviderId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Assets_ServiceTagMediaId",
-                table: "Assets",
-                column: "ServiceTagMediaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Assets_VendorId",
@@ -1384,13 +1402,15 @@ namespace Domain.Persistence.Migrations
                 name: "IX_VendorsMetaData_VendorId",
                 table: "VendorsMetaData",
                 column: "VendorId");
+            migrationBuilder.Sql(
+                "\nDROP TABLE IF EXISTS QRTZ_FIRED_TRIGGERS;\nDROP TABLE IF EXISTS QRTZ_PAUSED_TRIGGER_GRPS;\nDROP TABLE IF EXISTS QRTZ_SCHEDULER_STATE;\nDROP TABLE IF EXISTS QRTZ_LOCKS;\nDROP TABLE IF EXISTS QRTZ_SIMPLE_TRIGGERS;\nDROP TABLE IF EXISTS QRTZ_SIMPROP_TRIGGERS;\nDROP TABLE IF EXISTS QRTZ_CRON_TRIGGERS;\nDROP TABLE IF EXISTS QRTZ_BLOB_TRIGGERS;\nDROP TABLE IF EXISTS QRTZ_TRIGGERS;\nDROP TABLE IF EXISTS QRTZ_JOB_DETAILS;\nDROP TABLE IF EXISTS QRTZ_CALENDARS;\n\nCREATE TABLE QRTZ_JOB_DETAILS(\nSCHED_NAME VARCHAR(120) NOT NULL,\nJOB_NAME VARCHAR(200) NOT NULL,\nJOB_GROUP VARCHAR(200) NOT NULL,\nDESCRIPTION VARCHAR(250) NULL,\nJOB_CLASS_NAME VARCHAR(250) NOT NULL,\nIS_DURABLE BOOLEAN NOT NULL,\nIS_NONCONCURRENT BOOLEAN NOT NULL,\nIS_UPDATE_DATA BOOLEAN NOT NULL,\nREQUESTS_RECOVERY BOOLEAN NOT NULL,\nJOB_DATA BLOB NULL,\nPRIMARY KEY (SCHED_NAME,JOB_NAME,JOB_GROUP))\nENGINE=InnoDB;\n\nCREATE TABLE QRTZ_TRIGGERS (\nSCHED_NAME VARCHAR(120) NOT NULL,\nTRIGGER_NAME VARCHAR(200) NOT NULL,\nTRIGGER_GROUP VARCHAR(200) NOT NULL,\nJOB_NAME VARCHAR(200) NOT NULL,\nJOB_GROUP VARCHAR(200) NOT NULL,\nDESCRIPTION VARCHAR(250) NULL,\nNEXT_FIRE_TIME BIGINT(19) NULL,\nPREV_FIRE_TIME BIGINT(19) NULL,\nPRIORITY INTEGER NULL,\nTRIGGER_STATE VARCHAR(16) NOT NULL,\nTRIGGER_TYPE VARCHAR(8) NOT NULL,\nSTART_TIME BIGINT(19) NOT NULL,\nEND_TIME BIGINT(19) NULL,\nCALENDAR_NAME VARCHAR(200) NULL,\nMISFIRE_INSTR SMALLINT(2) NULL,\nJOB_DATA BLOB NULL,\nPRIMARY KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP),\nFOREIGN KEY (SCHED_NAME,JOB_NAME,JOB_GROUP)\nREFERENCES QRTZ_JOB_DETAILS(SCHED_NAME,JOB_NAME,JOB_GROUP))\nENGINE=InnoDB;\n\nCREATE TABLE QRTZ_SIMPLE_TRIGGERS (\nSCHED_NAME VARCHAR(120) NOT NULL,\nTRIGGER_NAME VARCHAR(200) NOT NULL,\nTRIGGER_GROUP VARCHAR(200) NOT NULL,\nREPEAT_COUNT BIGINT(7) NOT NULL,\nREPEAT_INTERVAL BIGINT(12) NOT NULL,\nTIMES_TRIGGERED BIGINT(10) NOT NULL,\nPRIMARY KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP),\nFOREIGN KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)\nREFERENCES QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP))\nENGINE=InnoDB;\n\nCREATE TABLE QRTZ_CRON_TRIGGERS (\nSCHED_NAME VARCHAR(120) NOT NULL,\nTRIGGER_NAME VARCHAR(200) NOT NULL,\nTRIGGER_GROUP VARCHAR(200) NOT NULL,\nCRON_EXPRESSION VARCHAR(120) NOT NULL,\nTIME_ZONE_ID VARCHAR(80),\nPRIMARY KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP),\nFOREIGN KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)\nREFERENCES QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP))\nENGINE=InnoDB;\n\nCREATE TABLE QRTZ_SIMPROP_TRIGGERS\n  (          \n    SCHED_NAME VARCHAR(120) NOT NULL,\n    TRIGGER_NAME VARCHAR(200) NOT NULL,\n    TRIGGER_GROUP VARCHAR(200) NOT NULL,\n    STR_PROP_1 VARCHAR(512) NULL,\n    STR_PROP_2 VARCHAR(512) NULL,\n    STR_PROP_3 VARCHAR(512) NULL,\n    INT_PROP_1 INT NULL,\n    INT_PROP_2 INT NULL,\n    LONG_PROP_1 BIGINT NULL,\n    LONG_PROP_2 BIGINT NULL,\n    DEC_PROP_1 NUMERIC(13,4) NULL,\n    DEC_PROP_2 NUMERIC(13,4) NULL,\n    BOOL_PROP_1 BOOLEAN NULL,\n    BOOL_PROP_2 BOOLEAN NULL,\n    TIME_ZONE_ID VARCHAR(80) NULL,\n    PRIMARY KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP),\n    FOREIGN KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP) \n    REFERENCES QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP))\nENGINE=InnoDB;\n\nCREATE TABLE QRTZ_BLOB_TRIGGERS (\nSCHED_NAME VARCHAR(120) NOT NULL,\nTRIGGER_NAME VARCHAR(200) NOT NULL,\nTRIGGER_GROUP VARCHAR(200) NOT NULL,\nBLOB_DATA BLOB NULL,\nPRIMARY KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP),\nINDEX (SCHED_NAME,TRIGGER_NAME, TRIGGER_GROUP),\nFOREIGN KEY (SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP)\nREFERENCES QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP))\nENGINE=InnoDB;\n\nCREATE TABLE QRTZ_CALENDARS (\nSCHED_NAME VARCHAR(120) NOT NULL,\nCALENDAR_NAME VARCHAR(200) NOT NULL,\nCALENDAR BLOB NOT NULL,\nPRIMARY KEY (SCHED_NAME,CALENDAR_NAME))\nENGINE=InnoDB;\n\nCREATE TABLE QRTZ_PAUSED_TRIGGER_GRPS (\nSCHED_NAME VARCHAR(120) NOT NULL,\nTRIGGER_GROUP VARCHAR(200) NOT NULL,\nPRIMARY KEY (SCHED_NAME,TRIGGER_GROUP))\nENGINE=InnoDB;\n\nCREATE TABLE QRTZ_FIRED_TRIGGERS (\nSCHED_NAME VARCHAR(120) NOT NULL,\nENTRY_ID VARCHAR(140) NOT NULL,\nTRIGGER_NAME VARCHAR(200) NOT NULL,\nTRIGGER_GROUP VARCHAR(200) NOT NULL,\nINSTANCE_NAME VARCHAR(200) NOT NULL,\nFIRED_TIME BIGINT(19) NOT NULL,\nSCHED_TIME BIGINT(19) NOT NULL,\nPRIORITY INTEGER NOT NULL,\nSTATE VARCHAR(16) NOT NULL,\nJOB_NAME VARCHAR(200) NULL,\nJOB_GROUP VARCHAR(200) NULL,\nIS_NONCONCURRENT BOOLEAN NULL,\nREQUESTS_RECOVERY BOOLEAN NULL,\nPRIMARY KEY (SCHED_NAME,ENTRY_ID))\nENGINE=InnoDB;\n\nCREATE TABLE QRTZ_SCHEDULER_STATE (\nSCHED_NAME VARCHAR(120) NOT NULL,\nINSTANCE_NAME VARCHAR(200) NOT NULL,\nLAST_CHECKIN_TIME BIGINT(19) NOT NULL,\nCHECKIN_INTERVAL BIGINT(19) NOT NULL,\nPRIMARY KEY (SCHED_NAME,INSTANCE_NAME))\nENGINE=InnoDB;\n\nCREATE TABLE QRTZ_LOCKS (\nSCHED_NAME VARCHAR(120) NOT NULL,\nLOCK_NAME VARCHAR(40) NOT NULL,\nPRIMARY KEY (SCHED_NAME,LOCK_NAME))\nENGINE=InnoDB;\n\nCREATE INDEX IDX_QRTZ_J_REQ_RECOVERY ON QRTZ_JOB_DETAILS(SCHED_NAME,REQUESTS_RECOVERY);\nCREATE INDEX IDX_QRTZ_J_GRP ON QRTZ_JOB_DETAILS(SCHED_NAME,JOB_GROUP);\n\nCREATE INDEX IDX_QRTZ_T_J ON QRTZ_TRIGGERS(SCHED_NAME,JOB_NAME,JOB_GROUP);\nCREATE INDEX IDX_QRTZ_T_JG ON QRTZ_TRIGGERS(SCHED_NAME,JOB_GROUP);\nCREATE INDEX IDX_QRTZ_T_C ON QRTZ_TRIGGERS(SCHED_NAME,CALENDAR_NAME);\nCREATE INDEX IDX_QRTZ_T_G ON QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_GROUP);\nCREATE INDEX IDX_QRTZ_T_STATE ON QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_STATE);\nCREATE INDEX IDX_QRTZ_T_N_STATE ON QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP,TRIGGER_STATE);\nCREATE INDEX IDX_QRTZ_T_N_G_STATE ON QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_GROUP,TRIGGER_STATE);\nCREATE INDEX IDX_QRTZ_T_NEXT_FIRE_TIME ON QRTZ_TRIGGERS(SCHED_NAME,NEXT_FIRE_TIME);\nCREATE INDEX IDX_QRTZ_T_NFT_ST ON QRTZ_TRIGGERS(SCHED_NAME,TRIGGER_STATE,NEXT_FIRE_TIME);\nCREATE INDEX IDX_QRTZ_T_NFT_MISFIRE ON QRTZ_TRIGGERS(SCHED_NAME,MISFIRE_INSTR,NEXT_FIRE_TIME);\nCREATE INDEX IDX_QRTZ_T_NFT_ST_MISFIRE ON QRTZ_TRIGGERS(SCHED_NAME,MISFIRE_INSTR,NEXT_FIRE_TIME,TRIGGER_STATE);\nCREATE INDEX IDX_QRTZ_T_NFT_ST_MISFIRE_GRP ON QRTZ_TRIGGERS(SCHED_NAME,MISFIRE_INSTR,NEXT_FIRE_TIME,TRIGGER_GROUP,TRIGGER_STATE);\n\nCREATE INDEX IDX_QRTZ_FT_TRIG_INST_NAME ON QRTZ_FIRED_TRIGGERS(SCHED_NAME,INSTANCE_NAME);\nCREATE INDEX IDX_QRTZ_FT_INST_JOB_REQ_RCVRY ON QRTZ_FIRED_TRIGGERS(SCHED_NAME,INSTANCE_NAME,REQUESTS_RECOVERY);\nCREATE INDEX IDX_QRTZ_FT_J_G ON QRTZ_FIRED_TRIGGERS(SCHED_NAME,JOB_NAME,JOB_GROUP);\nCREATE INDEX IDX_QRTZ_FT_JG ON QRTZ_FIRED_TRIGGERS(SCHED_NAME,JOB_GROUP);\nCREATE INDEX IDX_QRTZ_FT_T_G ON QRTZ_FIRED_TRIGGERS(SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP);\nCREATE INDEX IDX_QRTZ_FT_TG ON QRTZ_FIRED_TRIGGERS(SCHED_NAME,TRIGGER_GROUP);\n\ncommit; ");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ActivityLog");
+                name: "ActivityLogs");
 
             migrationBuilder.DropTable(
                 name: "ApplicationUserOtpCodes");

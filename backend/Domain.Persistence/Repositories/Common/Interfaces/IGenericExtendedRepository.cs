@@ -1,6 +1,6 @@
 namespace Domain.Persistence.Repositories.Common.Interfaces;
 
-public interface IGenericExtendedRepository<T> where T : class, IGenericRepository<T> {
+public interface IGenericExtendedRepository<T, F> where T : class, IGenericRepository<T, F> {
     Task<IEnumerable<T>> GetAll();
     Task<IEnumerable<T>> GetPagedReponse(int pageNumber, int pageSize);
     Task<IEnumerable<T>> GetPagedAdvancedReponse(int pageNumber, int pageSize, string orderBy, string fields);

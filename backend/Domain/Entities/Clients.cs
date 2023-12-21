@@ -12,7 +12,7 @@ public class Clients : BaseEntity, ISoftDeletable {
     public ApplicationUser OwnerUser { get; set; }
 
     [ForeignKey("Parent")]
-    public Guid? ParentId { get; set; }
+    public int? ParentId { get; set; }
 
     public Clients? Parent { get; set; }
     public string Name { get; set; }
@@ -21,7 +21,7 @@ public class Clients : BaseEntity, ISoftDeletable {
     public DateTime? DisabledAt { get; set; }
 
     [ForeignKey("Countries")]
-    public Guid CountryId { get; set; }
+    public int CountryId { get; set; }
 
     public Countries Country { get; set; }
     public string Address { get; set; }

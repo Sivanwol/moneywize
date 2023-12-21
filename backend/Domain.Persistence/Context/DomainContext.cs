@@ -60,8 +60,30 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
 
     private void Initialize() {
         Log.Information("Initializing DomainContext.");
+        UpdateTimestamps();
     }
 
+    private void UpdateTimestamps() {
+        var entries = ChangeTracker
+            .Entries()
+            .Where(e => e.State is EntityState.Added or EntityState.Modified);
+
+        foreach (var entityEntry in entries) {
+            var entity = entityEntry.Entity;
+
+            // Handle CreatedAt
+            var createdAtProperty = entity.GetType().GetProperty("CreatedAt");
+            if (createdAtProperty != null && entityEntry.State == EntityState.Added) {
+                createdAtProperty.SetValue(entity, DateTime.Now);
+            }
+
+            // Handle UpdatedAt
+            var updatedAtProperty = entity.GetType().GetProperty("UpdatedAt");
+            if (updatedAtProperty != null) {
+                updatedAtProperty.SetValue(entity, DateTime.Now);
+            }
+        }
+    }
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
         _logger?.LogInformation("Configuring DomainContext model.");
@@ -85,6 +107,57 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
                 vc.VendorId,
                 vc.ContactId
             });
+        builder.Entity<ProviderHasContact>()
+            .HasKey(vc => new {
+                vc.ProviderId,
+                vc.ContactId
+            });
+        builder.Entity<ProviderHasCategories>()
+            .HasKey(x => new {
+                x.ProviderId,
+                x.CategoryId
+            });
+        builder.Entity<ClientServerHasTags>()
+            .HasKey(x => new {
+                x.ServerId,
+                x.TagId
+            });
+        builder.Entity<ClientNetworkHasTags>()
+            .HasKey(x => new {
+                x.NetworkId,
+                x.TagId
+            });
+        builder.Entity<ClientEmployeeHasTags>()
+            .HasKey(x => new {
+                x.EmployeeId,
+                x.TagId
+            });
+        builder.Entity<ClientServersHasAssets>()
+            .HasKey(x => new {
+                x.ClientServerId,
+                x.AssetId
+            });
+        builder.Entity<ClientNetworksHasAssets>()
+            .HasKey(x => new {
+                x.ClientNetworkId,
+                x.AssetId
+            });
+        builder.Entity<ClientEmployeesHasAssets>()
+            .HasKey(x => new {
+                x.ClientEmployeeId,
+                x.AssetId
+            });
+        builder.Entity<ClientsHasClientContacts>()
+            .HasKey(x => new {
+                x.ClientId,
+                x.ContactId
+            });
+        builder.Entity<VendorHasContact>()
+            .HasKey(x => new {
+                x.VendorId,
+                x.ContactId
+            });
+        builder.Entity<Clients>();
         builder.Entity<Contacts>();
         builder.Entity<Contacts>().HasIndex(x => x.Email).IsUnique();
         builder.Entity<Contacts>().HasIndex(x => new {
@@ -117,48 +190,10 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
             x.FirstName,
             x.LastName
         }).IsUnique();
-        builder.Entity<ClientsHasClientContacts>().HasKey(vc => new {
-            vc.ClientId,
-            vc.ContactId
-        });
         builder.Entity<Assets>();
         builder.Entity<ClientServers>();
-        builder.Entity<ClientServersHasAssets>().HasKey(vc => new {
-            vc.ClientServerId,
-            vc.AssetId
-        });
-
-        builder.Entity<ClientServerHasTags>().HasKey(vc => new {
-            vc.ServerId,
-            vc.TagId
-        });
         builder.Entity<ClientNetworks>();
-        builder.Entity<ClientNetworkHasTags>().HasKey(vc => new {
-            vc.NetworkId,
-            vc.TagId
-        });
-        builder.Entity<ClientNetworksHasAssets>().HasKey(vc => new {
-            vc.ClientNetworkId,
-            vc.AssetId
-        });
         builder.Entity<ClientEmployees>();
-        builder.Entity<ClientEmployeeHasTags>().HasKey(vc => new {
-            vc.EmployeeId,
-            vc.TagId
-        });
-        builder.Entity<ClientEmployeesHasAssets>().HasKey(vc => new {
-            vc.ClientEmployeeId,
-            vc.AssetId
-        });
-
-        builder.Entity<ProviderHasCategories>().HasKey(vc => new {
-            vc.ProviderId,
-            vc.CategoryId
-        });
-        builder.Entity<ProviderHasContact>().HasKey(vc => new {
-            vc.ProviderId,
-            vc.ContactId
-        });
 
         #region Foreign Keys
 

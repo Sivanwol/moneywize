@@ -17,7 +17,7 @@ public class Contacts : BaseEntity, ISoftDeletable {
     public string? whatsapp { get; set; }
 
     [ForeignKey("Countries")]
-    public Guid CountryId { get; set; }
+    public int CountryId { get; set; }
 
     public Countries? Country { get; set; }
     public string? PostalCode { get; set; }

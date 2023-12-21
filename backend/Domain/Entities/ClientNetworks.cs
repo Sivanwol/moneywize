@@ -6,12 +6,12 @@ namespace Domain.Entities;
 
 public class ClientNetworks : BaseEntity, ISoftDeletable {
     [ForeignKey("Client")]
-    public Guid ClientId { get; set; }
+    public int ClientId { get; set; }
 
     public Clients Client { get; set; }
 
     [ForeignKey("Asset")]
-    public Guid AssetId { get; set; }
+    public int AssetId { get; set; }
 
     public Assets Asset { get; set; }
 

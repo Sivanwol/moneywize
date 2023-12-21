@@ -3,5 +3,5 @@ using MediatR;
 namespace Infrastructure.Requests.Processor.Services.User;
 
 public class ExportUserRequest : IRequest<EmptyResponse> {
-    public int UserId { get; set; }
+    public Guid UserId { get; set; }
 }

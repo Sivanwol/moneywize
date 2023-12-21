@@ -12,7 +12,7 @@ public enum PurgeActivityLogOlderThan {
     FromFiveYears
 }
 
-public interface IActivityLogRepository : IGenericRepository<ActivityLog> {
+public interface IActivityLogRepository : IGenericRepository<ActivityLog, int> {
     Task AddActivity(Guid? userId, Guid entityId, string entityType, string operationType, string activity, string details, string status);
     Task AddActivity(Guid? userId, Guid entityId, string entityType, string operationType, string activity, string details, string status, string? ipAddress, string? userAgent);
     Task<ICollection<ActivityLog>> GetActivities(RecordFilterPagination<ActivityLogFilters> filter);

@@ -3,14 +3,14 @@ using Application.Queries;
 using Domain.Common;
 namespace Domain.Entities;
 
-public class ClientServersHasAssets : BaseEntity, ISoftDeletable {
+public class ClientServersHasAssets : BaseEntityWithoutId, ISoftDeletable {
     [ForeignKey("ClientServer")]
-    public Guid ClientServerId { get; set; }
+    public int ClientServerId { get; set; }
 
     public ClientServers Server { get; set; }
 
     [ForeignKey("Asset")]
-    public Guid AssetId { get; set; }
+    public int AssetId { get; set; }
 
     public Assets Asset { get; set; }
 

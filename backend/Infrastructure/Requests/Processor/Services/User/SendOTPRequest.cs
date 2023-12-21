@@ -7,7 +7,7 @@ public class SendOTPRequest : IRequest<RequestOTPResponse> {
     public string BaseUrl { get; set; }
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }
-    public Guid? CountryId { get; set; }
+    public int? CountryId { get; set; }
     public MFAProvider Provider { get; set; }
     public bool ReSend { get; set; }
 }

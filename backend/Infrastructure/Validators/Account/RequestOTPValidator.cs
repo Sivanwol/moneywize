@@ -1,4 +1,3 @@
-using Application.Utils;
 using FluentValidation;
 using Infrastructure.Enums;
 using Infrastructure.Requests.Controllers.Auth;
@@ -19,7 +18,7 @@ public class RequestOtpValidator : AbstractValidator<MobileRequestOTPUserRequest
         RuleFor(x => x.CountryId)
             .NotEmpty()
             .WithMessage("Country Id is required")
-            .IsGuid()
+            .GreaterThan(0)
             .WithMessage("CountyId is not valid");
 
         RuleFor(x => x.Provider)

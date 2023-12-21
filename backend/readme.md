@@ -8,8 +8,7 @@ https://my.stripo.email/
 ```sql
 INSERT INTO `AspNetRoles` (`Id`, `Name`, `NormalizedName`, `ConcurrencyStamp`) VALUES
 (uuid(), 'Admin', 'ADMIN', NULL),
-(uuid(), 'Client-Admin', 'CLIENT-ADMIN', NULL),
-(uuid(), 'Client-Support', 'CLIENT-SUPPORT', NULL),
+(uuid(), 'IT', 'IT', NULL),
 (uuid(), 'Client', 'CLIENT', NULL),
 (uuid(), 'User', 'User', NULL);
 # make sure you have UTF-8 collaction for best .NET interoperability

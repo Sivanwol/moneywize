@@ -17,7 +17,7 @@ public class ForgetPasswordRequest {
 
     [SwaggerSchema("Country Id of the user")]
     [Required]
-    public Guid? CountryId { get; set; }
+    public int? CountryId { get; set; }
 
     [SwaggerSchema("Phone of the user")]
     [Required]

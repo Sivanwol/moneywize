@@ -3,19 +3,19 @@ using Application.Queries;
 using Domain.Common;
 namespace Domain.Entities;
 
-public class ClientEmployeesHasAssets : BaseEntity, ISoftDeletable {
+public class ClientEmployeesHasAssets : BaseEntityWithoutId, ISoftDeletable {
     [ForeignKey("Client")]
-    public Guid ClientEmployeeId { get; set; }
+    public int ClientEmployeeId { get; set; }
 
     public ClientEmployees Employee { get; set; }
 
     [ForeignKey("Asset")]
-    public Guid AssetId { get; set; }
+    public int AssetId { get; set; }
 
     public Assets Asset { get; set; }
 
     [ForeignKey("ContactEmployee")]
-    public Guid ContactEmployeeId { get; set; }
+    public int ContactEmployeeId { get; set; }
 
     public ClientContacts ContactEmployee { get; set; }
 

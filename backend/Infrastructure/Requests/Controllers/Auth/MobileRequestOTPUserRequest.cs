@@ -16,7 +16,7 @@ public class MobileRequestOTPUserRequest {
 
     [Required]
     [SwaggerSchema("Country Id")]
-    public Guid? CountryId { get; set; }
+    public int? CountryId { get; set; }
 
     [Required]
     [SwaggerSchema("Provider of the MFA")]

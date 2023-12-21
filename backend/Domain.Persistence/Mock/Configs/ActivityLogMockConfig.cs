@@ -6,7 +6,7 @@ namespace Domain.Persistence.Mock.Configs;
 public sealed class ActivityLogMockConfig : AutoFaker<ActivityLog> {
     public ActivityLogMockConfig() {
         Randomizer.Seed = new Random(8675309);
-        RuleFor(fake => fake.Id, fake => fake.Random.Guid());
+        RuleFor(fake => fake.Id, fake => fake.Random.Number(1, 1000));
         var opType = new Random().Next(1, 10);
         if (opType > 5) {
             RuleFor(fake => fake.UserId, fake => null);

@@ -29,17 +29,17 @@ public enum AssetStatus {
 
 public class Assets : BaseEntity, ISoftDeletable {
     [ForeignKey("Client")]
-    public Guid ClientId { get; set; }
+    public int ClientId { get; set; }
 
     public Clients Client { get; set; }
 
     [ForeignKey("Vendor")]
-    public Guid VendorId { get; set; }
+    public int VendorId { get; set; }
 
     public Vendors Vendor { get; set; }
 
     [ForeignKey("Provider")]
-    public Guid ProviderId { get; set; }
+    public int ProviderId { get; set; }
 
     public Providers Provider { get; set; }
 
@@ -59,12 +59,10 @@ public class Assets : BaseEntity, ISoftDeletable {
     public string ServiceTag { get; set; }
 
     [ForeignKey("ServiceTagMedia")]
-    public Guid ServiceTagMediaId { get; set; }
-
-    public Media ServiceTagMedia { get; set; }
+    public int ServiceTagMediaId { get; set; }
 
     [ForeignKey("ExtraMedia")]
-    public Guid ExtraMediaId { get; set; }
+    public int ExtraMediaId { get; set; }
 
     public Media ExtraMedia { get; set; }
 

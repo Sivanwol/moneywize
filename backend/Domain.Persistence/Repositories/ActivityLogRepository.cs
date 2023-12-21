@@ -11,7 +11,7 @@ public class ActivityLogRepository : BaseRepository, IActivityLogRepository {
 
     public ActivityLogRepository(IDomainContext context) : base(context) { }
 
-    public Task<ActivityLog?> GetById(Guid id) {
+    public Task<ActivityLog?> GetById(int id) {
         Log.Logger.Information($"Fetching activity log with id {id}");
         return Context.ActivityLogs.FirstOrDefaultAsync(w => w.Id == id);
     }

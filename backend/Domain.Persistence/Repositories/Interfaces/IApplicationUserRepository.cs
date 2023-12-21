@@ -3,12 +3,12 @@ using Domain.Persistence.Repositories.Common.Interfaces;
 using Infrastructure.Enums;
 namespace Domain.Persistence.Repositories.Interfaces;
 
-public interface IApplicationUserRepository : IGenericRepository<ApplicationUser> {
-    Task SaveDisplayLanguage(Guid userId, Guid languageId);
+public interface IApplicationUserRepository : IGenericRepository<ApplicationUser, Guid> {
+    Task SaveDisplayLanguage(Guid userId, int languageId);
     Task DeleteUser(Guid userId);
     Task ExportUser(Guid userId);
     Task<ApplicationUser?> GetUserByToken(string userToken);
-    Task<ApplicationUser?> LocateUserByPhone(Guid CountryId, string PhoneNumber);
+    Task<ApplicationUser?> LocateUserByPhone(int CountryId, string PhoneNumber);
     Task<ApplicationUser?> LocateUserByEmail(string email);
     Task<ApplicationUserOtpCodes?> GenerateOtpCode(ApplicationUser user, int expiredCodeInMinutes, bool forceSent, MFAProvider provider);
     Task<int> GetTotalOtpCodesWithinExpirationDate(Guid userId, int expiredCodeInMinutes);

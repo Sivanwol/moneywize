@@ -4,14 +4,14 @@ using Application.Queries;
 using Domain.Common;
 namespace Domain.Entities;
 
-public class ClientNetworksHasAssets : BaseEntity, ISoftDeletable {
+public class ClientNetworksHasAssets : BaseEntityWithoutId, ISoftDeletable {
     [ForeignKey("Client")]
-    public Guid ClientNetworkId { get; set; }
+    public int ClientNetworkId { get; set; }
 
     public ClientNetworks Network { get; set; }
 
     [ForeignKey("Asset")]
-    public Guid AssetId { get; set; }
+    public int AssetId { get; set; }
 
     public Assets Asset { get; set; }
 

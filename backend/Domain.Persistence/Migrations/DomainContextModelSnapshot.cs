@@ -21,13 +21,14 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ActivityLog", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<string>("Activity")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -37,19 +38,33 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<Guid>("EntityId")
+                        .HasMaxLength(36)
                         .HasColumnType("char(36)");
 
                     b.Property<string>("EntityType")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("IpAddress")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
 
                     b.Property<string>("OperationType")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("UserAgent")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("UserId")
                         .HasMaxLength(36)
@@ -78,11 +93,11 @@ namespace Domain.Persistence.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("CountryId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("CountryId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("DisplayLanguageId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("DisplayLanguageId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -164,9 +179,9 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ApplicationUserOtpCodes", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -215,12 +230,12 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Assets", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Cpu")
                         .HasMaxLength(20)
@@ -231,8 +246,8 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-                    b.Property<Guid>("ExtraMediaId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ExtraMediaId")
+                        .HasColumnType("int");
 
                     b.Property<bool?>("IsRaidSupported")
                         .HasColumnType("tinyint(1)");
@@ -258,8 +273,8 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("ProviderId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ProviderId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("RaidNumber")
                         .HasColumnType("int");
@@ -269,8 +284,8 @@ namespace Domain.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<Guid>("ServiceTagMediaId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ServiceTagMediaId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -320,8 +335,8 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-                    b.Property<Guid>("VendorId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("VendorId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -331,8 +346,6 @@ namespace Domain.Persistence.Migrations
 
                     b.HasIndex("ProviderId");
 
-                    b.HasIndex("ServiceTagMediaId");
-
                     b.HasIndex("VendorId");
 
                     b.ToTable("Assets");
@@ -340,9 +353,9 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Categories", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -369,9 +382,9 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ClientContacts", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<string>("Address")
                         .HasColumnType("longtext");
@@ -383,8 +396,8 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("CountryId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("CountryId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -448,11 +461,11 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ClientEmployeeHasTags", b =>
                 {
-                    b.Property<Guid>("EmployeeId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("TagId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -469,18 +482,18 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ClientEmployees", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("AssetId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("AssetId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ContactEmployeeId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ContactEmployeeId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -490,11 +503,11 @@ namespace Domain.Persistence.Migrations
                     b.Property<DateTime?>("DisabledAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid>("NetworkId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("NetworkId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ServerId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ServerId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -518,30 +531,23 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ClientEmployeesHasAssets", b =>
                 {
-                    b.Property<Guid>("ClientEmployeeId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ClientEmployeeId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("AssetId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("AssetId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ContactEmployeeId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ContactEmployeeId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime?>("DisabledAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid>("Id")
-                        .HasColumnType("char(36)");
-
                     b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("ClientEmployeeId", "AssetId");
 
@@ -554,11 +560,11 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ClientNetworkHasTags", b =>
                 {
-                    b.Property<Guid>("NetworkId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("NetworkId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("TagId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -575,15 +581,15 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ClientNetworks", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("AssetId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("AssetId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Color")
                         .IsRequired()
@@ -623,22 +629,17 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ClientNetworksHasAssets", b =>
                 {
-                    b.Property<Guid>("ClientNetworkId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ClientNetworkId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("AssetId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("AssetId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime?>("DisabledAt")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<Guid>("Id")
-                        .HasColumnType("char(36)");
 
                     b.Property<string>("Label")
                         .IsRequired()
@@ -650,9 +651,7 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("ClientNetworkId", "AssetId");
 
@@ -663,11 +662,11 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ClientServerHasTags", b =>
                 {
-                    b.Property<Guid>("ServerId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ServerId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("TagId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -684,15 +683,15 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ClientServers", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("AssetId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("AssetId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -707,8 +706,8 @@ namespace Domain.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<Guid>("NetworkId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("NetworkId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Notes")
                         .IsRequired()
@@ -732,27 +731,20 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ClientServersHasAssets", b =>
                 {
-                    b.Property<Guid>("ClientServerId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ClientServerId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("AssetId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("AssetId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime?>("DisabledAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid>("Id")
-                        .HasColumnType("char(36)");
-
                     b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("ClientServerId", "AssetId");
 
@@ -763,9 +755,9 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Clients", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -775,8 +767,8 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(95)");
 
-                    b.Property<Guid>("CountryId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("CountryId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -798,8 +790,8 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(95)");
 
-                    b.Property<Guid?>("ParentId")
-                        .HasColumnType("char(36)");
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -824,11 +816,11 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ClientsHasClientContacts", b =>
                 {
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ContactId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ContactId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -845,9 +837,9 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Contacts", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<string>("Address")
                         .HasColumnType("longtext");
@@ -859,8 +851,8 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("CountryId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("CountryId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -924,9 +916,9 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Countries", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<string>("CountryCode")
                         .IsRequired()
@@ -964,9 +956,9 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Languages", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -997,9 +989,9 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Media", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1041,11 +1033,11 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ProviderHasCategories", b =>
                 {
-                    b.Property<Guid>("ProviderId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ProviderId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -1062,14 +1054,14 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ProviderHasContact", b =>
                 {
-                    b.Property<Guid>("ProviderId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ProviderId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ContactId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ContactId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid?>("ClientContactsId")
-                        .HasColumnType("char(36)");
+                    b.Property<int?>("ClientContactsId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -1088,9 +1080,9 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Providers", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1104,8 +1096,8 @@ namespace Domain.Persistence.Migrations
                     b.Property<DateTime?>("DisabledAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid?>("LogoId")
-                        .HasColumnType("char(36)");
+                    b.Property<int?>("LogoId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1139,9 +1131,9 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Tags", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1165,14 +1157,14 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.VendorHasContact", b =>
                 {
-                    b.Property<Guid>("VendorId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("VendorId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ContactId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ContactId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid?>("ClientContactsId")
-                        .HasColumnType("char(36)");
+                    b.Property<int?>("ClientContactsId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -1191,9 +1183,9 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Vendors", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -1211,8 +1203,8 @@ namespace Domain.Persistence.Migrations
                     b.Property<DateTime?>("DisabledAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid?>("LogoId")
-                        .HasColumnType("char(36)");
+                    b.Property<int?>("LogoId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1253,9 +1245,9 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.VendorsMetaData", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1279,8 +1271,8 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("VendorId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("VendorId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -1474,12 +1466,6 @@ namespace Domain.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Media", "ServiceTagMedia")
-                        .WithMany()
-                        .HasForeignKey("ServiceTagMediaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Vendors", "Vendor")
                         .WithMany()
                         .HasForeignKey("VendorId")
@@ -1491,8 +1477,6 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("ExtraMedia");
 
                     b.Navigation("Provider");
-
-                    b.Navigation("ServiceTagMedia");
 
                     b.Navigation("Vendor");
                 });

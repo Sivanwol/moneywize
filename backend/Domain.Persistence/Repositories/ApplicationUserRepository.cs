@@ -21,7 +21,7 @@ public class ApplicationUserRepository : BaseRepository, IApplicationUserReposit
     }
 
 
-    public async Task SaveDisplayLanguage(Guid userId, Guid languageId) {
+    public async Task SaveDisplayLanguage(Guid userId, int languageId) {
         Log.Logger.Information($"Saving display language for user {userId}-{languageId}");
         var languageData = await _languagesRepository.GetById(languageId);
         if (languageData == null) {
@@ -60,7 +60,7 @@ public class ApplicationUserRepository : BaseRepository, IApplicationUserReposit
         return Context.Users.FirstOrDefault(w => w.Token == userToken);
     }
 
-    public async Task<ApplicationUser?> LocateUserByPhone(Guid countryId, string phoneNumber) {
+    public async Task<ApplicationUser?> LocateUserByPhone(int countryId, string phoneNumber) {
         Log.Logger.Information($"Locating user with phone number {countryId}-{phoneNumber}");
         var user = Context.Users.First(w => w.Country.Id == countryId && w.PhoneNumber == phoneNumber);
         if (user == null) {

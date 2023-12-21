@@ -25,7 +25,7 @@ public class LanguagesRepository : BaseRepository, ILanguagesRepository {
         return result;
     }
 
-    public async Task<Languages?> GetById(Guid id) {
+    public async Task<Languages?> GetById(int id) {
         _logger.LogInformation($"Fetching language with id {id}");
         var result = Context.Languages.FirstOrDefault(row => row.Id == id);
         return result;
