@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Domain.DTO.Filters.Common;
 using Domain.DTO.Filters.Fields;
 using LinqKit;
@@ -28,34 +29,24 @@ public class ActivityLogFilters : BaseFilters {
     public ICollection<DateFilterField> CreatedAtFilters { get; }
 
     public override IQueryable<T> ApplyFilters<T>(IQueryable<T> query, FilterCollectionOperation filterCollectionOperation) {
+
         var predicate = PredicateBuilder.New<T>(false);
-        if (filterCollectionOperation == FilterCollectionOperation.Or) {
+        Func<Expression<Func<T, bool>>, Expression<Func<T, bool>>, Expression<Func<T, bool>>> operatorFunc = filterCollectionOperation == FilterCollectionOperation.Or
+            ? (Func<Expression<Func<T, bool>>, Expression<Func<T, bool>>, Expression<Func<T, bool>>>)((p1, p2) => p1.Or(p2))
+            : (p1, p2) => p1.And(p2);
 
-            query = query.Where(predicate.Or(ApplyFilterToQuery<T, string, StringFilterField>(IpAddressFilters)));
-            query = query.Where(predicate.Or(ApplyFilterToQuery<T, string, StringFilterField>(UserAgentFilters)));
-            query = query.Where(predicate.Or(ApplyFilterToQuery<T, Guid, GuidFilterField>(IdFilters)));
-            query = query.Where(predicate.Or(ApplyFilterToQuery<T, Guid, GuidFilterField>(UserIdFilters)));
-            query = query.Where(predicate.Or(ApplyFilterToQuery<T, Guid, GuidFilterField>(EntityIdFilters)));
-            query = query.Where(predicate.Or(ApplyFilterToQuery<T, string, StringFilterField>(OperationTypeFilters)));
-            query = query.Where(predicate.Or(ApplyFilterToQuery<T, string, StringFilterField>(ActivityFilters)));
-            query = query.Where(predicate.Or(ApplyFilterToQuery<T, string, StringFilterField>(EntityTypeFilters)));
-            query = query.Where(predicate.Or(ApplyFilterToQuery<T, string, StringFilterField>(StatusFilters)));
-            query = query.Where(predicate.Or(ApplyFilterToQuery<T, DateTime, DateFilterField>(CreatedAtFilters)));
-            return query;
+        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(IpAddressFilters, predicate, operatorFunc);
+        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(UserAgentFilters, predicate, operatorFunc);
+        predicate = ApplyFiltersPredicate<T, Guid, GuidFilterField>(IdFilters, predicate, operatorFunc);
+        predicate = ApplyFiltersPredicate<T, Guid, GuidFilterField>(UserIdFilters, predicate, operatorFunc);
+        predicate = ApplyFiltersPredicate<T, Guid, GuidFilterField>(EntityIdFilters, predicate, operatorFunc);
+        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(OperationTypeFilters, predicate, operatorFunc);
+        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(ActivityFilters, predicate, operatorFunc);
+        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(EntityTypeFilters, predicate, operatorFunc);
+        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(StatusFilters, predicate, operatorFunc);
+        predicate = ApplyFiltersPredicate<T, DateTime, DateFilterField>(CreatedAtFilters, predicate, operatorFunc);
 
-        }
-        query = query.Where(predicate.And(ApplyFilterToQuery<T, string, StringFilterField>(IpAddressFilters)));
-        query = query.Where(predicate.And(ApplyFilterToQuery<T, string, StringFilterField>(UserAgentFilters)));
-        query = query.Where(predicate.And(ApplyFilterToQuery<T, Guid, GuidFilterField>(IdFilters)));
-        query = query.Where(predicate.And(ApplyFilterToQuery<T, Guid, GuidFilterField>(UserIdFilters)));
-        query = query.Where(predicate.And(ApplyFilterToQuery<T, Guid, GuidFilterField>(EntityIdFilters)));
-        query = query.Where(predicate.And(ApplyFilterToQuery<T, string, StringFilterField>(OperationTypeFilters)));
-        query = query.Where(predicate.And(ApplyFilterToQuery<T, string, StringFilterField>(ActivityFilters)));
-        query = query.Where(predicate.And(ApplyFilterToQuery<T, string, StringFilterField>(EntityTypeFilters)));
-        query = query.Where(predicate.And(ApplyFilterToQuery<T, string, StringFilterField>(StatusFilters)));
-        query = query.Where(predicate.And(ApplyFilterToQuery<T, DateTime, DateFilterField>(CreatedAtFilters)));
-
-        return query;
+        return query.Where(predicate);
     }
 
     public override void ResetFilters() {
