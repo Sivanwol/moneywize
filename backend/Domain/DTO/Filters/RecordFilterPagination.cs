@@ -27,7 +27,6 @@ public class RecordFilterPagination<TFilter> where TFilter : IFilter {
     public string SortByField { get; set; } = "CreatedAt";
 
     public IQueryable<T> ApplyQueryWithoutPagination<T>(IQueryable<T> query) where T : class {
-
         query = Filter.ApplyFilters(query, FilterCollectionOperation);
         var type = typeof(T);
         var property = type.GetProperty(SortByField);
@@ -64,7 +63,7 @@ public class RecordFilterPagination<TFilter> where TFilter : IFilter {
     }
 
     public IQueryable<T> ApplyQuery<T>(IQueryable<T> query) where T : class {
-        query = Filter!.ApplyFilters(query, FilterCollectionOperation);
+        query = Filter.ApplyFilters(query, FilterCollectionOperation);
         var type = typeof(T);
         var property = type.GetProperty(SortByField);
         var parameter = Expression.Parameter(type, "p");

@@ -7,7 +7,7 @@ public sealed class ActivityLogMockConfig : AutoFaker<ActivityLog> {
     public ActivityLogMockConfig() {
         Randomizer.Seed = new Random(8675309);
         RuleFor(fake => fake.Id, fake => fake.Random.Guid());
-        var opType = new Randomizer().Int(1, 10);
+        var opType = new Random().Next(1, 10);
         if (opType > 5) {
             RuleFor(fake => fake.UserId, fake => null);
             RuleFor(fake => fake.OperationType, fake => {

@@ -28,8 +28,23 @@ public class ActivityLogFilters : BaseFilters {
     public ICollection<StringFilterField> StatusFilters { get; }
     public ICollection<DateFilterField> CreatedAtFilters { get; }
 
+    private bool HasAnyFilter() {
+        return IpAddressFilters.Any() ||
+               UserAgentFilters.Any() ||
+               IdFilters.Any() ||
+               UserIdFilters.Any() ||
+               EntityIdFilters.Any() ||
+               OperationTypeFilters.Any() ||
+               ActivityFilters.Any() ||
+               EntityTypeFilters.Any() ||
+               StatusFilters.Any() ||
+               CreatedAtFilters.Any();
+    }
     public override IQueryable<T> ApplyFilters<T>(IQueryable<T> query, FilterCollectionOperation filterCollectionOperation) {
 
+        if (!HasAnyFilter()) {
+            return query;
+        }
         var predicate = PredicateBuilder.New<T>(false);
         Func<Expression<Func<T, bool>>, Expression<Func<T, bool>>, Expression<Func<T, bool>>> operatorFunc = filterCollectionOperation == FilterCollectionOperation.Or
             ? (Func<Expression<Func<T, bool>>, Expression<Func<T, bool>>, Expression<Func<T, bool>>>)((p1, p2) => p1.Or(p2))
