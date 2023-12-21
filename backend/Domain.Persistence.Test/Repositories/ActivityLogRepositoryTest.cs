@@ -370,7 +370,7 @@ public class ActivityLogRepositoryTest : BaseTest {
     [TestCase("HFHFHJJ", "UISDYABJKH", 4)]
     public async Task GetActivitiesWithStringFilterWithMultiFilters(string filterValue1, string filterValue2, int idx) {
         var mock = new MockActivityLogService();
-        var mockData = mock.GetMany();
+        var mockData = mock.GetMany(Guid.NewGuid()); // Use a fixed number of entries for testing
         mockData.Last().Activity = $"{filterValue1}";
         mockData.First().Activity = $"{filterValue2}";
         var repository = new ActivityLogRepository(Context.Object);
