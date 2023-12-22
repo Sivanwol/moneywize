@@ -109,7 +109,7 @@ public class Bootstrap {
                 }
             });
             services.Configure<MailServerConfig>(Configuration.GetSection("MailConfig"));
-            services.Configure<FrontEndPaths>(Configuration.GetSection("FrontEndPaths"));
+            services.Configure<FrontEndPaths>(Configuration.GetSection("FrontEndWebPaths"));
 
             services.AddTransient<IDomainContext>(provider => provider.GetService<DomainContext>()!);
             services.AddTransient<ITemplateService, TemplateService>();
