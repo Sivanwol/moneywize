@@ -105,6 +105,12 @@ public class AuthController : BaseApiController {
         catch (UserLockedoutException e) {
             return ResponseHelper.CreateEmptyResponse(["User account locked out"], HttpStatusCode.Unauthorized);
         }
+        catch (UserNotCompletedRegistrationException e) {
+            _logger.LogError(e, "User not completed registration");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "User not completed registration"
+            }, HttpStatusCode.Unauthorized);
+        }
         catch (InvalidLoginException e) {
             return ResponseHelper.CreateEmptyResponse(["User not found or password is not correct"], HttpStatusCode.Unauthorized);
         }
@@ -195,6 +201,7 @@ public class AuthController : BaseApiController {
     })]
     [SwaggerResponse(StatusCodes.Status200OK, "Response of request OTP", typeof(DataResponse<RequestOTPResponse>))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad request", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized", typeof(DataResponse<EmptyResponse>))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     [AllowAnonymous]
     public async Task<IActionResult> ForgotPassword(ForgetPasswordRequest request) {
@@ -212,7 +219,7 @@ public class AuthController : BaseApiController {
                 "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
-        catch (MFAProviderImplementedException e) {
+        catch (MFAProviderNotImplementedException e) {
             _logger.LogError(e, "MFA Provider is not implemented");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "MFA Provider is not implemented"
@@ -223,6 +230,12 @@ public class AuthController : BaseApiController {
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "OTP not found"
             }, HttpStatusCode.Forbidden);
+        }
+        catch (UserNotCompletedRegistrationException e) {
+            _logger.LogError(e, "User not completed registration");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "User not completed registration"
+            }, HttpStatusCode.Unauthorized);
         }
         catch (Exception e) {
             _logger.LogError(e, "Error in RequestOTPCode");
@@ -281,6 +294,7 @@ public class AuthController : BaseApiController {
     })]
     [SwaggerResponse(StatusCodes.Status200OK, "Response of request Reset Password", typeof(DataResponse<EmptyResponse>))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad request", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized", typeof(DataResponse<EmptyResponse>))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     public async Task<IActionResult> ResetPassword(ResetPasswordRequest request) {
         var validator = await _resetPasswordValidator.ValidateAsync(request);
@@ -303,6 +317,12 @@ public class AuthController : BaseApiController {
                 e.Message
             }, HttpStatusCode.Unauthorized);
         }
+        catch (UserNotCompletedRegistrationException e) {
+            _logger.LogError(e, "User not completed registration");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "User not completed registration"
+            }, HttpStatusCode.Unauthorized);
+        }
         catch (Exception e) {
             _logger.LogError(e, "Error in ResetPassword");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
@@ -318,6 +338,7 @@ public class AuthController : BaseApiController {
     })]
     [SwaggerResponse(StatusCodes.Status200OK, "Response of request OTP", typeof(DataResponse<RequestOTPResponse>))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad request", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized", typeof(DataResponse<EmptyResponse>))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     public async Task<IActionResult> RequestOTPCode([SwaggerRequestBody("OTP Request payload", Required = true)] MobileRequestOTPUserRequest request) {
         var validationResult = await _requestOTPValidator.ValidateAsync(request);
@@ -334,7 +355,7 @@ public class AuthController : BaseApiController {
                 "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
-        catch (MFAProviderImplementedException e) {
+        catch (MFAProviderNotImplementedException e) {
             _logger.LogError(e, "MFA Provider is not implemented");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "MFA Provider is not implemented"
@@ -345,6 +366,12 @@ public class AuthController : BaseApiController {
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "OTP not found"
             }, HttpStatusCode.Forbidden);
+        }
+        catch (UserNotCompletedRegistrationException e) {
+            _logger.LogError(e, "User not completed registration");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "User not completed registration"
+            }, HttpStatusCode.Unauthorized);
         }
         catch (Exception e) {
             _logger.LogError(e, "Error in RequestOTPCode");
@@ -360,6 +387,7 @@ public class AuthController : BaseApiController {
     })]
     [SwaggerResponse(StatusCodes.Status200OK, "Response of request refresh OTP", typeof(DataResponse<MobileAuthResponse>))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad request", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized", typeof(DataResponse<EmptyResponse>))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     [Authorize]
     public async Task<IActionResult> RefreshToken(RefreshTokenRequest request) {

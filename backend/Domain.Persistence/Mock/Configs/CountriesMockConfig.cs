@@ -11,9 +11,9 @@ public sealed class CountriesMockConfig : AutoFaker<Countries> {
         RuleFor(fake => fake.CountryName, fake => fake.Address.Country());
         RuleFor(fake => fake.CountryCode, fake => fake.Address.CountryCode());
         RuleFor(fake => fake.CountryNumber, fake => "972");
-        RuleFor(fake => fake.SupportedAt, fake => fake.Date.Recent(3));
         RuleFor(fake => fake.Provider, fake => fake.PickRandom<SMSProviders>());
         RuleFor(fake => fake.CreatedAt, fake => fake.Date.Past());
+        RuleFor(fake => fake.SupportedAt, fake => fake.Date.Recent(2));
         RuleFor(fake => fake.UpdatedAt, fake => fake.Date.Recent(3));
     }
 }

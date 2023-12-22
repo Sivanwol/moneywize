@@ -48,6 +48,12 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
                 throw new EntityNotFoundException("Country", request.CountryId!.Value.ToString());
         }
         var user = await LocateUser(request);
+        if (user == null) {
+            throw new EntityNotFoundException("User", $"{request.CountryId}-{request.PhoneNumber}");
+        }
+        if (user.RegisterCompletedAt == null) {
+            throw new UserNotCompletedRegistrationException(user.Id);
+        }
         if (request.Provider == MFAProvider.SMS && user.Country.Provider.HasValue) {
             LoadProvider(user.Country.Provider.Value);
         }
@@ -72,7 +78,7 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
                 SMSSender.Instance.Load(_loggerFactory, _infoUSmsConfig);
                 break;
             default:
-                throw new MFAProviderImplementedException(Enum.GetName(typeof(SMSProviders), provider)!);
+                throw new Application.Exceptions.MFAProviderNotImplementedException(Enum.GetName(typeof(SMSProviders), provider)!);
         }
     }
 
