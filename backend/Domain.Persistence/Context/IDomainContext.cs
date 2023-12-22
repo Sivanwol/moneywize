@@ -11,22 +11,26 @@ public interface IDomainContext : IDisposable {
     DbSet<Vendors> Vendors { get; set; }
     DbSet<VendorsMetaData> VendorsMetaData { get; set; }
     DbSet<Contacts> Contacts { get; set; }
-    DbSet<VendorContact> VendorContacts { get; set; }
-    DbSet<ProviderContact> ProviderContacts { get; set; }
+    DbSet<VendorHasContact> VendorContacts { get; set; }
+    DbSet<ProviderHasContact> ProviderContacts { get; set; }
     DbSet<Providers> Providers { get; set; }
-    DbSet<ProviderCategories> ProviderCategories { get; set; }
+    DbSet<ProviderHasCategories> ProviderCategories { get; set; }
     DbSet<Categories> Categories { get; set; }
     DbSet<Tags> Tags { get; set; }
     DbSet<ClientServers> ClientServers { get; set; }
     DbSet<ClientNetworks> ClientNetworks { get; set; }
-    DbSet<ClientServerTags> ClientServerTags { get; set; }
-    DbSet<ClientNetworkTags> ClientNetworkTags { get; set; }
-    DbSet<ActivityLog> ActivityLog { get; set; }
+    DbSet<ClientServerHasTags> ClientServerTags { get; set; }
+    DbSet<ClientServersHasAssets> ClientServersHasAssets { get; set; }
+    DbSet<ClientNetworkHasTags> ClientNetworkTags { get; set; }
+    DbSet<ClientNetworksHasAssets> ClientNetworksHasAssets { get; set; }
+    DbSet<ActivityLog> ActivityLogs { get; set; }
     DbSet<Clients> Clients { get; set; }
     DbSet<Media> Media { get; set; }
     DbSet<Clients> Client { get; set; }
-    DbSet<ClientTags> ClientTags { get; set; }
+    DbSet<ClientContacts> ClientContacts { get; set; }
+    DbSet<ClientsHasClientContacts> ClientHasClientContacts { get; set; }
     DbSet<ClientEmployees> ClientEmployees { get; set; }
-    DbSet<ClientEmployeeTags> ClientEmployeeTags { get; set; }
+    DbSet<ClientEmployeesHasAssets> ClientEmployeesHasAssets { get; set; }
+    DbSet<ClientEmployeeHasTags> ClientEmployeeTags { get; set; }
     DbSet<Assets> Assets { get; set; }
 }

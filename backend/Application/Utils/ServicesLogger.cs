@@ -1,3 +1,4 @@
+using System.Globalization;
 using Application.Utils.Logs.Masking;
 using Microsoft.ApplicationInsights.Extensibility;
 using Serilog;
@@ -5,16 +6,15 @@ using Serilog.Core;
 using Serilog.Enrichers.Sensitive;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
-
-namespace Application.Utils; 
+namespace Application.Utils;
 
 public static class ServicesLogger {
     public static Logger GetLogger(string serviceName) {
-        var isAzureHost = bool.Parse(Environment.GetEnvironmentVariable("AzureHost")?? "false");
+        var isAzureHost = bool.Parse(Environment.GetEnvironmentVariable("AzureHost") ?? "false");
         // 
         return !isAzureHost ? GetLocalLogger(serviceName) : GetDeployLogger(serviceName);
     }
-    
+
     private static LoggerConfiguration GetCommonConfiguration(string serviceName) {
         return new LoggerConfiguration()
             .MinimumLevel.Debug()
@@ -34,9 +34,9 @@ public static class ServicesLogger {
     }
 
     private static Logger GetLocalLogger(string serviceName) {
-        return  GetCommonConfiguration(serviceName)
-            .WriteTo.Console(formatProvider: System.Globalization.CultureInfo.InvariantCulture)
-            .WriteTo.File(new CompactJsonFormatter(), Path.Combine("Logs", $"{serviceName}.service.log"), 
+        return GetCommonConfiguration(serviceName)
+            .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
+            .WriteTo.File(new CompactJsonFormatter(), Path.Combine("Logs", $"{serviceName}.service.log"),
                 rollingInterval: RollingInterval.Day)
             .CreateLogger();
     }
@@ -46,19 +46,19 @@ public static class ServicesLogger {
             .WriteTo.ApplicationInsights(TelemetryConfiguration.CreateDefault(), TelemetryConverter.Traces)
             .WriteTo.File(new CompactJsonFormatter(),
                 $@"D:\home\LogFiles\http\RawLogs\{serviceName}-log.txt",
-                        rollingInterval: RollingInterval.Day,
-                        fileSizeLimitBytes: 10 * 1024 * 1024,
-                        retainedFileCountLimit: 2,
-                        rollOnFileSizeLimit: true,
-                        shared: true,
-                        flushToDiskInterval: TimeSpan.FromSeconds(1))
+                rollingInterval: RollingInterval.Day,
+                fileSizeLimitBytes: 10 * 1024 * 1024,
+                retainedFileCountLimit: 2,
+                rollOnFileSizeLimit: true,
+                shared: true,
+                flushToDiskInterval: TimeSpan.FromSeconds(1))
             .CreateLogger();
-        
+
     }
-    
+
 
     public static Logger GetLoggerTesting(string serviceName) {
-        
+
         return new LoggerConfiguration()
             .MinimumLevel.Debug()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
@@ -67,7 +67,7 @@ public static class ServicesLogger {
                 evt => evt.Level,
                 (level, wt) => {
                     wt.NUnitOutput();
-                    wt.Console(formatProvider: System.Globalization.CultureInfo.InvariantCulture);
+                    wt.Console(formatProvider: CultureInfo.InvariantCulture);
                 }).CreateLogger();
     }
 }

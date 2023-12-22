@@ -1,12 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Application.Queries;
-using Domain.Common;
+using Domain.Entities.Common;
 namespace Domain.Entities;
 
 public enum VendorSupportResponseType {
     API,
-    SCRAPING,
+    SCRAPING
 }
 
 [Table("Vendors")]
@@ -24,7 +24,7 @@ public class Vendors : BaseEntity, ISoftDeletable {
     public string? SupportPhone { get; set; }
     public string? SupportEmail { get; set; }
     public VendorSupportResponseType SupportResponseType { get; set; }
-    public ICollection<VendorContact> Contacts { get; set; }
+    public ICollection<VendorHasContact> Contacts { get; set; }
     public DateTime? DisabledAt { get; set; }
     public DateTime? DeletedAt { get; }
 }

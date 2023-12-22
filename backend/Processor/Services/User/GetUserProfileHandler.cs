@@ -6,18 +6,18 @@ using Serilog;
 namespace Processor.Services.User;
 
 public class GetUserProfileHandler : IRequestHandler<GetUserProfileRequest, ProfileResponse> {
-    private readonly IAppUserRepository _appUserRepository;
+    private readonly IApplicationUserRepository _applicationUserRepository;
     private readonly IMediator _mediator;
 
     public GetUserProfileHandler(IMediator mediator,
-        IAppUserRepository appUserRepository) {
-        _appUserRepository = appUserRepository;
+        IApplicationUserRepository applicationUserRepository) {
+        _applicationUserRepository = applicationUserRepository;
         _mediator = mediator;
     }
 
     public async Task<ProfileResponse> Handle(GetUserProfileRequest request, CancellationToken cancellationToken) {
         Log.Logger.Information($"GetUserProfileHandler: {request.UserId}");
-        //     var result = await _appUserRepository.GetUserProfile(request.UserId);
+        //     var result = await _applicationUserRepository.GetUserProfile(request.UserId);
         //     return await Task.FromResult(new ProfileResponse {
         //         ID = result.User.Id,
         //         FirstName = result.User.FirstName,

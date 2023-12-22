@@ -1,7 +1,6 @@
 using Application.Utils;
 using Microsoft.AspNetCore.Http;
 using Serilog.Context;
-
 namespace Application.Middleware;
 
 public class CorrelationMiddleware {

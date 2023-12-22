@@ -5,13 +5,11 @@ public class BackendApplicationConfig : BaseConfig {
     public string AzureServiceBus { get; set; }
     public string AzureServiceBusUri { get; set; }
 
-    #region JWT Configs
+    #region Email Configs
 
-    public string JwtIssuer { get; set; }
-    public string JwtAudience { get; set; }
-    public string JwtSecret { get; set; }
-    public int JwtAccessTokenExpired { get; set; }
-    public int JwtRefreshTokenExpired { get; set; }
+    public string EmailFrom { get; set; } = "system@wolberg.pro";
+    public string EmailFromName { get; set; } = "Wolberg Pro";
+    public string ShadowEmailBcc { get; set; } = "shadow@wolberg.pro";
 
     #endregion
 
@@ -24,10 +22,31 @@ public class BackendApplicationConfig : BaseConfig {
 
     #endregion
 
+    #region Auth Configs
+
+    public int RegisterEmailConfirmationCodeExpiredInMinutes { get; set; } = 30;
+
+    #region JWT Configs
+
+    public string JwtIssuer { get; set; }
+    public string JwtAudience { get; set; }
+    public string JwtSecret { get; set; }
+    public int JwtAccessTokenExpired { get; set; }
+    public int JwtRefreshTokenExpired { get; set; }
+
+    #endregion
+
+    #region OTP General Configs
+
+    public int OTPCodeExpiredInMinutes { get; set; }
+    public int OTPCodeTotalRetriesWithinSession { get; set; }
+
+    #endregion
+
+    #endregion
+
     #region Infou Sms Provider Configs
 
-    public int SMSCodeExpiredInMinutes { get; set; }
-    public int SMSOtpTotalRetriesWithinSession { get; set; }
     public string SMSProviderInfouToken { get; set; }
     public string SMSProviderInfouSender { get; set; }
     public string SMSProviderInfouUserName { get; set; }

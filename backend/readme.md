@@ -1,8 +1,16 @@
 # Installation For Developer
 When you setup new machine, on the database please fetch the this sql from [here](https://github.com/quartznet/quartznet/blob/main/database/tables/tables_mysql_innodb.sql).
+
+## Email Template Service 
+https://my.stripo.email/
+
 ## SQL
 ```sql
-
+INSERT INTO `AspNetRoles` (`Id`, `Name`, `NormalizedName`, `ConcurrencyStamp`) VALUES
+(uuid(), 'Admin', 'ADMIN', NULL),
+(uuid(), 'IT', 'IT', NULL),
+(uuid(), 'Client', 'CLIENT', NULL),
+(uuid(), 'User', 'User', NULL);
 # make sure you have UTF-8 collaction for best .NET interoperability
 # CREATE DATABASE quartznet CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

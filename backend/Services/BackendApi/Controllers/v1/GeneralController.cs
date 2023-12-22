@@ -13,8 +13,8 @@ public class GeneralController : BaseApiController {
 
     public GeneralController(
         IMediator mediator,
-        ILoggerFactory loggerFactory,
-        BackendApplicationConfig configuration
+        BackendApplicationConfig configuration,
+        ILoggerFactory loggerFactory
         // IValidator<MobileLoginUserRequest> loginValidator
     ) : base(mediator, configuration) {
         _logger = loggerFactory.CreateLogger<GeneralController>();

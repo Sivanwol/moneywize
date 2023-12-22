@@ -13,7 +13,7 @@ public static class ServiceRepositoriesAndMocksExtensions {
 
         services.AddTransient<ICountriesRepository, CountriesRepository>();
         services.AddTransient<ILanguagesRepository, LanguagesRepository>();
-        services.AddTransient<IAppUserRepository, AppUserRepository>();
+        services.AddTransient<IApplicationUserRepository, ApplicationUserRepository>();
         services.AddTransient<IOTPRepository, OTPRepository>();
 
         #endregion
@@ -26,7 +26,7 @@ public static class ServiceRepositoriesAndMocksExtensions {
         services.AddTransient<ICountiesMockService, MockCountiesServices>();
         services.AddTransient<ILanguagesMockService, MockLanguagesServices>();
         services.AddTransient<IAppUserMockService, MockAppUserServices>();
-        services.AddTransient<IOTPMockService, MockOTPServices>();
+        services.AddTransient<IOTPMockService, MockUserOPTCodeServices>();
 
         #endregion
 

@@ -2,7 +2,7 @@ using FluentValidation;
 using Infrastructure.Requests.Controllers.Auth;
 namespace Infrastructure.Validators.Account;
 
-public class VerifyOTPValidator : AbstractValidator<MobileVerifyOTPUserRequest> {
+public class VerifyOTPValidator : AbstractValidator<VerifyOTPUserRequest> {
     private const int MAX_TOKEN_LENGTH = 128;
     public VerifyOTPValidator() {
 
@@ -11,8 +11,8 @@ public class VerifyOTPValidator : AbstractValidator<MobileVerifyOTPUserRequest> 
             .WithMessage("Code is required")
             .MinimumLength(6)
             .WithMessage("Code must be at least 6 characters")
-            .MaximumLength(12)
-            .WithMessage("Code must not exceed 12 characters");
+            .MaximumLength(20)
+            .WithMessage("Code must not exceed 20 characters");
 
 
         RuleFor(x => x.OTPToken)

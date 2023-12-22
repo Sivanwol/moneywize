@@ -1,13 +1,13 @@
-
+using Application.Configs;
 using Application.Utils;
 using Domain.Persistence.Context;
 using MediatR;
 using Moq;
-using Nest;
 using Serilog;
 namespace Test.Shared.Common;
 
 public class BaseTest {
+    protected BackendApplicationConfig backendConfig = new BackendApplicationConfig();
     public DateTimeOffset MatchedDate { get; set; }
     public Mock<IDomainContext> Context { get; private set; }
     public Mock<IMediator> Mediator { get; private set; }

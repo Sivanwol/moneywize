@@ -1,17 +1,17 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Application.Queries;
-using Domain.Common;
+using Domain.Entities.Common;
 namespace Domain.Entities;
 
 public class ClientNetworks : BaseEntity, ISoftDeletable {
     [ForeignKey("Client")]
-    public Guid ClientId { get; set; }
+    public int ClientId { get; set; }
 
     public Clients Client { get; set; }
 
     [ForeignKey("Asset")]
-    public Guid AssetId { get; set; }
+    public int AssetId { get; set; }
 
     public Assets Asset { get; set; }
 
@@ -25,6 +25,7 @@ public class ClientNetworks : BaseEntity, ISoftDeletable {
     public string Notes { get; set; }
 
     public DateTime? DisabledAt { get; set; }
-    public ICollection<ClientNetworkTags> Tags { get; set; }
+    public ICollection<ClientNetworkHasTags> Tags { get; set; }
+    public ICollection<ClientNetworksHasAssets> Assets { get; set; }
     public DateTime? DeletedAt { get; }
 }

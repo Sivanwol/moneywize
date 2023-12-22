@@ -5,8 +5,8 @@ using Microsoft.Extensions.Logging;
 namespace Infrastructure.Utils.SMS;
 
 public class SMSSender {
-    static BaseSMSProvider _provider;
-    static SMSSender _instance;
+    private static BaseSMSProvider _provider;
+    private static SMSSender _instance;
     private static ILoggerFactory _loggerFaactory;
     private static InfoUSmsConfig _config;
     private static ILogger _logger;
@@ -24,17 +24,20 @@ public class SMSSender {
     public int GetSMSExpireInMinutes() {
         return _config.ExpiredInMinutes;
     }
+
     public void Init(SMSProviders provider, string countryNumber, string phoneNumber, string messageTemplate) {
-        // switch (provider) {
-        //     case SMSProviders.INFOU:
-        //         _provider = new InfoUProvider(_logger, _config);
-        //         break;
-        // }
-        // _provider.Init(countryNumber, phoneNumber, messageTemplate);
+        if (!_config.IsEnabled) throw new Exception("SMS is not enabled");
+        switch (provider) {
+            case SMSProviders.INFOU:
+                _provider = new InfoUProvider(_loggerFaactory, _config);
+                break;
+        }
+        _provider.Init(countryNumber, phoneNumber, messageTemplate);
         _logger.LogInformation($"Init: {provider}, {countryNumber}, {phoneNumber}, {messageTemplate}");
     }
     public void SendSMS(string code) {
-        // _provider.SendSMS(code);
+        if (!_config.IsEnabled) throw new Exception("SMS is not enabled");
+        _provider.SendSMS(code);
         _logger.LogInformation($"SendSMS: {code}");
     }
 }

@@ -8,7 +8,7 @@ public class MockAppUserServices : IAppUserMockService {
         Faker = new AppUserMockConfig();
         LanguagesFaker = new LanguagesMockConfig();
     }
-    private AppUserMockConfig Faker { get; set; }
+    private AppUserMockConfig Faker { get; }
     private LanguagesMockConfig LanguagesFaker { get; set; }
 
     public ApplicationUser GetOne(Guid id) {

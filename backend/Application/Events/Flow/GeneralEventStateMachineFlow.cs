@@ -24,10 +24,10 @@ public class GeneralEventStateMachineFlow : MassTransitStateMachine<EventStage> 
                 .TransitionTo(Save)
         );
     }
-    public State Initial { get; private set; } = null!;
-    public State Submitted { get; private set; } = null!;
-    public State Save { get; private set; } = null!;
-    public Event<GeneralData> OnStart { get; private set; } = null!;
-    public Event<GeneralData> OnSubmit { get; private set; } = null!;
-    public Event<GeneralData> OnSave { get; private set; } = null!;
+    public State Initial { get; } = null!;
+    public State Submitted { get; } = null!;
+    public State Save { get; } = null!;
+    public Event<GeneralData> OnStart { get; } = null!;
+    public Event<GeneralData> OnSubmit { get; } = null!;
+    public Event<GeneralData> OnSave { get; } = null!;
 }

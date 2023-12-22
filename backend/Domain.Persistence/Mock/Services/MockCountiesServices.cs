@@ -7,7 +7,7 @@ public class MockCountiesServices : ICountiesMockService {
     public MockCountiesServices() {
         Faker = new CountriesMockConfig();
     }
-    private CountriesMockConfig Faker { get; set; }
+    private CountriesMockConfig Faker { get; }
     public IEnumerable<Countries> GetAll() {
         return Faker.Generate(20);
     }

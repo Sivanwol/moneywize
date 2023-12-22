@@ -1,78 +1,118 @@
 using System.Security.Claims;
-using Application.Configs.Providers;
+using Application.Configs;
 using Application.Exceptions;
 using Application.Utils;
+using Domain.Entities;
 using Domain.Persistence.Repositories.Interfaces;
 using Domain.Requests.Processor.Services.User;
 using Infrastructure.Enums;
 using Infrastructure.Responses.Controllers.Auth;
 using Infrastructure.Services.Auth;
 using MediatR;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Identity;
 using Serilog;
 namespace Processor.Services.User;
 
 public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPResponse> {
-    private readonly IAppUserRepository _appUserRepository;
+    private readonly IActivityLogRepository _activityLogRepository;
+    private readonly IApplicationUserRepository _applicationUserRepository;
+    private readonly BackendApplicationConfig _config;
     private readonly ICountriesRepository _countriesRepository;
-    private readonly InfoUSmsConfig _infoUSmsConfig;
     private readonly IJwtAuthManager _jwtAuthManager;
-    private readonly ILoggerFactory _loggerFactory;
     private readonly IMediator _mediator;
     private readonly IOTPRepository _otpRepository;
+    private readonly UserManager<ApplicationUser> _userManager;
 
     public VerifyOtpHandler(IMediator mediator,
-        ILoggerFactory logger,
         IJwtAuthManager jwtAuthManager,
-        IAppUserRepository appUserRepository,
+        IApplicationUserRepository applicationUserRepository,
+        IActivityLogRepository activityLogRepository,
         ICountriesRepository countriesRepository,
         IOTPRepository otpRepository,
-        InfoUSmsConfig infoUSmsConfig) {
+        UserManager<ApplicationUser> userManager,
+        BackendApplicationConfig config) {
         _otpRepository = otpRepository;
-        _appUserRepository = appUserRepository;
+        _applicationUserRepository = applicationUserRepository;
         _countriesRepository = countriesRepository;
-        _infoUSmsConfig = infoUSmsConfig;
         _jwtAuthManager = jwtAuthManager;
-        _loggerFactory = logger;
+        _userManager = userManager;
+        _activityLogRepository = activityLogRepository;
         _mediator = mediator;
+        _config = config;
     }
 
     public async Task<VerifyOTPResponse> Handle(VerifyOtpUserRequest request, CancellationToken cancellationToken) {
-        Log.Logger.Information($"VerifyOtpHandler: [{request.OTPToken}, {request.UserToken}]");
-        var user = await _appUserRepository.GetUserByToken(request.UserToken);
-        if (user == null) {
-            throw new EntityNotFoundException("User", request.UserToken);
-        }
+        var user = await GetValidUserByToken(request.UserToken);
+        var country = await GetValidCountryByUser(user);
+        var expiredCodeInMinutes = _config.OTPCodeExpiredInMinutes;
+        var otpEntity = await GetOtpEntity(request, expiredCodeInMinutes, user);
+        var result = await _otpRepository.VerifyOTP(user, otpEntity, request.Code);
 
+        Guid? userId = result.IsValid ? new Guid(user.Id) : null;
+        var claims = new List<Claim>();
+        if (result.IsValid) {
+            Log.Logger.Information($"Clearing OTP Codes for User: [{userId}]");
+            await _applicationUserRepository.ClearOtpCodes(Guid.Parse(user.Id));
+            if (otpEntity.ProviderType == MFAProvider.Email) {
+                if (!user.EmailConfirmed) {
+                    Log.Logger.Information($"Confirming Email for User: [{userId}]");
+                    user.EmailConfirmed = true;
+                    await _userManager.UpdateAsync(user);
+                }
+            } else {
+                if (!user.PhoneNumberConfirmed) {
+                    Log.Logger.Information($"Confirming Phone Number for User: [{userId}]");
+                    user.PhoneNumberConfirmed = true;
+                    await _userManager.UpdateAsync(user);
+                }
+            }
+            var roles = await _userManager.GetRolesAsync(user);
+            claims = new List<Claim> {
+                new(ClaimTypes.NameIdentifier, user.Id)
+            };
+            roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
+        }
+        if (request.ActionOtpType == ActionOtpType.Login) {
+            await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), "Login", "User Received access tokens", "User Request Logged In",
+                result.IsValid ? ActivityStatus.Success : ActivityStatus.Failed, request.IpAddress, request.UserAgent);
+        } else {
+            await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), "ForgotPassword", "User Received access tokens",
+                "User Request Forgot Password",
+                result.IsValid ? ActivityStatus.Success : ActivityStatus.Failed, request.IpAddress, request.UserAgent);
+        }
+        // await _signInManager.SignInAsync(user, true);
+        return new VerifyOTPResponse {
+            UserId = userId,
+            Tokens = result.IsValid
+                ? _jwtAuthManager.GenerateTokens(request.UserToken, claims.ToArray(), SystemClock.Now().DateTime)
+                : null
+        };
+    }
+
+    private async Task<ApplicationUser> GetValidUserByToken(string userToken) {
+        Log.Logger.Information($"VerifyOtpHandler: [{userToken}]");
+        var user = await _applicationUserRepository.GetUserByToken(userToken);
+        if (user == null) {
+            throw new EntityNotFoundException("User", userToken);
+        }
+        return user;
+    }
+
+    private async Task<Countries> GetValidCountryByUser(ApplicationUser user) {
         Log.Logger.Information($"Locating User By Phone: {user.Country.Id}-{user.PhoneNumber}");
         var country = await _countriesRepository.GetById(user.Country.Id);
         if (country == null) {
             throw new EntityNotFoundException("Countries", user.Country.Id.ToString());
         }
-        Log.Logger.Information($"Loading Sms Provider: {country.Provider}");
-        var expiredCodeInMinutes = 0;
-        switch (country.Provider) {
-            case SMSProviders.INFOU:
-                expiredCodeInMinutes = _infoUSmsConfig.ExpiredInMinutes;
-                break;
-            default:
-                throw new MFAProviderImplementedException(Enum.GetName(typeof(SMSProviders), country.Provider)!);
-        }
-        Log.Logger.Information($"Checkinf if OTP Entity Exist for User: [{user.Id}, {request.OTPToken}]");
-        var otpEntity = await _appUserRepository.IsExistingOtpEntity(request.UserToken, request.OTPToken, expiredCodeInMinutes);
+        return country;
+    }
+
+    private async Task<ApplicationUserOtpCodes> GetOtpEntity(VerifyOtpUserRequest request, int expiredCodeInMinutes, ApplicationUser user) {
+        Log.Logger.Information($"Checking if OTP Entity Exist for User: [{user.Id}, {request.OTPToken}]");
+        var otpEntity = await _applicationUserRepository.IsExistingOtpEntity(request.UserToken, request.OTPToken, expiredCodeInMinutes);
         if (otpEntity == null) {
             throw new EntityNotFoundException("UserOtpCodes", request.UserToken);
         }
-        Log.Logger.Information($"Verifying OTP Code for User: [{user.Id}, {request.OTPToken}]");
-        var result = await _otpRepository.VerifyOTP(user, otpEntity, request.Code);
-        var userId = new Guid(user.Id);
-        if (result.IsValid) {
-            Log.Logger.Information($"Clearing OTP Codes for User: [{userId}]");
-            await _appUserRepository.ClearOtpCodes(userId);
-        }
-        return new VerifyOTPResponse {
-            UserId = result.IsValid ? userId : null,
-            Tokens = result.IsValid ? _jwtAuthManager.GenerateTokens(request.UserToken, new List<Claim>(), SystemClock.Now().DateTime) : null
-        };
+        return otpEntity;
     }
 }

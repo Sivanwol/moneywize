@@ -4,7 +4,7 @@ using Application.Utils;
 using Application.Utils.Service;
 using Domain.Entities;
 using FluentValidation;
-using Infrastructure.Requests.Controllers.Backoffice;
+using Infrastructure.Requests.Controllers.Auth;
 using Infrastructure.Requests.Processor.Services.User;
 using Infrastructure.Services.Auth;
 using MediatR;
@@ -33,7 +33,7 @@ public class UsersController : BaseApiController {
     [SwaggerOperation("Request User profile", "Profile of user", Tags = new[] {
         "Users"
     })]
-    public async Task<IActionResult> Profile(int userId) {
+    public async Task<IActionResult> Profile(Guid userId) {
         try {
             _logger.LogInformation($"Request User Profile: {userId}");
             var result = await Mediator.Send(new GetUserProfileRequest {

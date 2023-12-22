@@ -7,7 +7,7 @@ public class MockLanguagesServices : ILanguagesMockService {
     public MockLanguagesServices() {
         Faker = new LanguagesMockConfig();
     }
-    private LanguagesMockConfig Faker { get; set; }
+    private LanguagesMockConfig Faker { get; }
     public IEnumerable<Languages> GetAll() {
         return Faker.Generate(3);
     }

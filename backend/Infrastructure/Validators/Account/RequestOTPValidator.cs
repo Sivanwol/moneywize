@@ -17,10 +17,12 @@ public class RequestOtpValidator : AbstractValidator<MobileRequestOTPUserRequest
 
         RuleFor(x => x.CountryId)
             .NotEmpty()
-            .WithMessage("Country Id is required");
+            .WithMessage("Country Id is required")
+            .GreaterThan(0)
+            .WithMessage("CountyId is not valid");
 
         RuleFor(x => x.Provider)
-            .IsEnumName(typeof(MFAProvider), caseSensitive: false)
+            .IsEnumName(typeof(MFAProvider), false)
             .WithMessage("Provider is not valid");
 
     }

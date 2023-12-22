@@ -27,30 +27,32 @@ public class Program {
         return 0;
     }
 
-    private static IHostBuilder CreateHostBuilder(string[] args) => Host
-        .CreateDefaultBuilder(args)
-        .ConfigureWebHostDefaults(builder => {
-            builder.ConfigureAppConfiguration((context, config) => {
-                var connectionString = Environment.GetEnvironmentVariable("AzureConfigConnectionString");
-                var environmentLabel = Environment.GetEnvironmentVariable("EnvironmentLabel") ?? "local";
-                Log.Warning("Using Local Configuration");
-                if (!string.IsNullOrEmpty(connectionString)) {
-                    Log.Warning("Switching To Azure Configuration");
-                    Log.Information("Fetching Config from cloud: {ConnectionString}, {environmentLabel}", connectionString, environmentLabel);
-                    config.AddAzureAppConfiguration(ops => {
-                        ops.Connect(connectionString)
-                            .Select("Backend:*", environmentLabel)
-                            .ConfigureRefresh(refreshOptions => {
-                                refreshOptions.Register("Backend:Reload", true).SetCacheExpiration(TimeSpan.FromMinutes(30));
-                            })
-                            .TrimKeyPrefix("Backend:");
-                        ops.UseFeatureFlags();
-                        Log.Information("Connected to cloud");
-                    });
-                }
-            });
-            Log.Information("Start Bootstrap Setup");
-            builder.UseStartup<Bootstrap>();
-        })
-        .UseSerilogExtenstion();
+    private static IHostBuilder CreateHostBuilder(string[] args) {
+        return Host
+            .CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(builder => {
+                builder.ConfigureAppConfiguration((context, config) => {
+                    var connectionString = Environment.GetEnvironmentVariable("AzureConfigConnectionString");
+                    var environmentLabel = Environment.GetEnvironmentVariable("EnvironmentLabel") ?? "local";
+                    Log.Warning("Using Local Configuration");
+                    if (!string.IsNullOrEmpty(connectionString)) {
+                        Log.Warning("Switching To Azure Configuration");
+                        Log.Information("Fetching Config from cloud: {ConnectionString}, {environmentLabel}", connectionString, environmentLabel);
+                        config.AddAzureAppConfiguration(ops => {
+                            ops.Connect(connectionString)
+                                .Select("Backend:*", environmentLabel)
+                                .ConfigureRefresh(refreshOptions => {
+                                    refreshOptions.Register("Backend:Reload", true).SetCacheExpiration(TimeSpan.FromMinutes(30));
+                                })
+                                .TrimKeyPrefix("Backend:");
+                            ops.UseFeatureFlags();
+                            Log.Information("Connected to cloud");
+                        });
+                    }
+                });
+                Log.Information("Start Bootstrap Setup");
+                builder.UseStartup<Bootstrap>();
+            })
+            .UseSerilogExtenstion();
+    }
 }

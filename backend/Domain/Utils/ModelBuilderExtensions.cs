@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
-using Domain.Common;
+using Domain.Entities.Common;
 using Microsoft.EntityFrameworkCore;
 namespace Domain.Utils;
 
