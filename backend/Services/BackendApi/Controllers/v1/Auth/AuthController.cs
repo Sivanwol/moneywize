@@ -148,7 +148,10 @@ public class AuthController : BaseApiController {
             return ResponseHelper.CreateResponse(await Mediator.Send(new VerifyOtpUserRequest {
                 Code = request.Code,
                 OTPToken = request.OTPToken,
-                UserToken = request.UserToken
+                UserToken = request.UserToken,
+                ActionOtpType = ActionOtpType.Login,
+                IpAddress = _httpContextAccessor.HttpContext!.Connection.RemoteIpAddress!.ToString(),
+                UserAgent = _httpContextAccessor.HttpContext!.Request.Headers["User-Agent"].ToString()
             }));
         }
         catch (EntityNotFoundException e) {
@@ -259,7 +262,10 @@ public class AuthController : BaseApiController {
             var result = await Mediator.Send(new VerifyOtpUserRequest {
                 Code = request.Code,
                 OTPToken = request.OTPToken,
-                UserToken = request.UserToken
+                UserToken = request.UserToken,
+                ActionOtpType = ActionOtpType.ForgotPassword,
+                IpAddress = HttpContext.Connection.RemoteIpAddress!.ToString(),
+                UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
             });
             if (result.UserId == null) {
                 _logger.LogError($"unable to confirm OTP for user [{request.UserToken} , {request.OTPToken}]");
@@ -420,7 +426,9 @@ public class AuthController : BaseApiController {
         }
         try {
             var loginUserId = _httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await Mediator.Send(request.ToProcessorEntity(Guid.Parse(loginUserId!)));
+            var result = await Mediator.Send(request.ToProcessorEntity(Guid.Parse(loginUserId!),
+                HttpContext.Connection.RemoteIpAddress!.ToString(),
+                HttpContext.Request.Headers["User-Agent"].ToString()));
             if (request.AllowRedirect) {
                 Redirect($"{_frontConfig.BaseUrl}/{_frontConfig.LoginPath}");
             }

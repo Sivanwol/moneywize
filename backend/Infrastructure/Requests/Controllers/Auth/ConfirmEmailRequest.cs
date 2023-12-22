@@ -18,12 +18,14 @@ public class ConfirmEmailRequest {
     public bool AllowRedirect { get; set; } = false;
 
 
-    public Processor.Services.User.ConfirmEmailRequest ToProcessorEntity(Guid loggedUserId) {
+    public Processor.Services.User.ConfirmEmailRequest ToProcessorEntity(Guid loggedUserId, string ipAddress, string userAgent) {
         return new Processor.Services.User.ConfirmEmailRequest {
             LoggedUserId = loggedUserId,
             UserId = UserId,
             UserToken = UserToken,
-            Code = Code
+            Code = Code,
+            IpAddress = ipAddress,
+            UserAgent = userAgent
         };
     }
 }

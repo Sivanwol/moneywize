@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +24,10 @@ public static class GenericServiceExtension {
                     .AllowAnyMethod()
                     .AllowAnyHeader();
             });
+        });
+        services.Configure<ForwardedHeadersOptions>(options => {
+            options.ForwardedHeaders =
+                ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
         });
         services.AddHttpContextAccessor();
         Log.Information("Pre Configure Server Auth");
@@ -46,7 +51,9 @@ public static class GenericServiceExtension {
         if (env.IsDevelopment()) {
             app.UseDeveloperExceptionPage();
         }
-
+        app.UseForwardedHeaders(new ForwardedHeadersOptions {
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+        });
         app.UseWebSockets();
         app.UseHttpsRedirection();
         Log.Information("Pre Extra Bind Configure Server");
