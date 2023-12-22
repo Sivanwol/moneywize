@@ -50,6 +50,15 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
 
         Guid? userId = result.IsValid ? new Guid(user.Id) : null;
         var claims = new List<Claim>();
+
+        if (_config is { DeveloperMode: true, DeveloperModeEnabledOTP: false }) {
+            return new VerifyOTPResponse {
+                UserId = userId,
+                Tokens = result.IsValid
+                    ? _jwtAuthManager.GenerateTokens(request.UserToken, claims.ToArray(), SystemClock.Now().DateTime)
+                    : null
+            };
+        }
         if (result.IsValid) {
             Log.Logger.Information($"Clearing OTP Codes for User: [{userId}]");
             await _applicationUserRepository.ClearOtpCodes(Guid.Parse(user.Id));
@@ -101,7 +110,7 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
     private async Task<Countries> GetValidCountryByUser(ApplicationUser user) {
         Log.Logger.Information($"Locating User By Phone: {user.Country.Id}-{user.PhoneNumber}");
         var country = await _countriesRepository.GetById(user.Country.Id);
-        if (country == null) {
+        if (country?.Provider == null) {
             throw new EntityNotFoundException("Countries", user.Country.Id.ToString());
         }
         return country;

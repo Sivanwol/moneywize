@@ -1,4 +1,5 @@
 using FluentValidation;
+using Infrastructure.Enums;
 using Infrastructure.Requests.Controllers.Auth;
 namespace Infrastructure.Validators.Account;
 
@@ -22,5 +23,11 @@ public class LoginUserValidator : AbstractValidator<LoginRequest> {
             .Matches(@"^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,18}$")
             .WithMessage(
                 "Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character");
+
+        RuleFor(x => x.Provider)
+            .NotEmpty()
+            .WithMessage("Provider is required")
+            .IsEnumName(typeof(MFAProvider))
+            .WithMessage("Provider is not valid");
     }
 }

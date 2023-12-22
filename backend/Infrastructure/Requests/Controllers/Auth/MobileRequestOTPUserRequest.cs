@@ -26,12 +26,14 @@ public class MobileRequestOTPUserRequest {
     [SwaggerSchema("Resent OTP")]
     public bool Resent { get; set; }
 
-    public SendOTPRequest ToProcessorEntity() {
+    public SendOTPRequest ToProcessorEntity(string ipAddress, string userAgent) {
         return new SendOTPRequest {
             CountryId = CountryId,
             PhoneNumber = PhoneNumber,
             Provider = (MFAProvider)Enum.Parse(typeof(MFAProvider), Provider),
-            ReSend = Resent
+            ReSend = Resent,
+            IpAddress = ipAddress,
+            UserAgent = userAgent
         };
     }
 }
