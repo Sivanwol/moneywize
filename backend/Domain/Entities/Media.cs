@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Domain.Common;
+using Domain.Entities.Common;
 namespace Domain.Entities;
 
 public class Media : BaseEntity {

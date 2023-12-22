@@ -1,8 +1,11 @@
 using Application.Constraints;
 using Application.Exceptions;
 using Application.Responses.Base;
+using Application.Utils;
 using Domain.Entities;
 using Domain.Persistence.Repositories.Interfaces;
+using Domain.Utils;
+using Infrastructure.Enums;
 using Infrastructure.Requests.Processor.Services.User;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -44,7 +47,7 @@ public class ConfirmEmailHandler : IRequestHandler<ConfirmEmailRequest, EmptyRes
                 throw new EntityNotFoundException("User", request.LoggedUserId.ToString());
             }
 
-            var hasMatchingRoles = await HasMathchingRoles(loggedUser);
+            var hasMatchingRoles = await AuthUtils.HasMathchingRoles(_userManager, loggedUser, [Roles.Admin]);
             if (!hasMatchingRoles) {
                 throw new AuthenticationException("Invalid user not matching permissions");
             }
@@ -56,14 +59,16 @@ public class ConfirmEmailHandler : IRequestHandler<ConfirmEmailRequest, EmptyRes
             result.Errors.ToList().ForEach(e => Log.Logger.Error("unable confirm email - error: {0}", e.Description ?? ""));
             throw new AuthenticationException("unable confirm email");
         }
+        user.RegisterCompletedAt = SystemClock.Now().DateTime;
+        await _userManager.UpdateAsync(user);
         Log.Logger.Information("New Register User email confirmed -  {UserId}", user.Id);
-        await _activityLogRepository.AddActivity(Guid.Parse(user.Id), user.Id, nameof(ApplicationUser), "Register", "User Request Registered", "User Request Registered",
-            "Success");
+        await _activityLogRepository.AddActivity(
+            Guid.Parse(user.Id),
+            user.Id,
+            nameof(ApplicationUser),
+            "Register",
+            "User Request Registered", "User Request Registered",
+            ActivityStatus.Success);
         return new EmptyResponse();
-    }
-
-    public async Task<bool> HasMathchingRoles(ApplicationUser user) {
-        var userRoles = await _userManager.GetRolesAsync(user);
-        return userRoles.Any(r => r == Roles.Admin);
     }
 }

@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-namespace Domain.Common;
+namespace Domain.Entities.Common;
 
 public abstract class BaseEntityWithoutId {
     [DataType(DataType.DateTime)]

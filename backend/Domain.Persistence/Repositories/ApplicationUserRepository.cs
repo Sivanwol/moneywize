@@ -1,3 +1,4 @@
+using Application.Configs;
 using Application.Exceptions;
 using Application.Utils;
 using Domain.Entities;
@@ -9,13 +10,16 @@ using Serilog;
 namespace Domain.Persistence.Repositories;
 
 public class ApplicationUserRepository : BaseRepository, IApplicationUserRepository {
+    private readonly BackendApplicationConfig _config;
     private readonly ICountriesRepository _countriesRepository;
     private readonly ILanguagesRepository _languagesRepository;
     public ApplicationUserRepository(
         IDomainContext context,
+        BackendApplicationConfig config,
         ICountriesRepository countriesRepository,
         ILanguagesRepository languagesRepository
     ) : base(context) {
+        _config = config;
         _countriesRepository = countriesRepository;
         _languagesRepository = languagesRepository;
     }
@@ -88,6 +92,7 @@ public class ApplicationUserRepository : BaseRepository, IApplicationUserReposit
             UserId = Guid.Parse(user.Id),
             Token = StringExtensions.GenerateToken(),
             Code = provider == MFAProvider.Email ? ApplicationUserOtpCodes.GenerateCodeAsToken() : ApplicationUserOtpCodes.GenerateCode(),
+            ProviderType = provider,
             ExpirationDate = SystemClock.Now().DateTime.AddMinutes(expiredCodeInMinutes),
             CreatedAt = SystemClock.Now().DateTime,
             UpdatedAt = SystemClock.Now().DateTime
@@ -102,6 +107,20 @@ public class ApplicationUserRepository : BaseRepository, IApplicationUserReposit
                 item.UpdatedAt = SystemClock.Now().DateTime;
             }
         }
+        Context.UserOtpCodes.Add(entity);
+        await Context.Instance.SaveChangesAsync();
+        return entity;
+    }
+    public async Task<ApplicationUserOtpCodes> GenerateRegistrationOtpCode(ApplicationUser user) {
+        var entity = new ApplicationUserOtpCodes {
+            UserId = Guid.Parse(user.Id),
+            Token = StringExtensions.GenerateToken(),
+            Code = ApplicationUserOtpCodes.GenerateCodeAsToken(),
+            ExpirationDate = SystemClock.Now().DateTime.AddDays(_config.RegisterEmailConfirmationCodeExpiredInMinutes),
+            ProviderType = MFAProvider.Email,
+            CreatedAt = SystemClock.Now().DateTime,
+            UpdatedAt = SystemClock.Now().DateTime
+        };
         Context.UserOtpCodes.Add(entity);
         await Context.Instance.SaveChangesAsync();
         return entity;

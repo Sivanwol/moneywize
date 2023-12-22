@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Infrastructure.Requests.Processor.Services.User;
 using Swashbuckle.AspNetCore.Annotations;
 namespace Infrastructure.Requests.Controllers.Auth;
 
@@ -45,4 +46,16 @@ public class RegisterNewUserRequest {
     [Required]
     [Display(Name = "Display Language Id")]
     public string DisplayLanguageId { get; set; }
+
+    public RegisterRequest ToProcessorEntity(string ipAddres, string userAgent) => new() {
+        Email = Email,
+        Password = Password,
+        FirstName = FirstName,
+        LastName = LastName,
+        PhoneNumber = PhoneNumber,
+        CountryId = int.Parse(CountryId),
+        DisplayLanguageId = int.Parse(DisplayLanguageId),
+        IpAddress = ipAddres,
+        UserAgent = userAgent
+    };
 }

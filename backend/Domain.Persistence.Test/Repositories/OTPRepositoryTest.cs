@@ -72,7 +72,7 @@ public class OTPRepositoryTest : BaseTest {
         var mockObjUser = mockEnumerableUser.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.UserOtpCodes).Returns(mockObj.Object!);
         Context.Setup(x => x.Users).Returns(mockObjUser.Object);
-        var repository = new OTPRepository(Context.Object, LoggerFactory.Create(x => x.AddConsole()), templateService, new Mock<IMailService>().Object);
+        var repository = new OTPRepository(Context.Object, LoggerFactory.Create(x => x.AddConsole()), templateService, new Mock<IMailService>().Object, backendConfig);
         var result = await repository.VerifyOTP(user, expected, code);
         Assert.Multiple(() => {
             if (overrideCode) {

@@ -3,6 +3,7 @@ using Application.Exceptions;
 using Application.Responses.Base;
 using Domain.Entities;
 using Domain.Persistence.Repositories.Interfaces;
+using Domain.Utils;
 using Infrastructure.Requests.Processor.Services.User;
 using Infrastructure.Services.Auth;
 using MediatR;
@@ -36,7 +37,11 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordRequest, EmptyR
             throw new EntityNotFoundException("User", request.UserId.ToString());
         }
         if (request.UserId != request.LoggedUserId) {
-            var hasMatchingRoles = await HasMathchingRoles(user);
+            var loggedUser = await _userManager.FindByIdAsync(request.LoggedUserId.ToString());
+            if (loggedUser == null) {
+                throw new EntityNotFoundException("User", request.LoggedUserId.ToString());
+            }
+            var hasMatchingRoles = await AuthUtils.HasMathchingRoles(_userManager, loggedUser, [Roles.Admin]);
             if (!hasMatchingRoles) {
                 throw new AuthenticationException("Invalid user not matching permissions");
             }
@@ -52,14 +57,5 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordRequest, EmptyR
             throw new AuthenticationException("unable change password");
         }
         return new EmptyResponse();
-    }
-
-    public async Task<bool> HasMathchingRoles(ApplicationUser user) {
-        var userMgn = await _userManager.FindByIdAsync(user.Id);
-        if (userMgn == null) {
-            throw new EntityNotFoundException("User", user.Id);
-        }
-        var userRoles = await _userManager.GetRolesAsync(user);
-        return userRoles.Any(r => r == Roles.Admin);
     }
 }

@@ -3,6 +3,7 @@ using Domain.Entities;
 using Domain.Persistence.Context;
 using Domain.Persistence.Repositories.Common;
 using Domain.Persistence.Repositories.Interfaces;
+using Infrastructure.Enums;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 namespace Domain.Persistence.Repositories;
@@ -16,32 +17,41 @@ public class ActivityLogRepository : BaseRepository, IActivityLogRepository {
         return Context.ActivityLogs.FirstOrDefaultAsync(w => w.Id == id);
     }
 
-    public Task AddActivity(Guid? userId, string entityId, string entityType, string operationType, string activity, string details, string status) {
+    public Task AddActivity(Guid? userId, string entityId, string entityType, string operationType, string activity, string details, ActivityStatus status) {
+        return AddActivity(userId, null, entityId, entityType, operationType, activity, details, status);
+    }
+    public Task AddActivity(Guid? userId, Guid? ownerUserId, string entityId, string entityType, string operationType, string activity, string details, ActivityStatus status) {
         Log.Logger.Information($"Adding activity log with id {userId}-{entityId}-{entityType}-{operationType}");
         var activityLog = new ActivityLog {
+            OwnerUserId = ownerUserId.HasValue ? ownerUserId.Value.ToString() : null,
             UserId = userId.HasValue ? userId.Value.ToString() : null,
             EntityId = entityId,
             EntityType = entityType,
             OperationType = operationType,
             Activity = activity,
             Details = details,
-            Status = status
+            Status = nameof(status)
         };
         Context.ActivityLogs.Add(activityLog);
         return Context.Instance.SaveChangesAsync();
     }
 
-    public Task AddActivity(Guid? userId, string entityId, string entityType, string operationType, string activity, string details, string status, string? ipAddress,
+    public Task AddActivity(Guid? userId, string entityId, string entityType, string operationType, string activity, string details, ActivityStatus status, string? ipAddress,
         string? userAgent) {
+        return AddActivity(userId, null, entityId, entityType, operationType, activity, details, status, ipAddress, userAgent);
+    }
+    public Task AddActivity(Guid? userId, Guid? ownerUserId, string entityId, string entityType, string operationType, string activity, string details, ActivityStatus status,
+        string? ipAddress, string? userAgent) {
         Log.Logger.Information($"Adding activity log with id {userId}-{entityId}-{entityType}-{operationType}");
         var activityLog = new ActivityLog {
+            OwnerUserId = ownerUserId.HasValue ? ownerUserId.Value.ToString() : null,
             UserId = userId.HasValue ? userId.Value.ToString() : null,
             EntityId = entityId,
             EntityType = entityType,
             OperationType = operationType,
             Activity = activity,
             Details = details,
-            Status = status,
+            Status = nameof(status),
             IpAddress = ipAddress,
             UserAgent = userAgent
         };

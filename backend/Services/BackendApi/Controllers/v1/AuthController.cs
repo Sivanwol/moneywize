@@ -6,27 +6,23 @@ using Application.Exceptions;
 using Application.Responses.Base;
 using Application.Utils;
 using Application.Utils.Service;
-using Domain.Entities;
 using Domain.Requests.Processor.Services.User;
 using FluentValidation;
 using FluentValidation.Results;
 using IdentityModel.Client;
 using Infrastructure.Requests.Controllers.Auth;
-using Infrastructure.Requests.Processor.Services.Countries;
 using Infrastructure.Requests.Processor.Services.User;
 using Infrastructure.Responses.Controllers.Auth;
-using Infrastructure.Responses.Controllers.Countries;
 using Infrastructure.Services.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Annotations;
 using ConfirmEmailRequest = Infrastructure.Requests.Controllers.Auth.ConfirmEmailRequest;
 using ResetPasswordRequest = Infrastructure.Requests.Controllers.Auth.ResetPasswordRequest;
-namespace BackendApi.Controllers.v1.Auth;
+namespace BackendApi.Controllers.v1;
 
 [ApiVersion("1.0")]
 [Authorize]
@@ -42,15 +38,11 @@ public class AuthController : BaseApiController {
     private readonly IValidator<RegisterNewUserRequest> _registerNewUserValidator;
     private readonly IValidator<MobileRequestOTPUserRequest> _requestOTPValidator;
     private readonly IValidator<ResetPasswordRequest> _resetPasswordValidator;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly UserManager<ApplicationUser> _userManager;
     private readonly IValidator<VerifyOtpUserRequest> _verifyOtpUserValidator;
 
     public AuthController(
         IMediator mediator,
         BackendApplicationConfig configuration,
-        UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager,
         IHttpContextAccessor httpContextAccessor,
         ILoggerFactory loggerFactory,
         IJwtAuthManager jwtAuthManager,
@@ -63,8 +55,6 @@ public class AuthController : BaseApiController {
         IValidator<RefreshTokenRequest> refreshTokenValidator,
         IValidator<MobileRequestOTPUserRequest> requestOTPValidator,
         IValidator<RegisterNewUserRequest> registerNewUserValidator) : base(mediator, configuration) {
-        _userManager = userManager;
-        _signInManager = signInManager;
         _logger = loggerFactory.CreateLogger<AuthController>();
         _jwtAuthManager = jwtAuthManager;
         _frontConfig = frontConfig;
@@ -476,60 +466,39 @@ public class AuthController : BaseApiController {
     public async Task<IActionResult> Register(
         [SwaggerRequestBody("register user payload", Required = true)]
         RegisterNewUserRequest request) {
-        var response = new AuthResponse();
         var validator = await _registerNewUserValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
         }
 
-        LocateCountryResponse resultCountryResponse;
-
         try {
-            resultCountryResponse = await Mediator.Send(new LocateCountryRequest {
-                CountryId = int.Parse(request.CountryId)
-            });
-            if (!resultCountryResponse.IsFound) {
-                return ResponseHelper.CreateEmptyResponse(new List<string> {
-                    "country not found"
-                }, HttpStatusCode.BadRequest);
-            }
+            return ResponseHelper.CreateResponse(await Mediator.Send(request.ToProcessorEntity(HttpContext.Connection.RemoteIpAddress!.ToString(),
+                HttpContext.Request.Headers["User-Agent"].ToString())));
         }
-        catch (Exception e) {
-            _logger.LogError(e, "Error while locating country");
+        catch (InvalidRequestException e) {
+            _logger.LogError(e, "Invalid request");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
-                "country not found"
+                $"Invalid request one or more the params not match"
             }, HttpStatusCode.BadRequest);
         }
-
-        if (resultCountryResponse is { IsFound: true }) {
-            var user = new ApplicationUser {
-                UserName = request.Email,
-                Email = request.Email,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                PhoneNumber = request.PhoneNumber,
-                TwoFactorEnabled = true
-            };
-            var result = await _userManager.CreateAsync(user, request.Password);
-            if (result.Succeeded) {
-                _logger.LogInformation(3, "User created a new account with password.");
-                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                // Todo : handle new user emaqil confirmation / phone number confirmation
-                // var callbackUrl = Url.Action("ConfirmEmail", "Account", new {userId = user.Id, code},
-                //     protocol: HttpContext.Request.Scheme);
-                // await _emailSender.SendEmailAsync(request.Email, "Confirm your account",
-                //     $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
-
-                _logger.LogInformation(4, "User created a new account with password.");
-                return ResponseHelper.CreateResponse(new AuthResponse {
-                    UserId = new Guid(user.Id)
-                });
-            }
+        catch (AuthenticationException e) {
+            _logger.LogError(e, e.Message);
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                e.Message
+            }, HttpStatusCode.Unauthorized);
         }
-
-        return ResponseHelper.CreateEmptyResponse(new List<string> {
-            "error while creating user account"
-        }, HttpStatusCode.InternalServerError);
+        catch (EntityNotFoundException e) {
+            _logger.LogError(e, "One of the entities was not found");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "One of the params was not found"
+            }, HttpStatusCode.BadRequest);
+        }
+        catch (Exception e) {
+            _logger.LogError(e, "Error in Register");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "error while creating user account"
+            }, HttpStatusCode.InternalServerError);
+        }
     }
 
     // [Authorize(Roles = Roles.Admin)]

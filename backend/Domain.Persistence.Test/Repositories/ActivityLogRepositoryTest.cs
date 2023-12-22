@@ -3,6 +3,7 @@ using Domain.DTO.Filters.Fields;
 using Domain.Entities;
 using Domain.Persistence.Mock.Services;
 using Domain.Persistence.Repositories;
+using Infrastructure.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using MockQueryable.Moq;
 using Test.Shared.Common;
@@ -33,8 +34,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         Context.Setup(x => x.Instance.SaveChanges()).Returns(1);
         await repository.AddActivity(Guid.Parse(activityLog.UserId), activityLog.EntityId, activityLog.EntityType, activityLog.OperationType, activityLog.Activity,
-            activityLog.Details,
-            activityLog.Status);
+            activityLog.Details, Enum.Parse<ActivityStatus>(activityLog.Status));
         var result = await repository.GetById(activityLog.Id);
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() => {
@@ -61,8 +61,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         Context.Setup(x => x.Instance.SaveChanges()).Returns(1);
         await repository.AddActivity(Guid.Parse(activityLog.UserId), activityLog.EntityId, activityLog.EntityType, activityLog.OperationType, activityLog.Activity,
-            activityLog.Details,
-            activityLog.Status, activityLog.IpAddress, activityLog.UserAgent);
+            activityLog.Details, Enum.Parse<ActivityStatus>(activityLog.Status), activityLog.IpAddress, activityLog.UserAgent);
         var result = await repository.GetById(activityLog.Id);
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() => {

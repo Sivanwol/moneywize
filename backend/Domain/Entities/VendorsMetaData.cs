@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using Domain.Common;
+using Domain.Entities.Common;
 namespace Domain.Entities;
 
 public class VendorsMetaData : BaseEntity {

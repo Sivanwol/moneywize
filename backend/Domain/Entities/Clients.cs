@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Application.Queries;
-using Domain.Common;
+using Domain.Entities.Common;
 using Elastic.Apm.Api.Constraints;
 namespace Domain.Entities;
 

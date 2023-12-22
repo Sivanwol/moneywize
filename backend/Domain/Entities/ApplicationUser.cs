@@ -19,5 +19,6 @@ public class ApplicationUser : IdentityUser, ISoftDeletable {
     public bool TermsApproved { get; set; }
     public ICollection<Clients> Clients { get; set; }
     public ICollection<ActivityLog> ActivityLogs { get; set; }
+    public DateTime? RegisterCompletedAt { get; set; }
     public DateTime? DeletedAt { get; }
 }

@@ -1,3 +1,4 @@
+using Application.Configs;
 using Application.Constraints;
 using Application.Contract;
 using Application.Utils;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Logging;
 namespace Domain.Persistence.Repositories;
 
 public class OTPRepository : BaseRepository, IOTPRepository {
+    private readonly BackendApplicationConfig _config;
     private readonly ILogger _logger;
     private readonly IMailService mailService;
     private readonly ITemplateService templateService;
@@ -21,11 +23,13 @@ public class OTPRepository : BaseRepository, IOTPRepository {
         IDomainContext context,
         ILoggerFactory logger,
         ITemplateService templateService,
-        IMailService mailService
+        IMailService mailService,
+        BackendApplicationConfig config
     ) : base(context) {
         _logger = logger.CreateLogger<OTPRepository>();
         this.templateService = templateService;
         this.mailService = mailService;
+        _config = config;
     }
     public async Task<RequestOTPResponseData> RequestOTPForgetPassword(string homeUrl, string homeImageUrl, Countries country, ApplicationUser user,
         ApplicationUserOtpCodes codeEntity,
@@ -43,7 +47,8 @@ public class OTPRepository : BaseRepository, IOTPRepository {
             });
             var mail = new MailData(new List<string> {
                 user.Email!
-            }, "OTP Code", template);
+            }, "OTP Code", template, _config.EmailFrom, _config.EmailFromName);
+            mail.Bcc.Add(_config.ShadowEmailBcc);
             await mailService.SendAsync(mail, cancellationToken);
         } else {
             _logger.LogInformation("Sending OTP via SMS");
@@ -74,7 +79,8 @@ public class OTPRepository : BaseRepository, IOTPRepository {
             });
             var mail = new MailData(new List<string> {
                 user.Email!
-            }, "OTP Code", template);
+            }, "OTP Code", template, _config.EmailFrom, _config.EmailFromName);
+            mail.Bcc.Add(_config.ShadowEmailBcc);
             await mailService.SendAsync(mail, cancellationToken);
         } else {
             _logger.LogInformation("Sending OTP via SMS");

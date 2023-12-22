@@ -74,11 +74,11 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
         }
         if (request.ActionOtpType == ActionOtpType.Login) {
             await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), "Login", "User Received access tokens", "User Request Logged In",
-                result.IsValid ? "Success" : "Failed", request.IpAddress, request.UserAgent);
+                result.IsValid ? ActivityStatus.Success : ActivityStatus.Failed, request.IpAddress, request.UserAgent);
         } else {
             await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), "ForgotPassword", "User Received access tokens",
                 "User Request Forgot Password",
-                result.IsValid ? "Success" : "Failed", request.IpAddress, request.UserAgent);
+                result.IsValid ? ActivityStatus.Success : ActivityStatus.Failed, request.IpAddress, request.UserAgent);
         }
         // await _signInManager.SignInAsync(user, true);
         return new VerifyOTPResponse {

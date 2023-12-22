@@ -16,6 +16,9 @@ public class ActivityLog {
     public int Id { get; set; }
 
     [StringLength(36)]
+    public string? OwnerUserId { get; set; }
+
+    [StringLength(36)]
     public string? UserId { get; set; }
 
     public ApplicationUser? User { get; set; }

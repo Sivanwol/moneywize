@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Application.Queries;
-using Domain.Common;
+using Domain.Entities.Common;
 namespace Domain.Entities;
 
 public enum AssetType {

@@ -1,6 +1,7 @@
 using AutoBogus;
 using Bogus;
 using Domain.Entities;
+using Infrastructure.Enums;
 namespace Domain.Persistence.Mock.Configs;
 
 public sealed class ActivityLogMockConfig : AutoFaker<ActivityLog> {
@@ -24,7 +25,10 @@ public sealed class ActivityLogMockConfig : AutoFaker<ActivityLog> {
         RuleFor(fake => fake.EntityId, fake => fake.Random.Guid().ToString());
         RuleFor(fake => fake.Activity, fake => fake.Random.String2(10));
         RuleFor(fake => fake.Details, fake => fake.Random.String2(10));
-        RuleFor(fake => fake.Status, fake => fake.Random.String2(10));
+        RuleFor(fake => fake.Status, fake => {
+            var randomStatus = fake.PickRandom<ActivityStatus>();
+            return randomStatus.ToString();
+        });
         RuleFor(fake => fake.IpAddress, fake => fake.Internet.Ip());
         RuleFor(fake => fake.UserAgent, fake => fake.Internet.UserAgent());
         RuleFor(fake => fake.EntityType, fake => fake.Random.String2(10));
