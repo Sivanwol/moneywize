@@ -37,17 +37,18 @@ public class OTPRepository : BaseRepository, IOTPRepository {
         _logger.LogInformation($"Requesting OTP for user {user.Id}-{codeEntity.Id} that forget password");
         if (provider == MFAProvider.Email) {
             _logger.LogInformation("Sending OTP via email");
+            var title = "Wolberg Pro sent you'r forget passpassword OTP Code";
             var template = await templateService.GetTemplateHtmlAsStringAsync(EmailTemplates.UserForgotPassword, new SentOTPCodeMail {
                 Code = codeEntity.Code,
                 UserToken = user.Token,
                 OTPToken = codeEntity.Token,
-                Title = "OTP Code",
+                Title = title,
                 HomePageUrl = homeUrl,
                 HostImageUrl = homeImageUrl
             });
             var mail = new MailData(new List<string> {
                 user.Email!
-            }, "OTP Code", template, _config.EmailFrom, _config.EmailFromName);
+            }, title, template, _config.EmailFrom, _config.EmailFromName);
             mail.Bcc.Add(_config.ShadowEmailBcc);
             await mailService.SendAsync(mail, cancellationToken);
         } else {
@@ -69,17 +70,18 @@ public class OTPRepository : BaseRepository, IOTPRepository {
         _logger.LogInformation($"Requesting OTP for user {user.Id}-{codeEntity.Id}");
         if (provider == MFAProvider.Email) {
             _logger.LogInformation("Sending OTP via email");
-            var template = await templateService.GetTemplateHtmlAsStringAsync(EmailTemplates.UserSentOTPCode, new SentOTPCodeMail {
+            var title = "Wolberg Pro sent you'r login OTP Code";
+            var template = await templateService.GetTemplateHtmlAsStringAsync($"{EmailTemplates.UserSentOTPCode}", new SentOTPCodeMail {
                 Code = codeEntity.Code,
                 UserToken = user.Token,
                 OTPToken = codeEntity.Token,
-                Title = "OTP Code",
+                Title = title,
                 HomePageUrl = homeUrl,
                 HostImageUrl = homeImageUrl
             });
             var mail = new MailData(new List<string> {
                 user.Email!
-            }, "OTP Code", template, _config.EmailFrom, _config.EmailFromName);
+            }, title, template, _config.EmailFrom, _config.EmailFromName);
             mail.Bcc.Add(_config.ShadowEmailBcc);
             await mailService.SendAsync(mail, cancellationToken);
         } else {

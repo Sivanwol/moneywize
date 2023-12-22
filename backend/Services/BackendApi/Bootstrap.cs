@@ -17,6 +17,7 @@ using Infrastructure.Validators;
 using MassTransit;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
@@ -87,6 +88,9 @@ public class Bootstrap {
             // User settings.
             options.User.AllowedUserNameCharacters =
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+        });
+        services.Configure<RazorViewEngineOptions>(options => {
+            options.ViewLocationFormats.Add("{0}.cshtml");
         });
         services.AddGenericServiceExtension(Configuration, () => {
             var serverVersion = new MySqlServerVersion(new Version(5, 7));
