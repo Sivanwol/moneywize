@@ -17,7 +17,7 @@ public class ApplicationUserOtpCodes : BaseEntity {
     [StringLength(128)]
     public string Token { get; set; }
 
-    [StringLength(20)]
+    [StringLength(100)]
     public string Code { get; set; }
 
     public DateTime ExpirationDate { get; set; }
