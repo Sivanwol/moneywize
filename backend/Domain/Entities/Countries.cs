@@ -5,9 +5,15 @@ namespace Domain.Entities;
 
 [Table("Countries")]
 public class Countries : BaseEntity {
+    [Column(TypeName = "varchar(20)")]
     public string CountryName { get; set; }
+
+    [Column(TypeName = "varchar(5)")]
     public string CountryCode { get; set; }
-    public string CountryCode3 { get; set; }
+
+    [Column(TypeName = "varchar(5)")]
     public string CountryNumber { get; set; }
-    public SMSProviders Provider { get; set; }
+
+    public DateTime? SupportedAt { get; set; }
+    public SMSProviders? Provider { get; set; }
 }

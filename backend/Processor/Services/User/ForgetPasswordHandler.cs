@@ -48,8 +48,8 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
                 throw new EntityNotFoundException("Country", request.CountryId!.Value.ToString());
         }
         var user = await LocateUser(request);
-        if (request.Provider == MFAProvider.SMS) {
-            LoadProvider(user.Country.Provider);
+        if (request.Provider == MFAProvider.SMS && user.Country.Provider.HasValue) {
+            LoadProvider(user.Country.Provider.Value);
         }
         if (request.ReSend) {
             return await HandleResend(user, request);

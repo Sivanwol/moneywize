@@ -16,7 +16,7 @@ public class ApplicationUser : IdentityUser, ISoftDeletable {
     [ProtectedPersonalData] public string Address { get; set; }
     [PersonalData] public double Latitude { get; set; }
     [PersonalData] public double Longitude { get; set; }
-    public bool TermsApproved { get; set; }
+    public bool TermsApproved { get; set; } = true;
     public ICollection<Clients> Clients { get; set; }
     public ICollection<ActivityLog> ActivityLogs { get; set; }
     public DateTime? RegisterCompletedAt { get; set; }
