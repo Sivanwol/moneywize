@@ -10,4 +10,5 @@ public class LoginWebUserRequest : IRequest<RequestOTPResponse> {
     public string IpAddress { get; set; }
     public string UserAgent { get; set; }
     public MFAProvider Provider { get; set; }
+    public bool ReSend { get; set; }
 }

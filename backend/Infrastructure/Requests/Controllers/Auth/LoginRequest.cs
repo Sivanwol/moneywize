@@ -26,6 +26,10 @@ public class LoginRequest {
     [Required]
     public string Provider { get; set; }
 
+    [Required]
+    [SwaggerSchema("Resent OTP")]
+    public bool Resent { get; set; } = false;
+
     public Processor.Services.User.LoginWebUserRequest ToProcessorEntity(string ipAddress, string userAgent) {
         return new Processor.Services.User.LoginWebUserRequest {
             Email = Email,
@@ -33,6 +37,7 @@ public class LoginRequest {
             RememberMe = RememberMe,
             IpAddress = ipAddress,
             UserAgent = userAgent,
+            ReSend = Resent,
             Provider = Enum.Parse<MFAProvider>(Provider)
         };
     }

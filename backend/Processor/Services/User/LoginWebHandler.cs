@@ -99,8 +99,31 @@ public class LoginWebHandler : IRequestHandler<LoginWebUserRequest, RequestOTPRe
     }
 
     private async Task<RequestOTPResponse> SendOTP(ApplicationUser user, LoginWebUserRequest request) {
-        var forceResent = await _applicationUserRepository.IsAllowToResendOtpCode(user, _infoUSmsConfig.ExpiredInMinutes, _infoUSmsConfig.TotalRetriesWithinSession);
-        var otpEntity = await _applicationUserRepository.GenerateOtpCode(user, _infoUSmsConfig.ExpiredInMinutes, forceResent, request.Provider);
+        var totalRetries = _infoUSmsConfig.TotalRetriesWithinSession;
+        var expiredCodeInMinutes = _infoUSmsConfig.ExpiredInMinutes;
+        if (request.Provider == MFAProvider.Email) {
+            expiredCodeInMinutes = _config.OTPCodeExpiredInMinutes;
+            totalRetries = _config.OTPCodeTotalRetriesWithinSession;
+        }
+        if (_config is { DeveloperMode: true, DeveloperModeEnabledOTP: true }) {
+            expiredCodeInMinutes = _config.OTPCodeExpiredInMinutes * 24;
+            totalRetries = _config.OTPCodeTotalRetriesWithinSession * 24;
+        }
+        var currentTotalCodesSent = await _applicationUserRepository.GetTotalOtpCodesWithinExpirationDate(new Guid(user.Id), totalRetries);
+        if (currentTotalCodesSent >= totalRetries) {
+            Log.Logger.Warning($"User {user.Id} has reached max resend limit");
+            user.LockoutEnd = SystemClock.Now().DateTime.AddMinutes(10);
+            await _userManager.UpdateAsync(user);
+            await _activityLogRepository.AddActivity(Guid.Parse(user.Id), user.Id, nameof(ApplicationUserOtpCodes), ActivityLogOperationType.UserSendOTP,
+                "User Request Otp Code and been locked out for 10 minutes",
+                $"User Request Otp Code and been locked out for 10 minutes , [{user.Id}, {user.Email}]",
+                ActivityStatus.Failed, request.IpAddress, request.UserAgent);
+            throw new UserReachedMaxResendLimitException(user.Id);
+
+        }
+        var forceResent = request.ReSend &&
+                          await _applicationUserRepository.IsAllowToResendOtpCode(user, _infoUSmsConfig.ExpiredInMinutes, _infoUSmsConfig.TotalRetriesWithinSession);
+        var otpEntity = await _applicationUserRepository.GenerateOtpCode(user, expiredCodeInMinutes, forceResent, request.Provider);
         if (otpEntity == null) {
             Log.Logger.Information($"User {user.Id} has within the expiration date and won't able to sent or been reached max resend limit");
             return await FetchOtpResponse(user);
@@ -109,6 +132,10 @@ public class LoginWebHandler : IRequestHandler<LoginWebUserRequest, RequestOTPRe
         var result = await _otpRepository.RequestOTP(_frontEndPaths.PlatformDashboardUrl, $"{_frontEndPaths.PlatformDashboardUrl}/assets", user.Country, user, otpEntity,
             request.Provider);
         Log.Logger.Information($"Sendt OTP for user {user.Id}");
+        await _activityLogRepository.AddActivity(Guid.Parse(user.Id), user.Id, nameof(ApplicationUserOtpCodes), ActivityLogOperationType.UserSendOTP,
+            $"User Request Otp Code and been sent via {request.Provider}",
+            $"User Request and sent to him , [{user.Id}, {otpEntity.Token}]",
+            ActivityStatus.Success, request.IpAddress, request.UserAgent);
         return new RequestOTPResponse {
             UserToken = result.UserToken,
             OTPExpired = result.OTPExpired,
