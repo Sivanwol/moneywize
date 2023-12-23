@@ -136,7 +136,7 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
             _logger.LogInformation($"User {user.Id} has reached max resend limit");
             user.LockoutEnd = SystemClock.Now().DateTime.AddMinutes(10);
             await _userManager.UpdateAsync(user);
-            await _activityLogRepository.AddActivity(Guid.Parse(user.Id), user.Id, nameof(ApplicationUserOtpCodes), "Requesting OTP CODE",
+            await _activityLogRepository.AddActivity(Guid.Parse(user.Id), user.Id, nameof(ApplicationUserOtpCodes), ActivityLogOperationType.UserSendOTP,
                 "User Request Otp Code and been locked out for 10 minutes",
                 $"User Request Otp Code and been locked out for 10 minutes , [{user.Id}, {user.Email}]",
                 ActivityStatus.Failed, request.IpAddress, request.UserAgent);
@@ -153,7 +153,7 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
         _logger.LogInformation($"OTP Entity for user {user.Id} has been generated otp entity id {otpEntity.Id}");
         var result = await _otpRepository.RequestOTP(request.BaseUrl, request.BaseUrl + "/assets", user.Country, user, otpEntity, request.Provider);
         _logger.LogInformation($"Sendt OTP for user {user.Id}");
-        await _activityLogRepository.AddActivity(Guid.Parse(user.Id), user.Id, nameof(ApplicationUserOtpCodes), "Requesting OTP CODE",
+        await _activityLogRepository.AddActivity(Guid.Parse(user.Id), user.Id, nameof(ApplicationUserOtpCodes), ActivityLogOperationType.UserSendOTP,
             $"User Request Otp Code and been sent via {request.Provider}",
             $"User Request and sent to him , [{user.Id}, {otpEntity.Token}]",
             ActivityStatus.Success, request.IpAddress, request.UserAgent);

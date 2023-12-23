@@ -66,7 +66,7 @@ public class ConfirmEmailHandler : IRequestHandler<ConfirmEmailRequest, EmptyRes
             Guid.Parse(user.Id),
             user.Id,
             nameof(ApplicationUser),
-            "Register",
+            ActivityLogOperationType.UserRegister,
             "User Request Registered", "User Request Registered",
             ActivityStatus.Success);
         return new EmptyResponse();

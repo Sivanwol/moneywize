@@ -81,11 +81,12 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
             roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
         }
         if (request.ActionOtpType == ActionOtpType.Login) {
-            await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), "Login", "User Received access tokens", "User Request Logged In",
+            await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), ActivityLogOperationType.UserVerifyOTP, "User Received access tokens",
+                "User Request origin Logged In",
                 result.IsValid ? ActivityStatus.Success : ActivityStatus.Failed, request.IpAddress, request.UserAgent);
         } else {
-            await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), "ForgotPassword", "User Received access tokens",
-                "User Request Forgot Password",
+            await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), ActivityLogOperationType.UserVerifyOTP, "User Received access tokens",
+                "User Request origin Forgot Password",
                 result.IsValid ? ActivityStatus.Success : ActivityStatus.Failed, request.IpAddress, request.UserAgent);
         }
         // await _signInManager.SignInAsync(user, true);
