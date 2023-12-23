@@ -11,8 +11,8 @@ public class VerifyOTPValidator : AbstractValidator<VerifyOTPUserRequest> {
             .WithMessage("Code is required")
             .MinimumLength(6)
             .WithMessage("Code must be at least 6 characters")
-            .MaximumLength(20)
-            .WithMessage("Code must not exceed 20 characters");
+            .MaximumLength(50)
+            .WithMessage("Code must not exceed 50 characters");
 
 
         RuleFor(x => x.OTPToken)

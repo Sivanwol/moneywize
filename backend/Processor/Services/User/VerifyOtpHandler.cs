@@ -43,7 +43,6 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
 
     public async Task<VerifyOTPResponse> Handle(VerifyOtpUserRequest request, CancellationToken cancellationToken) {
         var user = await GetValidUserByToken(request.UserToken);
-        var country = await GetValidCountryByUser(user);
         var expiredCodeInMinutes = _config.OTPCodeExpiredInMinutes;
         var otpEntity = await GetOtpEntity(request, expiredCodeInMinutes, user);
         var result = await _otpRepository.VerifyOTP(user, otpEntity, request.Code);
@@ -105,15 +104,6 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
             throw new EntityNotFoundException("User", userToken);
         }
         return user;
-    }
-
-    private async Task<Countries> GetValidCountryByUser(ApplicationUser user) {
-        Log.Logger.Information($"Locating User By Phone: {user.Country.Id}-{user.PhoneNumber}");
-        var country = await _countriesRepository.GetById(user.Country.Id);
-        if (country?.Provider == null) {
-            throw new EntityNotFoundException("Countries", user.Country.Id.ToString());
-        }
-        return country;
     }
 
     private async Task<ApplicationUserOtpCodes> GetOtpEntity(VerifyOtpUserRequest request, int expiredCodeInMinutes, ApplicationUser user) {
