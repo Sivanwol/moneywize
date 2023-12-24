@@ -8,6 +8,7 @@ using Infrastructure.Requests.Controllers.Auth;
 using Infrastructure.Requests.Processor.Services.User;
 using Infrastructure.Services.Auth;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -29,10 +30,12 @@ public class UsersController : BaseApiController {
         _logger = loggerFactory.CreateLogger<UsersController>();
         _jwtAuthManager = jwtAuthManager;
     }
+
     [HttpGet("profile/{userId}")]
     [SwaggerOperation("Request User profile", "Profile of user", Tags = new[] {
         "Users"
     })]
+    [Authorize]
     public async Task<IActionResult> Profile(Guid userId) {
         try {
             _logger.LogInformation($"Request User Profile: {userId}");
