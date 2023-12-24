@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Application.Configs;
 using Application.Exceptions;
 using Application.Utils;
+using Domain.DTO.OTP;
 using Domain.Entities;
 using Domain.Persistence.Repositories.Interfaces;
 using Domain.Requests.Processor.Services.User;
@@ -51,11 +52,10 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
         var claims = new List<Claim>();
 
         if (_config is { DeveloperMode: true, DeveloperModeEnabledOTP: false }) {
+            await RecordActivity(request, user, result, userId!.Value);
             return new VerifyOTPResponse {
                 UserId = userId,
-                Tokens = result.IsValid
-                    ? _jwtAuthManager.GenerateTokens(request.UserToken, claims.ToArray(), SystemClock.Now().DateTime)
-                    : null
+                Tokens = _jwtAuthManager.GenerateTokens(request.UserToken, claims.ToArray(), SystemClock.Now().DateTime)
             };
         }
         if (result.IsValid) {
@@ -80,15 +80,7 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
             };
             roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
         }
-        if (request.ActionOtpType == ActionOtpType.Login) {
-            await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), ActivityLogOperationType.UserVerifyOTP, "User Received access tokens",
-                "User Request origin Logged In",
-                result.IsValid ? ActivityStatus.Success : ActivityStatus.Failed, request.IpAddress, request.UserAgent);
-        } else {
-            await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), ActivityLogOperationType.UserVerifyOTP, "User Received access tokens",
-                "User Request origin Forgot Password",
-                result.IsValid ? ActivityStatus.Success : ActivityStatus.Failed, request.IpAddress, request.UserAgent);
-        }
+        await RecordActivity(request, user, result, userId!.Value);
         // await _signInManager.SignInAsync(user, true);
         return new VerifyOTPResponse {
             UserId = userId,
@@ -96,6 +88,19 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
                 ? _jwtAuthManager.GenerateTokens(request.UserToken, claims.ToArray(), SystemClock.Now().DateTime)
                 : null
         };
+    }
+
+    private async Task RecordActivity(VerifyOtpUserRequest request, ApplicationUser user, VerifyOTPResponseData result, Guid userId) {
+
+        if (request.ActionOtpType == ActionOtpType.Login) {
+            await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), ActivityLogOperationType.UserVerifyOTP, "User Received access tokens",
+                "User Request origin Logged In",
+                result.IsValid ? ActivityStatus.Success : ActivityStatus.Failed, request.IpAddress, request.UserAgent);
+            return;
+        }
+        await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), ActivityLogOperationType.UserVerifyOTP, "User Received access tokens",
+            "User Request origin Forgot Password",
+            result.IsValid ? ActivityStatus.Success : ActivityStatus.Failed, request.IpAddress, request.UserAgent);
     }
 
     private async Task<ApplicationUser> GetValidUserByToken(string userToken) {
