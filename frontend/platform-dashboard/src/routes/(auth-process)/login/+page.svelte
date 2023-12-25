@@ -1,4 +1,5 @@
 <script>
+	import { Alert } from 'flowbite-svelte';
 	import { fade } from 'svelte/transition';
 	import UserLogin from '@components/auth/UserLogin.svelte';
 	import UserLoginMFA from '@components/auth/UserLoginMFA.svelte';
@@ -31,11 +32,18 @@
 <div class="grid gap-6">
 	{#if visibleConfirmForm}
 		<div in:fade={{ duration: 2000 }} out:fade={{ duration: 500 }}>
-			<UserLoginMFA on:loginMfa={handleLoginMFA} />
+			<UserLoginMFA on:loginMfa={handleLoginMFA} userToken="{formState.userToken}" otpToken="{formState.otpToken}" />
 		</div>
 	{:else}
 		<div in:fade={{ duration: 2000 }} out:fade={{ duration: 500 }}>
 			<UserLogin on:login={handleLogin} />
 		</div>
+	{/if}
+	{@debug formState}
+	{#if formState.error}
+		<Alert color="red">
+			<span class="font-medium">Action Failed!</span>
+			{formState.error}
+		</Alert>
 	{/if}
 </div>
