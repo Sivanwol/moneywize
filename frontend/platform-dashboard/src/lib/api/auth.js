@@ -1,10 +1,12 @@
-import { apiClientUnauthorized } from '@utils/apiCaller';
-import { ApiResponse } from '@utils/ApiResponse';
+import { apiClientUnauthorized } from '@utility/apiCaller';
+import { ApiResponse } from '@utility/ApiResponse';
 
 export const requestLogin = async (email, passowrd) => {
-	const response = await apiClientUnauthorized.post('/Auth/login', {
-		email,
-		passowrd
+	const response = await apiClientUnauthorized.post('/Auth/login/web', {
+		Email: email,
+		Password: passowrd,
+		RememberMe: true,
+		Provider: 'Email'
 	});
 	return new ApiResponse(response);
 };

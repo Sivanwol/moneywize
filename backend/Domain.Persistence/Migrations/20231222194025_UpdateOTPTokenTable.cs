@@ -61,14 +61,26 @@ namespace Domain.Persistence.Migrations
                 .OldAnnotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.AlterColumn<string>(
-                name: "Code",
-                table: "ApplicationUserOtpCodes",
-                type: "varchar(100)",
-                maxLength: 100,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "varchar(20)",
-                oldMaxLength: 20)
+                    name: "UserAgent",
+                    table: "ActivityLogs",
+                    type: "varchar(400)",
+                    maxLength: 100,
+                    nullable: false,
+                    oldClrType: typeof(string),
+                    oldType: "varchar(100)",
+                    oldMaxLength: 20)
+                .Annotation("MySql:CharSet", "utf8mb4")
+                .OldAnnotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.AlterColumn<string>(
+                    name: "Code",
+                    table: "ApplicationUserOtpCodes",
+                    type: "varchar(100)",
+                    maxLength: 100,
+                    nullable: false,
+                    oldClrType: typeof(string),
+                    oldType: "varchar(20)",
+                    oldMaxLength: 20)
                 .Annotation("MySql:CharSet", "utf8mb4")
                 .OldAnnotation("MySql:CharSet", "utf8mb4");
         }

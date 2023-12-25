@@ -3,6 +3,7 @@
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
 	import { createEventDispatcher } from 'svelte';
+	import { requestLogin } from '@api/auth.js';
 
 	const dispatch = createEventDispatcher();
 	const inputStyle = 'outlined';
@@ -18,11 +19,32 @@
 		onSubmit: async (values) => {
 			try {
 				console.log(values);
+				const response = await requestLogin(values.email, values.password);
+
+				if (response.status !== 200) {
+					dispatch('login', {
+						error: 'Invalid email or password',
+						otpToken: null,
+						userToken: null,
+						otpExpire: null
+					});
+					return;
+				}
+				if (!response.data.status) {
+					dispatch('login', {
+						error: response.data.message,
+						otpToken: null,
+						userToken: null,
+						otpExpire: null
+					});
+					return;
+				}
+				const { otpToken, userToken, otpExpire } = response.data.data;
 				dispatch('login', {
 					error: null,
-					otpToken: 'token',
-					userToken: 'token',
-					otpExpire: 'expire'
+					otpToken: otpToken,
+					userToken: userToken,
+					otpExpire: otpExpire
 				});
 
 			} catch (e) {
@@ -35,7 +57,6 @@
 			}
 		}
 	});
-	console.log({ $errors, $state });
 </script>
 <form method="POST" on:submit={handleSubmit}>
 	<div class="grid gap-2">

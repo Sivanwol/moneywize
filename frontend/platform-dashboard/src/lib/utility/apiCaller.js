@@ -5,11 +5,9 @@ import { PUBLIC_API_TIMEOUT, PUBLIC_API_URL } from '$env/static/public';
 const apiClientUnauthorized = axios.create({
 	baseURL: PUBLIC_API_URL,
 	timeout: PUBLIC_API_TIMEOUT || 5000,
-	withCredentials: true,
 	headers: {
-		'Content-Type': 'application/json',
+		'Content-Type': 'application/json;charset=utf-8',
 		'Access-Control-Allow-Origin': '*',
-		'Access-Control-Allow-Credentials': true
 	}
 });
 const apiClientAuthorized = axios.create({
@@ -17,9 +15,8 @@ const apiClientAuthorized = axios.create({
 	timeout: PUBLIC_API_TIMEOUT,
 	withCredentials: true,
 	headers: {
-		'Content-Type': 'application/json',
+		'Content-Type': 'application/json;charset=utf-8',
 		'Access-Control-Allow-Origin': '*',
-		'Access-Control-Allow-Credentials': true
 	}
 });
 
@@ -48,5 +45,7 @@ apiClientAuthorized.interceptors.request.use(
 		Promise.reject(error);
 	}
 );
+// response interceptor for unauthorized api calls fix cors issue
+
 
 export { apiClientUnauthorized, apiClientAuthorized };

@@ -217,7 +217,7 @@ public class Bootstrap {
 
         app.UseEndpoints(endpoints => {
             // endpoints.MapGroup("/auth").MapIdentityApi<ApplicationUser>();
-            endpoints.MapControllers();
+            endpoints.MapControllers().RequireCors("AllowAll");
         });
         Log.Information("End Perp Setup Starting Server");
     }
