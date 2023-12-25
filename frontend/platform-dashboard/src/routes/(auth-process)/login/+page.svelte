@@ -29,6 +29,9 @@
 		
 	}
 </script>
+<svelte:head>
+	<title>Login</title>
+</svelte:head>
 <div class="grid gap-6">
 	{#if visibleConfirmForm}
 		<div in:fade={{ duration: 2000 }} out:fade={{ duration: 500 }}>
