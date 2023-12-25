@@ -1,5 +1,5 @@
 <script>
-	import { FloatingLabelInput, GradientButton } from 'flowbite-svelte';
+	import { FloatingLabelInput, GradientButton, Helper } from 'flowbite-svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { applyAction, deserialize } from '$app/forms';
 
@@ -44,7 +44,16 @@
 					Password
 				</FloatingLabelInput>
 			</div>
+			<Helper color="red">
+				<span class="font-medium">Oh, snapp!</span>
+				Invalid email or password.
+			</Helper>
 			<GradientButton color="blue" shadow>Login</GradientButton>
+			<div class="grid gap-1">
+				<p class="text-center text-sm text-gray-600">
+					Forgot your password? <a class="underline" href="/forgot-password">Reset it here</a>
+				</p>
+			</div>
 		</div>
 	</form>
 

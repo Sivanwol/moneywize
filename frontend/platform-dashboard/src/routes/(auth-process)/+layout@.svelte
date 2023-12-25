@@ -11,7 +11,7 @@
 	<section>
 		<div class="overflow-hidden rounded-[0.5rem]  bg-background shadow-md md:shadow-xl">
 			<div class="md:hidden">
-				<div class="relative h-[400px] flex-col bg-muted p-280 text-white">
+				<div class="relative h-min-[400px] flex-col bg-muted p-280 text-white">
 					<div class="absolute signin-statment inset-0 bg-zinc-900" style="z-index: -1"></div>
 					<div class="inset-0 flex items-center justify-center text-white">
 						<div class="flex flex-col items-center">
