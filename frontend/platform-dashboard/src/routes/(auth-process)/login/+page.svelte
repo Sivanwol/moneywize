@@ -39,7 +39,6 @@
 			<UserLogin on:login={handleLogin} />
 		</div>
 	{/if}
-	{@debug formState}
 	{#if formState.error}
 		<Alert color="red">
 			<span class="font-medium">Action Failed!</span>
