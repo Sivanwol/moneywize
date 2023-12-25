@@ -10,6 +10,7 @@ const config = {
 			'@components': path.resolve('./src/lib/components'),
 			'@stores': path.resolve('./src/lib/stores'),
 			'@api': path.resolve('./src/lib/api'),
+			'@translations': path.resolve('./src/lib/translations'),
 			'@utility': path.resolve('./src/lib/utility')
 		},
 		prerender: {

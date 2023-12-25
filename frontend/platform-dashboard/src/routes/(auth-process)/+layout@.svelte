@@ -1,4 +1,5 @@
 <script>
+	import { _ } from 'svelte-i18n';
 </script>
 <style lang="postcss">
     .signin-statment {
@@ -14,7 +15,7 @@
 					<div class="inset-0 flex items-center justify-center text-white">
 						<div class="flex flex-col items-center">
 							<img alt="Wolberg Pro LTD" class="w-32 h-32" src="img/logos/logo.svg" />
-							<h1 class="text-3xl font-medium">Wolberg Pro LTD</h1>
+							<h1 class="text-3xl font-medium">{$_('credit')}</h1>
 						</div>
 					</div>
 
@@ -29,19 +30,19 @@
 				<div class=" relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
 					<div class="signin-statment absolute inset-0 bg-zinc-900" style="z-index: -1"></div>
 					<div class="relative z-20 flex items-center text-lg font-medium">
-						<img alt="Wolberg Pro LTD" class="w-32 h-32" src="img/logo/logo.svg" />
-						Wolberg Pro LTD
+						<img alt="{$_('credit')}" class="w-32 h-32" src="img/logo/logo.svg" />
+						{$_('credit')}
 					</div>
 					<div class="relative z-20 mt-auto">
 						<blockquote class="4 mb-10">
 							<p class="text-2xl font-medium">
-								We are a team of professionals who are ready to help you with any task.
+								{$_('login.statement_1')}
 							</p>
 							<p class="text-lg font-medium">
-								We are a team of professionals who are ready to help you with any task.
+								{$_('login.statement_1')}
 							</p>
 							<footer class="text-sm">
-								Sivan Wolberg CTO of Wolberg Pro LTD
+								{$_('login.statement_by')}
 							</footer>
 						</blockquote>
 					</div>

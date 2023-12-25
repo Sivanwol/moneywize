@@ -1,0 +1,22 @@
+{
+  "credit": "DevCo",
+  "footer": {
+    "logo": "DevCo™",
+    "credit": "© 2023 DevCo™ All Rights Reserved."
+  },
+  "navigation": {
+    "terms": "Terms and conditions",
+    "privacy": "Privacy policy",
+    "login": "Login"
+  },
+  "login": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Login",
+    "forgot": "Forgot password?",
+    "statement_1": "We are a team of professionals who are ready to help you with any task.",
+    "statement_2": "We are a team of professionals who are ready to help you with any task.",
+    "statement_by": "S.W"
+  }
+}
