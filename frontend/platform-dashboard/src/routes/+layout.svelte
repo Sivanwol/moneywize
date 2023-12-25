@@ -11,7 +11,7 @@
 	<main class="flex-1">
 		<slot />
 	</main>
-	<div class="mt-10">x
+	<div class="mt-10">
 		<Footer footerType="logo">
 			<div class="sm:flex sm:items-center sm:justify-between">
 				<FooterBrand alt="Wolberg Pro LTD" href="https://flowbite.com" name="Wolberg Pro LTD" src="img/logo/logo.svg" />

@@ -1,10 +1,11 @@
 <script>
-	import { FloatingLabelInput, GradientButton, Helper } from 'flowbite-svelte';
+	import { FloatingLabelInput, GradientButton, Helper, Spinner } from 'flowbite-svelte';
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
 	import { createEventDispatcher } from 'svelte';
 	import { requestLogin } from '@api/auth.js';
 
+	let loaded = false;
 	const dispatch = createEventDispatcher();
 	const inputStyle = 'outlined';
 	const { form, errors, state, handleSubmit } = createForm({
@@ -18,9 +19,8 @@
 		},
 		onSubmit: async (values) => {
 			try {
-				console.log(values);
 				const response = await requestLogin(values.email, values.password);
-
+				loaded = true;
 				if (response.status !== 200) {
 					dispatch('login', {
 						error: 'Invalid email or password',
@@ -28,6 +28,7 @@
 						userToken: null,
 						otpExpire: null
 					});
+					loaded = false;
 					return;
 				}
 				if (!response.data.status) {
@@ -37,6 +38,7 @@
 						userToken: null,
 						otpExpire: null
 					});
+					loaded = false;
 					return;
 				}
 				const { otpToken, userToken, otpExpire } = response.data.data;
@@ -55,6 +57,7 @@
 					otpExpire: null
 				});
 			}
+			loaded = false;
 		}
 	});
 </script>
@@ -77,7 +80,15 @@
 				Invalid email or password.
 			</Helper>
 		{/if}
-		<GradientButton color="blue" shadow type="submit">Login</GradientButton>
+
+		{#if !loaded}
+			<GradientButton color="blue" shadow type="submit">Login</GradientButton>
+		{:else}
+			<GradientButton color="blue" shadow type="submit" disabled>
+				<Spinner class="me-3" size="4" color="white" />
+				Loading ...
+			</GradientButton>
+		{/if}
 		<div class="grid gap-1">
 			<p class="text-center text-sm text-gray-600">
 				Forgot your password? <a class="underline" href="/forgot-password">Reset it here</a>

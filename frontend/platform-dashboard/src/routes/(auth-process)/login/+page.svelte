@@ -25,7 +25,7 @@
 		formState.userToken = event.detail.userToken;
 		formState.otpToken = event.detail.otpToken;
 		formState.error = event.detail.error;
-		// visibleConfirmForm = true;
+		visibleConfirmForm = true;
 		
 	}
 </script>
