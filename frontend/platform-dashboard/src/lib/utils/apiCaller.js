@@ -2,7 +2,7 @@ import axios from 'axios';
 import axiosRetry from 'axios-retry';
 import { PUBLIC_API_TIMEOUT, PUBLIC_API_URL } from '$env/static/public';
 
-const apiUnauthorized = axios.create({
+const apiClientUnauthorized = axios.create({
 	baseURL: PUBLIC_API_URL,
 	timeout: PUBLIC_API_TIMEOUT || 5000,
 	withCredentials: true,
@@ -12,7 +12,7 @@ const apiUnauthorized = axios.create({
 		'Access-Control-Allow-Credentials': true
 	}
 });
-const apiAuthorized = axios.create({
+const apiClientAuthorized = axios.create({
 	baseURL: PUBLIC_API_URL,
 	timeout: PUBLIC_API_TIMEOUT,
 	withCredentials: true,
@@ -23,18 +23,18 @@ const apiAuthorized = axios.create({
 	}
 });
 
-axiosRetry(apiUnauthorized, {
+axiosRetry(apiClientUnauthorized, {
 	retries: 3,
 	retryDelay: axiosRetry.exponentialDelay
 });
 
-axiosRetry(apiAuthorized, {
+axiosRetry(apiClientAuthorized, {
 	retries: 3,
 	retryDelay: axiosRetry.exponentialDelay
 });
 
 // request interceptor for authorized api calls
-apiAuthorized.interceptors.request.use(
+apiClientAuthorized.interceptors.request.use(
 	config => {
 		// get token from local storage
 		const token = localStorage.getItem('token');
@@ -49,4 +49,4 @@ apiAuthorized.interceptors.request.use(
 	}
 );
 
-export { apiUnauthorized, apiAuthorized };
+export { apiClientUnauthorized, apiClientAuthorized };
