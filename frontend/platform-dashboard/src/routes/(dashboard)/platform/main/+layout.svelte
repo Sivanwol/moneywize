@@ -2,4 +2,6 @@
 </script>
 <style lang="postcss">
 </style>
-<slot />
+<div class="h-screen flex overflow-hidden bg-gray-800 text-white">
+	<slot />
+</div>

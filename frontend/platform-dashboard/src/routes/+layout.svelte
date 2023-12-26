@@ -19,21 +19,23 @@
 </style>
 <div>
 	{#if isLocaleLoaded}
-		<main class="flex-1 overflow-scroll pb-16">
-			<slot />
-		</main>
-		<Footer class="absolute bottom-0 start-0 z-20 w-full" footerType="logo">
-			<div class="sm:flex sm:items-center sm:justify-between">
-				<FooterBrand alt="{$_('footer.logo')}" href="https://flowbite.com" name="{$_('footer.logo')}"
-										 src="img/logo/logo.svg" />
-				<FooterLinkGroup ulClass="flex flex-wrap items-center mb-6 text-sm text-gray-500 sm:mb-0 dark:text-gray-400">
-					<FooterLink href="/terms">{$_("navigation.terms")}</FooterLink>
-					<FooterLink href="/policy">{$_("navigation.privacy")}</FooterLink>
-				</FooterLinkGroup>
-			</div>
-			<hr class="my-6 border-gray-200 dark:border-gray-700 lg:my-8" />
-			<FooterCopyright by="{$_('footer.credit')}" href="/platform/main" />
-		</Footer>
+		<div class="relative max-h-fit scroll-auto ">
+			<main class="flex-1  overflow-scroll pb-16">
+				<slot />
+			</main>
+			<Footer class="absolute -bottom-24 start-0 z-20 w-full" footerType="logo">
+				<div class="sm:flex sm:items-center sm:justify-between">
+					<FooterBrand alt="{$_('footer.logo')}" href="https://flowbite.com" name="{$_('footer.logo')}"
+											 src="/img/logo/logo.svg" />
+					<FooterLinkGroup ulClass="flex flex-wrap items-center mb-6 text-sm text-gray-500 sm:mb-0 dark:text-gray-400">
+						<FooterLink href="/terms">{$_("navigation.terms")}</FooterLink>
+						<FooterLink href="/policy">{$_("navigation.privacy")}</FooterLink>
+					</FooterLinkGroup>
+				</div>
+				<hr class="my-6 border-gray-200 dark:border-gray-700 lg:my-8" />
+				<FooterCopyright by="{$_('footer.credit')}" href="/platform/main" />
+			</Footer>
+		</div>
 	{:else}
 		<div class="flex items-center justify-center h-screen">
 			<div class="flex flex-col items-center justify-center">
