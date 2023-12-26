@@ -1,6 +1,42 @@
+<script>
+	import {
+		Sidebar,
+		SidebarDropdownItem,
+		SidebarDropdownWrapper,
+		SidebarGroup,
+		SidebarItem,
+		SidebarWrapper
+	} from 'flowbite-svelte';
+	import {
+		ArrowRightToBracketSolid,
+		ChartPieSolid,
+		FileEditSolid,
+		GridSolid,
+		MailBoxSolid,
+		ShoppingCartSolid,
+		UserSolid
+	} from 'flowbite-svelte-icons';
+	import { createEventDispatcher } from 'svelte';
+
+	const dispatch = createEventDispatcher();
+	let spanClass = 'flex-1 ms-3 whitespace-nowrap';
+</script>
 <style lang="postcss">
+    /* Mobile devices */
+    @media only screen and (max-width: 600px) {
+        .responsive-grid {
+            height: 70vh;
+        }
+    }
+
+    /* Desktop devices */
+    @media only screen and (min-width: 601px) {
+        .responsive-grid {
+            height: 90vh;
+        }
+    }
 </style>
-<div class="grid grid-rows-6 gap-4 text-white h-[700px]">
+<div class="grid grid-rows-6 gap-4 text-white responsive-grid">
 	<!-- Header -->
 	<div class="col-span-12 row-span-1 flex items-center justify-between dark:bg-gray-800 p-4">
 		<!-- Logo -->
@@ -32,16 +68,71 @@
 			</div>
 		</div>
 	</div>
-	<div class="col-span-12 row-span-5 flex h-full w-full">
+	<div class="col-span-12 row-span-4 flex h-full w-full m-4 mb-0">
 		<!-- Sidebar -->
-		<div class="w-1/4 bg-gray-700 p-4">Sidebar</div>
-		<!-- Content -->
-		<div class="ml-4 mr-4 w-1/2 bg-gray-700 p-4">
-			<slot name="content" />
+		<div class="w-1/5 bg-gray-700 p-4">
+			<Sidebar>
+				<SidebarWrapper>
+					<SidebarGroup>
+						<SidebarItem label="Dashboard">
+							<svelte:fragment slot="icon">
+								<ChartPieSolid
+									class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+							</svelte:fragment>
+						</SidebarItem>
+						<SidebarDropdownWrapper label="E-commerce">
+							<svelte:fragment slot="icon">
+								<ShoppingCartSolid
+									class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+							</svelte:fragment>
+							<SidebarDropdownItem label="Products" />
+							<SidebarDropdownItem label="Billing" />
+							<SidebarDropdownItem label="Invoice" />
+						</SidebarDropdownWrapper>
+						<SidebarItem label="Kanban" on:click={() => (dispatch('propDrawerToggle'))} {spanClass}>
+							<svelte:fragment slot="icon">
+								<GridSolid
+									class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+							</svelte:fragment>
+							<svelte:fragment slot="subtext">
+								<span
+									class="inline-flex justify-center items-center px-2 ms-3 text-sm font-medium text-gray-800 bg-gray-200 rounded-full dark:bg-gray-700 dark:text-gray-300"> Pro </span>
+							</svelte:fragment>
+						</SidebarItem>
+						<SidebarItem label="Inbox" {spanClass}>
+							<svelte:fragment slot="icon">
+								<MailBoxSolid
+									class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+							</svelte:fragment>
+							<svelte:fragment slot="subtext">
+								<span
+									class="inline-flex justify-center items-center p-3 ms-3 w-3 h-3 text-sm font-medium text-primary-600 bg-primary-200 rounded-full dark:bg-primary-900 dark:text-primary-200"> 3 </span>
+							</svelte:fragment>
+						</SidebarItem>
+						<SidebarItem label="Users">
+							<svelte:fragment slot="icon">
+								<UserSolid
+									class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+							</svelte:fragment>
+						</SidebarItem>
+						<SidebarItem label="Update Profile">
+							<svelte:fragment slot="icon">
+								<ArrowRightToBracketSolid
+									class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+							</svelte:fragment>
+						</SidebarItem>
+						<SidebarItem label="Logout">
+							<svelte:fragment slot="icon">
+								<FileEditSolid
+									class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+							</svelte:fragment>
+						</SidebarItem>
+					</SidebarGroup>
+				</SidebarWrapper>
+			</Sidebar>
 		</div>
-		<!-- Right Bar -->
-		<div class="mr-2 w-1/4 bg-gray-700 p-4">
-			<slot name="propBar" />
-		</div>
+		<slot />
 	</div>
+
+	<div class="col-span-12 row-span-1 gap-0 flex h-full w-full m-4 mb-10 bg-gray-700 ml-4 mr-2">&nbsp;</div>
 </div>
