@@ -4,6 +4,16 @@
     "logo": "DevCo™",
     "credit": "© 2023 DevCo™ All Rights Reserved."
   },
+  "common": {
+    "loading": "Loading...",
+    "alerts": {
+      "snap": "Oh, snapp!",
+      "success": "Success",
+      "error": "Action Failed!",
+      "warning": "Warning",
+      "info": "Info"
+    }
+  },
   "navigation": {
     "terms": "Terms and conditions",
     "privacy": "Privacy policy",
@@ -11,10 +21,15 @@
   },
   "login": {
     "title": "Login",
-    "email": "Email",
+    "email": "E-mail",
     "password": "Password",
+    "code": "Code",
+    "error": "Invalid email or password.",
+    "error_confirm": "Invalid Code or it expired. Please try again.",
     "submit": "Login",
+    "submit_confirm": "Confirm",
     "forgot": "Forgot password?",
+    "forget_here": "Reset it here",
     "statement_1": "We are a team of professionals who are ready to help you with any task.",
     "statement_2": "We are a team of professionals who are ready to help you with any task.",
     "statement_by": "S.W"

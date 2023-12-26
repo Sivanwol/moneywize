@@ -3,6 +3,7 @@
 	import { FloatingLabelInput, GradientButton, Helper, Spinner } from 'flowbite-svelte';
 	import { createForm } from 'svelte-forms-lib';
 	import * as yup from 'yup';
+	import { _ } from 'svelte-i18n';
 	import { requestLoginConfirm } from '@api/auth.js';
 
 	let loaded = false;
@@ -22,7 +23,7 @@
 				const response = await requestLoginConfirm(userToken, otpToken, values.code);
 				if (response.status !== 200) {
 					dispatch('login', {
-						error: 'Invalid email or password',
+						error: $_('login.error_confirm'),
 						tokens: null
 					});
 					return;
@@ -52,7 +53,7 @@
 		console.log({ userToken, otpToken });
 		if (!userToken || !otpToken) {
 			dispatch('loginMfa', {
-				error: 'Missing user token or otp token',
+				error: $_('login.error_confirm'),
 				tokens: null
 			});
 		}
@@ -63,21 +64,21 @@
 	<div class="grid gap-2">
 		<div class="grid gap-1">
 			<FloatingLabelInput bind:value={$form.code} id="code" name="code" style="{inputStyle}" type="text">
-				Code
+				{$_('login.code')}
 			</FloatingLabelInput>
 		</div>
 		{#if $errors.code}
 			<Helper color="red" name="email">
-				<span class="font-medium">Oh, snapp!</span>
+				<span class="font-medium">{$_('common.alerts.snap')}</span>
 				{ $errors.code }
 			</Helper>
 		{/if}
 		{#if !loaded}
-			<GradientButton color="blue" shadow type="submit">Login</GradientButton>
+			<GradientButton color="blue" shadow type="submit">{$_('login.submit_confirm')}</GradientButton>
 		{:else}
 			<GradientButton color="blue" shadow type="submit" disabled>
 				<Spinner class="me-3" size="4" color="white" />
-				Loading ...
+				{$_('common.loading')}
 			</GradientButton>
 		{/if}
 	</div>

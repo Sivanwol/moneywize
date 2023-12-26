@@ -3,6 +3,7 @@
 	import { fade } from 'svelte/transition';
 	import UserLogin from '@components/auth/UserLogin.svelte';
 	import UserLoginMFA from '@components/auth/UserLoginMFA.svelte';
+	import { _ } from 'svelte-i18n';
 
 	const inputStyle = 'outlined';
 	/** @type {any} */
@@ -44,7 +45,7 @@
 	{/if}
 	{#if formState.error}
 		<Alert color="red">
-			<span class="font-medium">Action Failed!</span>
+			<span class="font-medium">{$_('common.alerts.error')}</span>
 			{formState.error}
 		</Alert>
 	{/if}
