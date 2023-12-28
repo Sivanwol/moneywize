@@ -3,8 +3,26 @@
 	import { _ } from 'svelte-i18n';
 	import ApplicationBar from '@components/common/ApplicationBar.svelte';
 
+	let sidebarCollapsed = false;
 	function handleToggleSidebar(event) {
-		conslone.log(event.detail);
+		console.log(event.detail);
+		sidebarCollapsed = !sidebarCollapsed;
+		if (sidebarCollapsed) {
+			document.querySelectorAll('.navBar .sub-item-wrapper').forEach(function(item) {
+				if (item != null) {
+					var parent = this.parentNode;
+					var siblingUl = parent.querySelector('ul');
+
+					document.querySelectorAll('.navBar .sub-item-wrapper').forEach(function(item) {
+						if (item !== parent) {
+							item.classList.remove('open');
+							item.querySelector('ul').style.display = 'none';
+						}
+					});
+					siblingUl.style.display = parent.classList.contains('open') ? 'block' : 'none';
+				}
+			});
+		}
 	}
 </script>
 <style lang="postcss">
@@ -25,20 +43,20 @@
 
 <div>
 	<!-- Header -->
-	<aside class="asidebar dark:bg-box-dark fixed start-0 top-0 z-[1035] h-screen overflow-hidden bg-dark xl:!w-[280px] xl:[&.collapsed]:!w-[80px] [&.collapsed]:!w-[250px] !transition-all !duration-[0.2s] ease-linear delay-[0s] !w-0 xl:[&.collapsed>.logo-wrapper]:w-[80px]"
-				 id="asideBar">
+	<aside
+		class="asidebar dark:bg-box-dark fixed start-0 top-0 z-[1035] h-screen overflow-hidden bg-dark xl:!w-[280px] xl:[&.collapsed]:!w-[80px] [&.collapsed]:!w-[250px] !transition-all !duration-[0.2s] ease-linear delay-[0s] !w-0 xl:[&.collapsed>.logo-wrapper]:w-[80px] {sidebarCollapsed? 'collapsed': ''}">
 		<div class="flex w-[280px] border-e border-[#edf2f9] dark:border-box-dark-up logo-wrapper items-center h-[71px]">
 			<a class="block text-center" href="/platform/main">
-				<div class="logo-full">
+				<div class="{sidebarCollapsed? 'hidden': ''} logo-full">
 					<img alt="Logo" class="ps-[27px]" src="/img/logo/logo.svg" width="100">
 				</div>
-				<div class="hidden logo-fold">
+				<div class="{sidebarCollapsed? '': 'hidden'} logo-fold">
 					<img alt="Logo" class="p-[27px] max-w-[80px]" src="/img/logo/logo.svg" width="80">
 				</div>
 			</a>
 		</div>
-		<nav class="navBar dark:bg-box-dark static start-0 top-[70px] z-[1035] h-full overflow-y-auto bg-dark xl:!w-[280px] xl:[&.collapsed]:!w-[80px] [&.collapsed]:!w-[250px] !transition-all !duration-[0.2s] ease-linear delay-[0s] !w-0 pb-[100px] scrollbar [&.collapsed]:ps-[7px]"
-				 id="navBar">
+		<nav
+			class="navBar dark:bg-box-dark static start-0 top-[70px] z-[1035] h-full overflow-y-auto bg-dark xl:!w-[280px] xl:[&.collapsed]:!w-[80px] [&.collapsed]:!w-[250px] !transition-all !duration-[0.2s] ease-linear delay-[0s] !w-0 pb-[100px] scrollbar [&.collapsed]:ps-[7px]  {sidebarCollapsed? 'collapsed': ''}">
 			<ul class="relative m-0 list-none px-[0.2rem] ">
 				<li class="relative sub-item-wrapper">
 					<a
@@ -73,26 +91,26 @@
 										class="nav-icon dark:text-subtitle-dark text-[18px] text-light-extra group-hover:text-current group-[&.active]:text-current group-focus:text-current">
                      <i class="uil uil-arrow-growth"></i>
                   </span>
-						<span class="title">Change log</span>
+						<span class="title {sidebarCollapsed? 'hidden': ''}">Change log</span>
 						<span
-							class=" arrow-down absolute end-0 me-[0.8rem] ms-auto inline-flex items-center whitespace-nowrap rounded-full bg-info/10 px-[0.65em] pb-[0.25em] pt-[0.30em] text-center align-baseline text-[10px] font-bold leading-none text-info group-[&.active]:hidden">
+							class=" {sidebarCollapsed? 'hidden': ''} arrow-down absolute end-0 me-[0.8rem] ms-auto inline-flex items-center whitespace-nowrap rounded-full bg-info/10 px-[0.65em] pb-[0.25em] pt-[0.30em] text-center align-baseline text-[10px] font-bold leading-none text-info group-[&.active]:hidden">
                      1.0.0
                   </span>
 					</a>
 				</li>
 				<li class="relative sub-item-wrapper ">
 					<span
-						class="slug dark:text-white/40 mb-[10px] mt-[30px] block px-6 text-[12px] font-medium uppercase text-light">Application</span>
+						class="slug dark:text-white/40 mb-[10px] mt-[30px] block px-6 text-[12px] font-medium uppercase text-light {sidebarCollapsed? 'hidden': ''}">Application</span>
 					<a
 						class="rounded-e-[20px] hover:bg-primary/10 focus:bg-primary/10 active:bg-primary/10 dark:text-subtitle-dark flex h-12 cursor-pointer items-center gap-[16px] truncate px-6 py-4 text-[14px] font-medium text-body outline-none transition duration-300 ease-linear hover:text-primary hover:outline-none focus:text-primary focus:outline-none active:text-primary active:outline-none [&.active]:text-primary dark:[&.active]:text-title-dark  motion-reduce:transition-none dark:hover:bg-box-dark-up dark:focus:bg-box-dark-up dark:active:bg-box-dark-up group capitalize ">
                   <span
 										class="nav-icon dark:text-subtitle-dark text-[18px] text-light-extra group-hover:text-current group-[&.active]:text-current group-focus:text-current">
                      <i class="uil uil-apps"></i>
                   </span>
-						<span class="title">Email</span>
+						<span class="title {sidebarCollapsed? 'hidden': ''}">Email</span>
 						<span
 							class=" arrow-down text-gray-600 dark:text-subtitle-dark absolute end-0 me-[0.8rem] ms-auto text-[18px] transition-transform duration-300 ease-linear motion-reduce:transition-none group-hover:text-current">
-                     <i class="uil uil-angle-down"></i>
+                     <i class="uil uil-angle-down {sidebarCollapsed? 'hidden': ''}"></i>
                   </span>
 					</a>
 					<ul class="sub-item !visible m-0 hidden list-none p-0 [&.show]:block scrollbar overflow-y-scroll ">
@@ -116,7 +134,7 @@
                   </span>
 						<span class="title">Chat</span>
 						<span
-							class=" arrow-down absolute end-0 me-[0.8rem] ms-auto inline-flex items-center whitespace-nowrap rounded-full bg-success px-[0.65em] pb-[0.25em] pt-[0.30em] text-center align-baseline text-[10px] font-bold leading-none text-white group-[&.active]:hidden">
+							class=" {sidebarCollapsed? 'hidden': ''} arrow-down absolute end-0 me-[0.8rem] ms-auto inline-flex items-center whitespace-nowrap rounded-full bg-success px-[0.65em] pb-[0.25em] pt-[0.30em] text-center align-baseline text-[10px] font-bold leading-none text-white group-[&.active]:hidden">
                      3
                   </span>
 					</a>
@@ -157,7 +175,7 @@
 				</li>
 				<li class="relative sub-item-wrapper ">
                <span
-								 class="slug dark:text-white/40 mb-[10px] mt-[30px] block px-6 text-[12px] font-medium uppercase text-light">Ui
+								 class="slug dark:text-white/40 mb-[10px] mt-[30px] block px-6 text-[12px] font-medium uppercase text-light {sidebarCollapsed? 'hidden': ''}">Ui
                   Elements</span>
 					<a
 						class="rounded-e-[20px] hover:bg-primary/10 focus:bg-primary/10 active:bg-primary/10 dark:text-subtitle-dark flex h-12 cursor-pointer items-center gap-[16px] truncate px-6 py-4 text-[14px] font-medium text-body outline-none transition duration-300 ease-linear hover:text-primary hover:outline-none focus:text-primary focus:outline-none active:text-primary active:outline-none [&.active]:text-primary dark:[&.active]:text-title-dark   motion-reduce:transition-none dark:hover:bg-box-dark-up dark:focus:bg-box-dark-up dark:active:bg-box-dark-up group capitalize ">
@@ -216,7 +234,7 @@
 				</li>
 				<li class="relative sub-item-wrapper ">
 					<span
-						class="slug dark:text-white/40 mb-[10px] mt-[30px] block px-6 text-[12px] font-medium uppercase text-light">Features</span>
+						class="slug dark:text-white/40 mb-[10px] mt-[30px] block px-6 text-[12px] font-medium uppercase text-light {sidebarCollapsed? 'hidden': ''}">Features</span>
 					<a
 						class="rounded-e-[20px] hover:bg-primary/10 focus:bg-primary/10 active:bg-primary/10 dark:text-subtitle-dark flex h-12 cursor-pointer items-center gap-[16px] truncate px-6 py-4 text-[14px] font-medium text-body outline-none transition duration-300 ease-linear hover:text-primary hover:outline-none focus:text-primary focus:outline-none active:text-primary active:outline-none [&.active]:text-primary dark:[&.active]:text-title-dark   motion-reduce:transition-none dark:hover:bg-box-dark-up dark:focus:bg-box-dark-up dark:active:bg-box-dark-up group capitalize ">
                   <span
@@ -348,7 +366,7 @@
 				</li>
 				<li class="relative">
 					<span
-						class="slug dark:text-white/40 mb-[10px] mt-[30px] block px-6 text-[12px] font-medium uppercase text-light">Pages</span>
+						class="slug dark:text-white/40 mb-[10px] mt-[30px] block px-6 text-[12px] font-medium uppercase text-light {sidebarCollapsed? 'hidden': ''}">Pages</span>
 					<a class="rounded-e-[20px] hover:bg-primary/10 focus:bg-primary/10 active:bg-primary/10 dark:text-subtitle-dark flex h-12 cursor-pointer items-center gap-[16px] truncate px-6 py-4 text-[14px] font-medium text-body outline-none transition duration-300 ease-linear hover:text-primary hover:outline-none focus:text-primary focus:outline-none active:text-primary active:outline-none [&.active]:text-primary dark:[&.active]:text-title-dark  motion-reduce:transition-none dark:hover:bg-box-dark-up dark:focus:bg-box-dark-up dark:active:bg-box-dark-up group capitalize "
 						 href="gallery.html">
                   <span
@@ -508,12 +526,11 @@
 	</aside>
 
 	<div
-		class="relative flex flex-col flex-1 xl:ps-[280px] xl:[&.expanded]:ps-[80px] !transition-all !duration-[0.2s] ease-linear delay-[0s] bg-normalBG dark:bg-main-dark">
+		class="relative flex flex-col flex-1 xl:ps-[280px] xl:[&.expanded]:ps-[80px] !transition-all !duration-[0.2s] ease-linear delay-[0s] bg-normalBG dark:bg-main-dark {sidebarCollapsed? 'expanded': ''}">
 		<ApplicationBar on:toggleSidebar={handleToggleSidebar} />
 
 		<main class="bg-normalBG dark:bg-main-dark  ">
 			<div class=" mx-[30px] -z-[1] min-h-[calc(100vh-195px)] mb-[30px] ssm:mt-[30px] mt-[15px]">
-
 				<div class="grid grid-cols-12 gap-5">
 					<div class="col-span-12">
 						<div class="p-[25px] bg-dark rounded-10 dark:bg-box-dark">

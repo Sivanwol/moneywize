@@ -7,7 +7,7 @@
 
 	function handleToggleSidebar() {
 		console.log('toggle sidebar');
-		dispatch('toggleSidebar');
+		dispatch('toggleSidebar', {});
 	}
 </script>
 <header
@@ -21,7 +21,8 @@
 			<li>
 				<button
 					aria-label="Toggle SideBar"
-					class="flex items-center justify-center min-w-[40px] w-[40px] h-[40px] rounded-full bg-transparent hover:bg-primary/10 hover:text-primary group transition duration-200 ease-in-out text-[#525768] dark:text-subtitle-dark max-md:dark:hover:bg-box-dark-up text-[20px] cursor-pointer xl:[&.hide]:hidden max-md:bg-normalBG max-md:dark:bg-box-dark-up" on:click={handleToggleSidebar}>
+					class="flex items-center justify-center min-w-[40px] w-[40px] h-[40px] rounded-full bg-transparent hover:bg-primary/10 hover:text-primary group transition duration-200 ease-in-out text-[#525768] dark:text-subtitle-dark max-md:dark:hover:bg-box-dark-up text-[20px] cursor-pointer xl:[&.hide]:hidden max-md:bg-normalBG max-md:dark:bg-box-dark-up"
+					on:click={handleToggleSidebar}>
 					<UilAlignCenter />
 				</button>
 			</li>
@@ -327,13 +328,16 @@
 		<div class="flex items-center ms-auto py-[15px] sm:gap-x-[25px] max-sm:gap-x-[15px] gap-y-[15px] relative">
 
 			<div class="relative">
-				<button class="transition-all theme-dropdown-trigger text-[20px] text-light dark:text-subtitle-dark [&.close>.uil-search]:hidden [&.close>.uil-multiply]:block"
-								type="button">
+				<button
+					class="transition-all theme-dropdown-trigger text-[20px] text-light dark:text-subtitle-dark [&.close>.uil-search]:hidden [&.close>.uil-multiply]:block"
+					type="button">
 					<i class="uil uil-search "></i>
 					<i class="hidden uil uil-multiply "></i>
 				</button>
-				<input class="theme-dropdown absolute end-0 transition-[opacity,margin] duration [&.visible]:opacity-100 [&.visible]:block opacity-0 hidden min-w-[15rem] mt-2 dark:bg-box-dark-down p-1.5 h-[48px] px-[20px] dark:shadow-none border-1 border-regular dark:border-box-dark-up rounded-6 capitalize bg-dark text-body dark:text-title-dark placeholder:text-body placeholder:text-subtitle-dark text-ellipsis outline-none" id="searchInput" name="search" placeholder="search here"
-							 type="text">
+				<input
+					class="theme-dropdown absolute end-0 transition-[opacity,margin] duration [&.visible]:opacity-100 [&.visible]:block opacity-0 hidden min-w-[15rem] mt-2 dark:bg-box-dark-down p-1.5 h-[48px] px-[20px] dark:shadow-none border-1 border-regular dark:border-box-dark-up rounded-6 capitalize bg-dark text-body dark:text-title-dark placeholder:text-body placeholder:text-subtitle-dark text-ellipsis outline-none"
+					id="searchInput" name="search" placeholder="search here"
+					type="text">
 			</div>
 
 			<button class="flex xl:hidden items-center text-[22px] text-[#a0a0a0] dark:text-subtitle-dark min-h-[40px]"
@@ -341,12 +345,15 @@
 							type="button">
 				<i class="uil uil-ellipsis-v text-[18px]"></i>
 			</button>
-			<ul class="xl:flex hidden items-center justify-end flex-auto mb-0 list-none ps-0 sm:gap-x-[25px] max-sm:gap-x-[15px] gap-y-[15px] max-xl:absolute max-xl:z-[1000] max-xl:m-0 max-xl:rounded-lg max-xl:border-none max-xl:bg-dark max-xl:bg-clip-padding max-xl:text-left max-xl:shadow-lg max-xl:dark:bg-neutral-700 max-xl:[&.active]:flex max-xl:end-0 max-xl:px-[20px] max-sm:px-[15px] max-xl:py-[10px] max-xl:top-[70px]"
-					id="right-ellipsis-trigger">
+			<ul
+				class="xl:flex hidden items-center justify-end flex-auto mb-0 list-none ps-0 sm:gap-x-[25px] max-sm:gap-x-[15px] gap-y-[15px] max-xl:absolute max-xl:z-[1000] max-xl:m-0 max-xl:rounded-lg max-xl:border-none max-xl:bg-dark max-xl:bg-clip-padding max-xl:text-left max-xl:shadow-lg max-xl:dark:bg-neutral-700 max-xl:[&.active]:flex max-xl:end-0 max-xl:px-[20px] max-sm:px-[15px] max-xl:py-[10px] max-xl:top-[70px]"
+				id="right-ellipsis-trigger">
 				<li>
 
 					<div class="relative" data-te-dropdown-ref>
-						<button aria-expanded="false" class="flex items-center text-[22px] text-[#a0a0a0] dark:text-subtitle-dark relative min-h-[40px] group" data-te-dropdown-toggle-ref id="message"
+						<button aria-expanded="false"
+										class="flex items-center text-[22px] text-[#a0a0a0] dark:text-subtitle-dark relative min-h-[40px] group"
+										data-te-dropdown-toggle-ref id="message"
 										type="button">
 							<i class="uil uil-envelope"></i>
 							<span
@@ -356,7 +363,8 @@
                               <span class="relative inline-flex w-1.5 h-1.5 rounded-full bg-success"></span>
                            </span>
 						</button>
-						<div aria-labelledby="message" class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark [&[data-te-dropdown-show]]:block"
+						<div aria-labelledby="message"
+								 class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark [&[data-te-dropdown-show]]:block"
 								 data-te-dropdown-menu-ref>
 							<div
 								class="bg-dark dark:bg-box-dark shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4 px-[15px] py-[12px] md:min-w-[380px] sm:w-[300px] max-sm:w-[230px]">
@@ -548,7 +556,9 @@
 				<li>
 
 					<div class="relative" data-te-dropdown-ref>
-						<button aria-expanded="false" class="flex items-center hs-dropdown-toggle text-[23px] text-[#a0a0a0] dark:text-subtitle-dark relative min-h-[40px] group" data-te-dropdown-toggle-ref id="notification"
+						<button aria-expanded="false"
+										class="flex items-center hs-dropdown-toggle text-[23px] text-[#a0a0a0] dark:text-subtitle-dark relative min-h-[40px] group"
+										data-te-dropdown-toggle-ref id="notification"
 										type="button">
 							<i class="uil uil-bell"></i>
 							<span
@@ -558,7 +568,8 @@
                               <span class="relative inline-flex w-1.5 h-1.5 rounded-full bg-warning"></span>
                            </span>
 						</button>
-						<div aria-labelledby="notification" class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block"
+						<div aria-labelledby="notification"
+								 class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block"
 								 data-te-dropdown-menu-ref>
 							<div
 								class="bg-dark dark:bg-box-dark shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4 px-[15px] py-[12px] md:min-w-[400px] sm:w-[300px] max-sm:w-[230px]">
@@ -710,13 +721,16 @@
 				<li>
 
 					<div class="relative" data-te-dropdown-ref>
-						<button aria-expanded="false" class="flex items-center text-[22px] text-[#a0a0a0] dark:text-subtitle-dark min-h-[40px]" data-te-dropdown-toggle-ref id="settings"
+						<button aria-expanded="false"
+										class="flex items-center text-[22px] text-[#a0a0a0] dark:text-subtitle-dark min-h-[40px]"
+										data-te-dropdown-toggle-ref id="settings"
 										type="button">
 							<i class="uil uil-setting"></i>
 						</button>
 						<div
 							aria-labelledby="settings"
-							class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block" data-te-dropdown-menu-ref>
+							class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block"
+							data-te-dropdown-menu-ref>
 							<div
 								class="lg:w-[700px] md:w-[300px] max-md:w-[230px] px-[15px] py-[15px] bg-dark dark:bg-box-dark shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4">
 								<ul
@@ -843,7 +857,8 @@
 						</button>
 						<div
 							aria-labelledby="flags"
-							class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block" data-te-dropdown-menu-ref>
+							class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block"
+							data-te-dropdown-menu-ref>
 							<ul
 								class="block bg-dark dark:bg-box-dark-down w-[100px] shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4 overflow-hidden">
 								<li class="bg-dark dark:bg-box-dark-down hover:bg-primary/10 dark:hover:bg-primary/10">
@@ -872,7 +887,9 @@
 				<li>
 
 					<div class="relative" data-te-dropdown-ref>
-						<button aria-expanded="false" class="flex items-center me-1.5 text-body dark:text-subtitle-dark text-sm font-medium capitalize rounded-full md:me-0 group whitespace-nowrap" data-te-dropdown-toggle-ref id="author-dropdown"
+						<button aria-expanded="false"
+										class="flex items-center me-1.5 text-body dark:text-subtitle-dark text-sm font-medium capitalize rounded-full md:me-0 group whitespace-nowrap"
+										data-te-dropdown-toggle-ref id="author-dropdown"
 										type="button">
 							<span class="sr-only">Open user menu</span>
 							<img alt="user photo" class="min-w-[32px] w-8 h-8 rounded-full xl:me-2"
@@ -884,7 +901,8 @@
 						<!-- Dropdown menu -->
 						<div
 							aria-labelledby="author-dropdown"
-							class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block" data-te-dropdown-menu-ref>
+							class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block"
+							data-te-dropdown-menu-ref>
 							<div
 								class="min-w-[310px] max-sm:min-w-full pt-4 px-[15px] py-[12px] bg-dark dark:bg-box-dark shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4">
 								<figure
