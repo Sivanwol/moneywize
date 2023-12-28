@@ -10,6 +10,6 @@ export const handle = async ({ event, resolve }) => {
 
 export const handleError = ({ error }) => {
 	const message = 'Error caught in [server-hooks]: ' + (error)?.message;
-	console.error(message);
+	console.error(message, error);
 	return { message };
 };

@@ -13,7 +13,8 @@ export default defineConfig({
 			{ find: '@utility', replacement: fileURLToPath(new URL('./src/lib/utility', import.meta.url)) },
 			{ find: '@api', replacement: fileURLToPath(new URL('./src/lib/api', import.meta.url)) },
 			{ find: '@stores', replacement: fileURLToPath(new URL('./src/lib/stores', import.meta.url)) },
-			{ find: '@translations', replacement: fileURLToPath(new URL('./src/lib/translations', import.meta.url)) }
+			{ find: '@translations', replacement: fileURLToPath(new URL('./src/lib/translations', import.meta.url)) },
+			{ find: '@data', replacement: fileURLToPath(new URL('./src/data', import.meta.url)) }
 		]
 	},
 	build: {
