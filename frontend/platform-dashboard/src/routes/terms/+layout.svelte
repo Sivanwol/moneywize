@@ -1,3 +1,8 @@
+<script>
+	import { _ } from 'svelte-i18n';
+	import { Footer, FooterBrand, FooterCopyright, FooterLink, FooterLinkGroup } from 'flowbite-svelte';
+</script>
+
 <style lang="postcss">
 
 </style>
@@ -32,6 +37,21 @@
 				</div>
 				<div class="lg:p-8">
 					<slot />
+				</div>
+				<div class="bg-gray-800 col-span-2">
+					<Footer class="dark bg-background px-[25px] dark:bg-box-dark w-full" footerType="logo">
+						<div class="sm:flex sm:items-center sm:justify-between">
+							<FooterBrand alt="{$_('footer.logo')}" href="https://flowbite.com" name="{$_('footer.logo')}"
+													 src="/img/logo/logo.svg" />
+							<FooterLinkGroup
+								ulClass="flex flex-wrap items-center mb-6 text-sm text-gray-500 sm:mb-0 dark:text-gray-400">
+								<FooterLink href="/terms">{$_("navigation.terms")}</FooterLink>
+								<FooterLink href="/policy">{$_("navigation.privacy")}</FooterLink>
+							</FooterLinkGroup>
+						</div>
+						<hr class="my-6 border-gray-200 dark:border-gray-700 lg:my-8" />
+						<FooterCopyright by="{$_('footer.credit')}" href="/platform/main" />
+					</Footer>
 				</div>
 			</div>
 		</div>

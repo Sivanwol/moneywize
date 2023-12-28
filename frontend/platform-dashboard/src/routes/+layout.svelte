@@ -2,9 +2,8 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { isLocaleLoaded } from '@utility/i18n.js';
-	import { Footer, FooterBrand, FooterCopyright, FooterLink, FooterLinkGroup } from 'flowbite-svelte';
 	import { browser } from '$app/environment';
-	import { _, locale, waitLocale } from 'svelte-i18n';
+	import { locale, waitLocale } from 'svelte-i18n';
 
 	let rotateDevice = false;
 	let isMobile = false;
@@ -51,22 +50,11 @@
 			</div>
 		{:else}
 			<div class="relative max-h-fit scroll-auto ">
-				<main class="flex-1  overflow-scroll pb-16">
-					<slot />
+				<main>
+					<section>
+						<slot />
+					</section>
 				</main>
-				<Footer class="absolute -bottom-24 start-0 z-20 w-full" footerType="logo">
-					<div class="sm:flex sm:items-center sm:justify-between">
-						<FooterBrand alt="{$_('footer.logo')}" href="https://flowbite.com" name="{$_('footer.logo')}"
-												 src="/img/logo/logo.svg" />
-						<FooterLinkGroup
-							ulClass="flex flex-wrap items-center mb-6 text-sm text-gray-500 sm:mb-0 dark:text-gray-400">
-							<FooterLink href="/terms">{$_("navigation.terms")}</FooterLink>
-							<FooterLink href="/policy">{$_("navigation.privacy")}</FooterLink>
-						</FooterLinkGroup>
-					</div>
-					<hr class="my-6 border-gray-200 dark:border-gray-700 lg:my-8" />
-					<FooterCopyright by="{$_('footer.credit')}" href="/platform/main" />
-				</Footer>
 			</div>
 		{/if}
 	{:else}

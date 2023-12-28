@@ -4,11 +4,15 @@
 	<meta charset="utf-8" />
 	<link href="%sveltekit.assets%/img/favicon.png" rel="icon" />
 	<meta content="width=device-width, initial-scale=1" name="viewport" />
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<!-- Icons -->
+	<link href="https://cdn.jsdelivr.net/npm/@iconscout/unicons@4.0.8/css/line.min.css" rel="stylesheet">
 	%sveltekit.head%
 </head>
 <body data-sveltekit-preload-data="hover"
-			class="dark min-h-screen bg-background font-sans overflow-hidden ">
-<div class="relative flex min-h-screen flex-col dark:bg-gray-800">
+			class="dark bg-background [&.dark]:bg-main-dark font-jost relative text-[15px] font-normal leading-[1.5] m-0 p-0">
+<div>
 	%sveltekit.body%
 </div>
 </body>
