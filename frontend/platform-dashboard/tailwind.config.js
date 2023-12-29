@@ -1,12 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 export default {
 	content: ['./src/**/*.{html,js,svelte,ts}', './node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}'],
-
-	plugins: [require('flowbite/plugin')],
-
+	plugins: [
+		require('flowbite/plugin'),
+		require('@tailwindcss/typography'),
+		require('@tailwindcss/forms'),
+		require('@tailwindcss/aspect-ratio'),
+		require('@tailwindcss/container-queries')
+	],
 	darkMode: 'class',
-
-
 	theme: {
 		extend: {
 			colors: {
@@ -34,7 +36,6 @@ export default {
 				'theme-grayDark': 'rgb(255, 255, 255, .06)',
 				light: '#747474',
 				lightDark: 'rgb(255, 255, 255, .06)',
-				'light-extra': '#A0A0A0',
 				'light-extraDark': 'rgb(255, 255, 255, .06)',
 				section: '#f4f5f7',
 				breadcrumbs: '#666D92',
@@ -124,5 +125,5 @@ export default {
 			'3xl': '1599px',
 			'4xl': '1699px'
 		}
-	},
+	}
 };

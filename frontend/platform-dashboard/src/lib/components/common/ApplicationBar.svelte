@@ -14,6 +14,7 @@
 
 	let showMessageWindow = false;
 	let showNotificationWindow = false;
+	let showSectionWindow = false;
 
 	async function handleToggleMessageWindow() {
 		let currentState = !showMessageWindow;
@@ -28,9 +29,16 @@
 		showNotificationWindow = currentState;
 	}
 
+	async function handleToggleSectionWindow() {
+		let currentState = !showSectionWindow;
+		resetWindowStates();
+		showSectionWindow = currentState;
+	}
+
 	function resetWindowStates() {
 		showMessageWindow = false;
 		showNotificationWindow = false;
+		showSectionWindow = false;
 	}
 </script>
 <style>
@@ -306,146 +314,146 @@
 						</button>
 
 						<Notifications labelBy="notification" openNotification="{showNotificationWindow}">
-								<h1
-									class="flex items-center justify-center text-sm rounded-md bg-section dark:bg-box-dark-up h-[50px] p-[10px] text-dark dark:text-title-dark font-semibold">
+							<h1
+								class="flex items-center justify-center text-sm rounded-md bg-section dark:bg-box-dark-up h-[50px] p-[10px] text-dark dark:text-title-dark font-semibold">
 											<span class="title-text me-2.5">Notifications<span
 												class="inline-flex items-center justify-center w-5 h-5 text-xs text-white rounded-full bg-warning ms-3 dark:text-title-dark">3</span></span>
-								</h1>
-								<ul class="p-0 max-h-[250px] relative overflow-x-hidden overflow-y-auto scrollbar">
-									<li class="w-full sm:mb-0 mb-[10px]">
-										<button
-											class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
-											<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
-												<div
-													class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-warning/10 text-warning">
-													<i class="text-current uil uil-heart text-[16px]"></i>
+							</h1>
+							<ul class="p-0 max-h-[250px] relative overflow-x-hidden overflow-y-auto scrollbar">
+								<li class="w-full sm:mb-0 mb-[10px]">
+									<button
+										class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
+										<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
+											<div
+												class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-warning/10 text-warning">
+												<i class="text-current uil uil-heart text-[16px]"></i>
+											</div>
+											<div class="flex items-center justify-between flex-1">
+												<div class="text-start">
+													<h1
+														class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
+														<span class="text-primary me-1.5 font-medium">Ibrahim Riaz</span>
+														sent you a message
+													</h1>
+													<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
+														3 hours ago
+													</p>
 												</div>
-												<div class="flex items-center justify-between flex-1">
-													<div class="text-start">
-														<h1
-															class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
-															<span class="text-primary me-1.5 font-medium">Ibrahim Riaz</span>
-															sent you a message
-														</h1>
-														<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
-															3 hours ago
-														</p>
-													</div>
-													<div><span
-														class="inline-flex items-center justify-center bg-warning w-1.5 h-1.5 ms-3 rounded-full"></span>
-													</div>
+												<div><span
+													class="inline-flex items-center justify-center bg-warning w-1.5 h-1.5 ms-3 rounded-full"></span>
 												</div>
 											</div>
-										</button>
-									</li>
-									<li class="w-full sm:mb-0 mb-[10px]">
-										<button
-											class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
-											<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
-												<div
-													class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-primary/10 text-primary">
-													<i class="text-current uil uil-inbox text-[16px]"></i>
+										</div>
+									</button>
+								</li>
+								<li class="w-full sm:mb-0 mb-[10px]">
+									<button
+										class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
+										<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
+											<div
+												class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-primary/10 text-primary">
+												<i class="text-current uil uil-inbox text-[16px]"></i>
+											</div>
+											<div class="flex items-center justify-between flex-1">
+												<div class="text-start">
+													<h1
+														class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
+														<span class="text-primary me-1.5 font-medium">Shamim Ahmed</span>
+														sent you a message
+													</h1>
+													<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
+														3 hours ago
+													</p>
 												</div>
-												<div class="flex items-center justify-between flex-1">
-													<div class="text-start">
-														<h1
-															class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
-															<span class="text-primary me-1.5 font-medium">Shamim Ahmed</span>
-															sent you a message
-														</h1>
-														<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
-															3 hours ago
-														</p>
-													</div>
-													<div><span
-														class="inline-flex items-center justify-center bg-primary w-1.5 h-1.5 ms-3 rounded-full"></span>
-													</div>
+												<div><span
+													class="inline-flex items-center justify-center bg-primary w-1.5 h-1.5 ms-3 rounded-full"></span>
 												</div>
 											</div>
-										</button>
-									</li>
-									<li class="w-full sm:mb-0 mb-[10px]">
-										<button
-											class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
-											<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
-												<div
-													class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-secondary/10 text-secondary">
-													<i class="text-current uil uil-upload text-[16px]"></i>
+										</div>
+									</button>
+								</li>
+								<li class="w-full sm:mb-0 mb-[10px]">
+									<button
+										class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
+										<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
+											<div
+												class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-secondary/10 text-secondary">
+												<i class="text-current uil uil-upload text-[16px]"></i>
+											</div>
+											<div class="flex items-center justify-between flex-1">
+												<div class="text-start">
+													<h1
+														class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
+														<span class="text-primary me-1.5 font-medium">Tanjim Ahmed</span>
+														sent you a message
+													</h1>
+													<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
+														2 hours ago
+													</p>
 												</div>
-												<div class="flex items-center justify-between flex-1">
-													<div class="text-start">
-														<h1
-															class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
-															<span class="text-primary me-1.5 font-medium">Tanjim Ahmed</span>
-															sent you a message
-														</h1>
-														<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
-															2 hours ago
-														</p>
-													</div>
-													<div><span
-														class="inline-flex items-center justify-center bg-secondary w-1.5 h-1.5 ms-3 rounded-full"></span>
-													</div>
+												<div><span
+													class="inline-flex items-center justify-center bg-secondary w-1.5 h-1.5 ms-3 rounded-full"></span>
 												</div>
 											</div>
-										</button>
-									</li>
-									<li class="w-full sm:mb-0 mb-[10px]">
-										<button
-											class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
-											<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
-												<div
-													class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-info/10 text-info">
-													<i class="text-current uil uil-signout text-[16px]"></i>
+										</div>
+									</button>
+								</li>
+								<li class="w-full sm:mb-0 mb-[10px]">
+									<button
+										class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
+										<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
+											<div
+												class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-info/10 text-info">
+												<i class="text-current uil uil-signout text-[16px]"></i>
+											</div>
+											<div class="flex items-center justify-between flex-1">
+												<div class="text-start">
+													<h1
+														class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
+														<span class="text-primary me-1.5 font-medium">Masud Rana</span>
+														sent you a message
+													</h1>
+													<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
+														9 hours ago
+													</p>
 												</div>
-												<div class="flex items-center justify-between flex-1">
-													<div class="text-start">
-														<h1
-															class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
-															<span class="text-primary me-1.5 font-medium">Masud Rana</span>
-															sent you a message
-														</h1>
-														<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
-															9 hours ago
-														</p>
-													</div>
-													<div><span
-														class="inline-flex items-center justify-center bg-info w-1.5 h-1.5 ms-3 rounded-full"></span>
-													</div>
+												<div><span
+													class="inline-flex items-center justify-center bg-info w-1.5 h-1.5 ms-3 rounded-full"></span>
 												</div>
 											</div>
-										</button>
-									</li>
-									<li class="w-full sm:mb-0 mb-[10px]">
-										<button
-											class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
-											<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
-												<div
-													class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-danger/10 text-danger">
-													<i class="text-current uil uil-at text-[16px]"></i>
+										</div>
+									</button>
+								</li>
+								<li class="w-full sm:mb-0 mb-[10px]">
+									<button
+										class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
+										<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
+											<div
+												class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-danger/10 text-danger">
+												<i class="text-current uil uil-at text-[16px]"></i>
+											</div>
+											<div class="flex items-center justify-between flex-1">
+												<div class="text-start">
+													<h1
+														class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
+														<span class="text-primary me-1.5 font-medium">Abdur Rahim</span>
+														sent you a message
+													</h1>
+													<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
+														1 min ago
+													</p>
 												</div>
-												<div class="flex items-center justify-between flex-1">
-													<div class="text-start">
-														<h1
-															class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
-															<span class="text-primary me-1.5 font-medium">Abdur Rahim</span>
-															sent you a message
-														</h1>
-														<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
-															1 min ago
-														</p>
-													</div>
-													<div><span
-														class="inline-flex items-center justify-center bg-danger w-1.5 h-1.5 ms-3 rounded-full"></span>
-													</div>
+												<div><span
+													class="inline-flex items-center justify-center bg-danger w-1.5 h-1.5 ms-3 rounded-full"></span>
 												</div>
 											</div>
-										</button>
-									</li>
-								</ul>
-								<a
-									class="flex items-center justify-center text-[13px] font-medium bg-normalBG dark:bg-box-dark-up h-[50px] text-light hover:text-primary dark:hover:text-subtitle-dark dark:text-title-dark mx-[-15px] mb-[-15px] rounded-b-6"
-									href="#">See all incoming activity</a>
+										</div>
+									</button>
+								</li>
+							</ul>
+							<a
+								class="flex items-center justify-center text-[13px] font-medium bg-normalBG dark:bg-box-dark-up h-[50px] text-light hover:text-primary dark:hover:text-subtitle-dark dark:text-title-dark mx-[-15px] mb-[-15px] rounded-b-6"
+								href="#">See all incoming activity</a>
 						</Notifications>
 					</div>
 
@@ -453,139 +461,136 @@
 				<li>
 
 					<div class="relative" data-te-dropdown-ref>
-						<button aria-expanded="false"
-										class="flex items-center text-[22px] text-[#a0a0a0] dark:text-subtitle-dark min-h-[40px]"
+						<button aria-expanded="{showSectionWindow}"
+										class="flex items-center text-[22px] text-[#a0a0a0] dark:text-subtitle-dark relative min-h-[40px] group"
+										data-te-dropdown-show={showSectionWindow || null}
 										data-te-dropdown-toggle-ref id="settings"
+										on:click={handleToggleSectionWindow}
+										on:keydown={(evt) => evt.key === 'Enter' && handleToggleSectionWindow()}
 										type="button">
 							<i class="uil uil-setting"></i>
 						</button>
-						<div
-							aria-labelledby="settings"
-							class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block"
-							data-te-dropdown-menu-ref>
-							<div
-								class="lg:w-[700px] md:w-[300px] max-md:w-[230px] px-[15px] py-[15px] bg-dark dark:bg-box-dark shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4">
-								<ul
-									class="flex flex-wrap items-center lg:[&>li]:flex-[50%] max-lg:[&>li]:flex-[100%] max-h-[251px] relative overflow-x-hidden overflow-y-auto scrollbar scrollbar">
+						<Notifications labelBy="settings" openNotification="{showSectionWindow}">
+							<h1 slot="header"></h1>
+							<ul
+								class="flex flex-wrap items-center lg:[&>li]:flex-[50%] max-lg:[&>li]:flex-[100%] max-h-[251px] relative overflow-x-hidden overflow-y-auto scrollbar scrollbar">
 
-									<li class="w-full">
-										<figure
-											class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-											<img alt="audio" class="h-fit me-4" src="images/settings/audio.png">
-											<figcaption>
-												<h1
-													class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-													Diagram Maker</h1>
-												<p class="mb-0 text-body dark:text-subtitle-dark text-start">Plan user flows & test
-													scenarios </p>
-											</figcaption>
-										</figure>
-									</li>
-									<li class="w-full">
-										<figure
-											class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-											<img alt="payment" class="h-fit me-4" src="images/settings/payment.png">
-											<figcaption>
-												<h1
-													class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-													payments</h1>
-												<p class="mb-0 text-body dark:text-subtitle-dark text-start">We handle billions of
-													dollars </p>
-											</figcaption>
-										</figure>
-									</li>
-									<li class="w-full">
-										<figure
-											class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-											<img alt="feature" class="h-fit me-4" src="images/settings/feature.png">
-											<figcaption>
-												<h1
-													class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-													All Features</h1>
-												<p class="mb-0 text-body dark:text-subtitle-dark text-start">Introducing Increment
-													subscriptions </p>
-											</figcaption>
-										</figure>
-									</li>
-									<li class="w-full">
-										<figure
-											class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-											<img alt="theme" class="h-fit me-4" src="images/settings/theme.png">
-											<figcaption>
-												<h1
-													class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-													Themes</h1>
-												<p class="mb-0 text-body dark:text-subtitle-dark text-start">Third party themes that are
-													compatible
-												</p>
-											</figcaption>
-										</figure>
-									</li>
-									<li class="w-full">
-										<figure
-											class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-											<img alt="payment" class="h-fit me-4" src="images/settings/payment.png">
-											<figcaption>
-												<h1
-													class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-													payments</h1>
-												<p class="mb-0 text-body dark:text-subtitle-dark text-start">We handle billions of
-													dollars </p>
-											</figcaption>
-										</figure>
-									</li>
-									<li class="w-full">
-										<figure
-											class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-											<img alt="design" class="h-fit me-4" src="images/settings/design.png">
-											<figcaption>
-												<h1
-													class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-													Design Mockups</h1>
-												<p class="mb-0 text-body dark:text-subtitle-dark text-start">Share planning visuals with
-													clients </p>
-											</figcaption>
-										</figure>
-									</li>
-									<li class="w-full">
-										<figure
-											class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-											<img alt="file" class="h-fit me-4" src="images/settings/file.png">
-											<figcaption>
-												<h1
-													class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-													Content Planner</h1>
-												<p class="mb-0 text-body dark:text-subtitle-dark text-start">Centralize content gathering
-													and editing
-												</p>
-											</figcaption>
-										</figure>
-									</li>
-									<li class="w-full">
-										<figure
-											class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-											<img alt="audio" class="h-fit me-4" src="images/settings/audio.png">
-											<figcaption>
-												<h1
-													class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-													Diagram Maker</h1>
-												<p class="mb-0 text-body dark:text-subtitle-dark text-start">Plan user flows & test
-													scenarios </p>
-											</figcaption>
-										</figure>
-									</li>
-								</ul>
-							</div>
-						</div>
+								<li class="w-full">
+									<figure
+										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
+										<img alt="audio" class="h-fit me-4" src="images/settings/audio.png">
+										<figcaption>
+											<h1
+												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
+												Diagram Maker</h1>
+											<p class="mb-0 text-body dark:text-subtitle-dark text-start">Plan user flows & test
+												scenarios </p>
+										</figcaption>
+									</figure>
+								</li>
+								<li class="w-full">
+									<figure
+										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
+										<img alt="payment" class="h-fit me-4" src="images/settings/payment.png">
+										<figcaption>
+											<h1
+												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
+												payments</h1>
+											<p class="mb-0 text-body dark:text-subtitle-dark text-start">We handle billions of
+												dollars </p>
+										</figcaption>
+									</figure>
+								</li>
+								<li class="w-full">
+									<figure
+										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
+										<img alt="feature" class="h-fit me-4" src="images/settings/feature.png">
+										<figcaption>
+											<h1
+												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
+												All Features</h1>
+											<p class="mb-0 text-body dark:text-subtitle-dark text-start">Introducing Increment
+												subscriptions </p>
+										</figcaption>
+									</figure>
+								</li>
+								<li class="w-full">
+									<figure
+										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
+										<img alt="theme" class="h-fit me-4" src="images/settings/theme.png">
+										<figcaption>
+											<h1
+												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
+												Themes</h1>
+											<p class="mb-0 text-body dark:text-subtitle-dark text-start">Third party themes that are
+												compatible
+											</p>
+										</figcaption>
+									</figure>
+								</li>
+								<li class="w-full">
+									<figure
+										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
+										<img alt="payment" class="h-fit me-4" src="images/settings/payment.png">
+										<figcaption>
+											<h1
+												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
+												payments</h1>
+											<p class="mb-0 text-body dark:text-subtitle-dark text-start">We handle billions of
+												dollars </p>
+										</figcaption>
+									</figure>
+								</li>
+								<li class="w-full">
+									<figure
+										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
+										<img alt="design" class="h-fit me-4" src="images/settings/design.png">
+										<figcaption>
+											<h1
+												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
+												Design Mockups</h1>
+											<p class="mb-0 text-body dark:text-subtitle-dark text-start">Share planning visuals with
+												clients </p>
+										</figcaption>
+									</figure>
+								</li>
+								<li class="w-full">
+									<figure
+										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
+										<img alt="file" class="h-fit me-4" src="images/settings/file.png">
+										<figcaption>
+											<h1
+												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
+												Content Planner</h1>
+											<p class="mb-0 text-body dark:text-subtitle-dark text-start">Centralize content gathering
+												and editing
+											</p>
+										</figcaption>
+									</figure>
+								</li>
+								<li class="w-full">
+									<figure
+										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
+										<img alt="audio" class="h-fit me-4" src="images/settings/audio.png">
+										<figcaption>
+											<h1
+												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
+												Diagram Maker</h1>
+											<p class="mb-0 text-body dark:text-subtitle-dark text-start">Plan user flows & test
+												scenarios </p>
+										</figcaption>
+									</figure>
+								</li>
+							</ul>
+						</Notifications>
 					</div>
-
 				</li>
 				<li>
 
 					<div class="relative" data-te-dropdown-ref>
 						<button aria-expanded="false" class="flex items-center" data-te-dropdown-toggle-ref id="flags"
 										type="button">
-							<img alt="flags" class="min-w-[20px] min-h-[20px]" src="images/flags/english.png">
+							<img alt="flags" class="min-w-[20px] min-h-[20px]" src="/img/flags/english.png">
 						</button>
 						<div
 							aria-labelledby="flags"
@@ -595,20 +600,14 @@
 								class="block bg-dark dark:bg-box-dark-down w-[100px] shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4 overflow-hidden">
 								<li class="bg-dark dark:bg-box-dark-down hover:bg-primary/10 dark:hover:bg-primary/10">
 									<button class="flex items-center px-3 py-1.5 text-sm text-dark dark:text-subtitle-dark">
-										<img alt="english" class="w-3.5 h-3.5 me-2" src="images/flags/english.png">
+										<img alt="english" class="w-3.5 h-3.5 me-2" src="/img/flags/english.png">
 										<span>English</span>
 									</button>
 								</li>
 								<li class="bg-dark dark:bg-box-dark-down hover:bg-primary/10 dark:hover:bg-primary/10">
 									<button class="flex items-center px-3 py-1.5 text-sm text-dark dark:text-subtitle-dark">
-										<img alt="spanish" class="w-3.5 h-3.5 me-2" src="images/flags/spanish.png">
+										<img alt="spanish" class="w-3.5 h-3.5 me-2" src="/img/flags/spanish.png">
 										<span>Spanish</span>
-									</button>
-								</li>
-								<li class="bg-dark dark:bg-box-dark-down hover:bg-primary/10 dark:hover:bg-primary/10">
-									<button class="flex items-center px-3 py-1.5 text-sm text-dark dark:text-subtitle-dark">
-										<img alt="arabic" class="w-3.5 h-3.5 me-2" src="images/flags/arabic.png">
-										<span>Arabic</span>
 									</button>
 								</li>
 							</ul>
