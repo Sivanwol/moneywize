@@ -10,8 +10,14 @@
 		dispatch('toggleSidebar', {});
 	}
 </script>
+<style>
+    .header-content {
+        background-color: #121212;
+        z-index: 999999;
+    }
+</style>
 <header
-	class="sticky top-0 flex w-full bg-dark z-[10] drop-shadow-1 dark:bg-box-dark dark:drop-shadow-none min-h-[70px]">
+	class="sticky header-content top-0 flex w-full bg-dark z-[10] drop-shadow-1 dark:bg-box-dark dark:drop-shadow-none min-h-[70px]">
 	<!-- Navigation -->
 	<div class="flex flex-1 nav-wrap md:ps-[20px] ps-[30px] pe-[30px]">
 		<!-- Header left menu -->

@@ -4,18 +4,30 @@
 	import { allowAccess } from '@utility/permission.js';
 
 	const dispatch = createEventDispatcher();
-	export let key = '';
-	export let title = '';
+	/** @type {string} */
+	export let key;
+	/** @type {string} */
+	export let title;
 	export let hasIcon = false;
-	export let icon = '';
-	export let link = '';
+	/** @type {string} */
+	export let icon;
+	/** @type {string} */
+	export let link;
 	export let hasSubTitle = false;
+	/** @type {string} */
 	export let subTitle;
+	export let hasSectionTitle = false;
+	/** @type {string} */
+	export let sectionTitle;
 	export let sidebarCollapsed = false;
+	/** @type { {key: string, title: string, link: string}[] } */
 	export let items = [];
+	/** @type {string[]} */
 	export let userRoles = [];
+	/** @type {string[]} */
 	export let permissions = [];
 
+	console.log(sectionTitle, hasSectionTitle);
 	function handleSideBarSubTitleChange(event) {
 		const { id, enabled, title } = event.detail;
 		if (key === id) {
@@ -26,6 +38,11 @@
 </script>
 {#if allowAccess(permissions, userRoles)}
 	<li class="relative sub-item-wrapper" id="{key}">
+		{#if hasSectionTitle && !sidebarCollapsed}
+			<span class="slug dark:text-white/40 mb-[10px] mt-[30px] block px-6 text-[12px] font-medium uppercase text-light">
+				{sectionTitle}
+			</span>
+		{/if}
 		<button class="rounded-e-[20px] hover:bg-primary/10 focus:bg-primary/10 active:bg-primary/10 dark:text-subtitle-dark flex 
 						h-12 cursor-pointer items-center gap-[16px] truncate px-6 py-4 text-[14px] font-medium text-body outline-none transition 
 						duration-300 ease-linear hover:text-primary hover:outline-none focus:text-primary focus:outline-none active:text-primary 

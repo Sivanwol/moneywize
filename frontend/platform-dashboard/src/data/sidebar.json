@@ -2,14 +2,14 @@
   "sections": [
     {
       "hasTitle": true,
-      "title": "Sections",
+      "title": "Section 1",
       "permissions": [
         "admin"
       ],
       "items": [
         {
           "key": "menu-item-1",
-          "title": "Section 1",
+          "title": "menu item 1",
           "hasSubtitle": true,
           "hasIcon": true,
           "link": "/",
@@ -17,7 +17,7 @@
         },
         {
           "key": "menu-item-2",
-          "title": "Section 1",
+          "title": "menu item 2",
           "hasIcon": true,
           "icon": "uil-envelope",
           "link": "/"
@@ -25,20 +25,20 @@
       ]
     },
     {
-      "hasTitle": true,
-      "title": "Sections",
+      "hasTitle": false,
+      "title": "",
       "items": [
         {
           "key": "menu-item-1",
-          "title": "Section 1",
-          "hasSubtitle": true,
+          "title": "menu item 3",
+          "hasSubtitle": false,
           "hasIcon": true,
           "link": "/",
           "icon": "uil-envelope"
         },
         {
           "key": "menu-item-2",
-          "title": "Section 1",
+          "title": "menu item 4",
           "hasIcon": true,
           "icon": "uil-envelope",
           "link": "/",
