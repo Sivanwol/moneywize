@@ -2,12 +2,20 @@
 	import { UilAlignCenter } from 'svelte-unicons';
 
 	import { createEventDispatcher } from 'svelte';
+	import Notifications from '@components/common/Menus/Notifications.svelte';
 
 	const dispatch = createEventDispatcher();
+
 
 	function handleToggleSidebar() {
 		console.log('toggle sidebar');
 		dispatch('toggleSidebar', {});
+	}
+
+	let showMessageNotification = false;
+
+	async function handleToggleMessageNotification() {
+		showMessageNotification = !showMessageNotification;
 	}
 </script>
 <style>
@@ -33,302 +41,6 @@
 				</button>
 			</li>
 		</ul>
-
-		<!-- Header Center menu -->
-
-		<div class="relative ps-[30px] hexadash-top-menu hidden xl:[&.flex]:flex">
-			<ul class="flex flex-wrap items-center gap-y-[15px] gap-x-[34px]">
-				<li class="has-subMenu">
-					<a class="" href="#">Dashboard</a>
-					<ul class="subMenu">
-						<li class="">
-							<a href="index.html">Demo 1</a>
-						</li>
-						<li class="">
-							<a href="demo-two.html">Demo 2</a>
-						</li>
-					</ul>
-				</li>
-				<li class="has-subMenu">
-					<a class="" href="#">Apps</a>
-					<ul class="subMenu">
-						<li>
-							<ul>
-								<li class="has-subMenu-left">
-									<a class="" href="#">
-										<span class="nav-icon uil uil-envelope"></span>
-										<span class="menu-text">Email</span>
-									</a>
-									<ul class="subMenu">
-										<li>
-											<a class="" href="inbox.html">Inbox</a>
-										</li>
-										<li>
-											<a class="" href="email.html">Read
-												Email</a>
-										</li>
-									</ul>
-								</li>
-								<li>
-									<a class="" href="chat.html">
-										<span class="nav-icon uil uil-message"></span>
-										<span class="menu-text">Chat</span>
-										<span
-											class="text-white bg-success absolute -translate-y-2/4 text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center leading-none rounded-full end-[52px] top-2/4">3</span>
-									</a>
-								</li>
-								<li>
-									<a class="" href="calendar.html">
-										<span class="nav-icon uil uil-calender"></span>
-										<span class="menu-text">Calendar</span>
-									</a>
-								</li>
-								<li class="has-subMenu-left">
-									<a class="" href="#">
-										<span class="nav-icon uil uil-exchange"></span>
-										<span class="menu-text">Import & export</span>
-									</a>
-									<ul class="subMenu">
-										<li>
-											<a class="" href="contact-1.html">Import</a>
-										</li>
-										<li>
-											<a class="" href="contact-2.html">Export</a>
-										</li>
-									</ul>
-								</li>
-							</ul>
-						</li>
-					</ul>
-				</li>
-				<li class="has-subMenu">
-					<a class="" href="#">Features</a>
-					<ul class="subMenu">
-						<li class="has-subMenu-left">
-							<a class="" href="#">
-								<span class="nav-icon uil uil-chart"></span>
-								<span class="menu-text">Charts</span>
-							</a>
-							<ul class="subMenu">
-								<li>
-									<a class="" href="charts.html">Apex Chart</a>
-								</li>
-							</ul>
-						</li>
-						<li class="has-subMenu-left">
-							<a class="" href="#">
-								<span class="nav-icon uil uil-document-layout-left"></span>
-								<span class="menu-text">Froms</span>
-							</a>
-							<ul class="subMenu">
-								<li>
-									<a class="" href="form.html">Basics</a>
-								</li>
-								<li>
-									<a class="" href="form-elements.html">Elements</a>
-								</li>
-								<li>
-									<a class="" href="form-layouts.html">Layouts</a>
-								</li>
-								<li>
-									<a class="" href="form-components.html">Components</a>
-								</li>
-							</ul>
-						</li>
-						<li class="has-subMenu-left">
-							<a class="" href="#">
-								<span class="nav-icon uil uil-square-shape"></span>
-								<span class="menu-text">Wizards</span>
-							</a>
-							<ul class="subMenu">
-								<li>
-									<a class="" href="create-account.html">Wizard
-										1</a>
-								</li>
-							</ul>
-						</li>
-						<li class="has-subMenu-left">
-							<a class="" href="#">
-								<span class="nav-icon uil uil-icons"></span>
-								<span class="menu-text">Icons</span>
-							</a>
-							<ul class="subMenu">
-								<li>
-									<a class="" href="unicon-icons.html">Unicon
-										Icons</a>
-								</li>
-							</ul>
-						</li>
-						<li>
-							<a class="" href="editors.html">
-								<span class="nav-icon uil uil-font"></span>
-								<span class="menu-text">Editors</span>
-							</a>
-						</li>
-						<li class="has-subMenu-left">
-							<a class="" href="#">
-								<span class="nav-icon uil uil-map"></span>
-								<span class="menu-text">Maps</span>
-							</a>
-							<ul class="subMenu">
-								<li>
-									<a class="" href="vector-map.html">Vector
-										Maps</a>
-									<a class="" href="google-map.html">Google
-										Maps</a>
-								</li>
-							</ul>
-						</li>
-					</ul>
-				</li>
-				<li class="mega-item has-subMenu">
-					<a class="active" href="#">Pages</a>
-					<ul class="megaMenu-wrapper megaMenu-small">
-						<li>
-							<ul>
-								<li>
-									<a class="" href="change-log.html">
-										<span class="menu-text">Changelog</span>
-										<span
-											class="text-white bg-success absolute -translate-y-2/4 text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center leading-none rounded-[20px] end-[52px] top-2/4 px-[6px]">1.0.0</span>
-									</a>
-								</li>
-								<li>
-									<a class="" href="gallery.html">
-										<span class="menu-text">Gallery 1</span>
-									</a>
-								</li>
-								<li>
-									<a class="" href="pricing.html">
-										<span class="menu-text">Pricing</span>
-									</a>
-								</li>
-								<li>
-									<a class="" href="faq.html">
-										<span class="menu-text">FAQ's</span>
-									</a>
-								</li>
-								<li>
-									<a class=" active" href="blank.html">
-										<span class="menu-text">Blank Page</span>
-									</a>
-								</li>
-								<li>
-									<a class="" href="knowledge-base.html">knowledge base</a>
-								</li>
-								<li>
-									<a class="" href="blog.html">Blog</a>
-								</li>
-							</ul>
-						</li>
-						<li>
-							<ul>
-								<li>
-									<a class="" href="blog-two.html">Blog two</a>
-								</li>
-								<li>
-									<a class="" href="blog-three.html">Blog three</a>
-								</li>
-								<li>
-									<a class="" href="blog-details.html">Blog details</a>
-								</li>
-								<li>
-									<a class="" href="terms.html">
-										<span class="menu-text">Terms & Conditions</span>
-									</a>
-								</li>
-								<li>
-									<a class="" href="maintenance.html">
-										<span class="menu-text">Maintenance</span>
-									</a>
-								</li>
-								<li>
-									<a class="" href="404.html">
-										<span class="menu-text">404</span>
-									</a>
-								</li>
-								<li>
-									<a class="" href="coming-soon.html">
-										<span class="menu-text">Coming Soon</span>
-									</a>
-								</li>
-								<li>
-									<a class="" href="log-in.html">
-										<span class="menu-text">Log In</span>
-									</a>
-								</li>
-								<li>
-									<a class="" href="sign-up.html">
-										<span class="menu-text">Sign Up</span>
-									</a>
-								</li>
-								<li>
-									<a class="" href="reset.html">
-										<span class="menu-text">Forget password</span>
-									</a>
-								</li>
-							</ul>
-						</li>
-					</ul>
-				</li>
-				<li class="mega-item has-subMenu">
-					<a class="" href="#">Components</a>
-					<ul class="megaMenu-wrapper megaMenu-wide">
-						<li>
-							<span class="mega-title">Components</span>
-							<ul>
-								<li>
-									<a class="" href="alerts.html">Alert</a>
-								</li>
-								<li>
-									<a class="" href="avatars.html">Avatar</a>
-								</li>
-								<li>
-									<a class="" href="badges.html">Badge</a>
-								</li>
-							</ul>
-						</li>
-						<li>
-							<span class="mega-title">Components</span>
-							<ul>
-								<li>
-									<a class="" href="buttons.html">Button</a>
-								</li>
-								<li>
-									<a class="" href="cards.html">Cards</a>
-								</li>
-								<li>
-									<a class="" href="breadcrumbs.html">Breadcrumb</a>
-								</li>
-							</ul>
-						</li>
-						<li>
-							<span class="mega-title">Components</span>
-							<ul>
-								<li>
-									<a class="" href="carousel.html">Carousel</a>
-								</li>
-								<li>
-									<a class="" href="checkbox.html">Checkbox</a>
-								</li>
-							</ul>
-						</li>
-						<li>
-							<span class="mega-title">Components</span>
-							<ul>
-								<li>
-									<a class="" href="collapse.html">Collapse</a>
-								</li>
-								<li>
-									<a class="" href="comments.html">typography</a>
-								</li>
-							</ul>
-						</li>
-					</ul>
-				</li>
-			</ul>
-		</div>
-
 		<!-- Header right menu -->
 
 		<div class="flex items-center ms-auto py-[15px] sm:gap-x-[25px] max-sm:gap-x-[15px] gap-y-[15px] relative">
@@ -352,14 +64,17 @@
 				<i class="uil uil-ellipsis-v text-[18px]"></i>
 			</button>
 			<ul
-				class="xl:flex hidden items-center justify-end flex-auto mb-0 list-none ps-0 sm:gap-x-[25px] max-sm:gap-x-[15px] gap-y-[15px] max-xl:absolute max-xl:z-[1000] max-xl:m-0 max-xl:rounded-lg max-xl:border-none max-xl:bg-dark max-xl:bg-clip-padding max-xl:text-left max-xl:shadow-lg max-xl:dark:bg-neutral-700 max-xl:[&.active]:flex max-xl:end-0 max-xl:px-[20px] max-sm:px-[15px] max-xl:py-[10px] max-xl:top-[70px]"
+				class="xl:flex items-center justify-end flex-auto mb-0 list-none ps-0 sm:gap-x-[25px] max-sm:gap-x-[15px] gap-y-[15px] max-xl:absolute max-xl:z-[1000] max-xl:m-0 max-xl:rounded-lg max-xl:border-none max-xl:bg-dark max-xl:bg-clip-padding max-xl:text-left max-xl:shadow-lg max-xl:dark:bg-neutral-700 max-xl:[&.active]:flex max-xl:end-0 max-xl:px-[20px] max-sm:px-[15px] max-xl:py-[10px] max-xl:top-[70px]"
 				id="right-ellipsis-trigger">
 				<li>
 
 					<div class="relative" data-te-dropdown-ref>
-						<button aria-expanded="false"
+						<button aria-expanded="{showMessageNotification}"
+										data-te-dropdown-show={showMessageNotification || null}
 										class="flex items-center text-[22px] text-[#a0a0a0] dark:text-subtitle-dark relative min-h-[40px] group"
 										data-te-dropdown-toggle-ref id="message"
+										on:click={handleToggleMessageNotification}
+										on:keydown={(evt) => evt.key === 'Enter' && handleToggleMessageNotification()}
 										type="button">
 							<i class="uil uil-envelope"></i>
 							<span
@@ -369,12 +84,8 @@
                               <span class="relative inline-flex w-1.5 h-1.5 rounded-full bg-success"></span>
                            </span>
 						</button>
-						<div aria-labelledby="message"
-								 class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark [&[data-te-dropdown-show]]:block"
-								 data-te-dropdown-menu-ref>
-							<div
-								class="bg-dark dark:bg-box-dark shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4 px-[15px] py-[12px] md:min-w-[380px] sm:w-[300px] max-sm:w-[230px]">
-								<h1
+						<Notifications labelBy="message" openNotification="{showMessageNotification}">
+							<h1 slot="header"
 									class="flex items-center justify-center text-sm rounded-md bg-section dark:bg-box-dark-up h-[50px] p-[10px] text-dark dark:text-title-dark font-semibold">
                                  <span class="title-text">
                                     Messages
@@ -383,7 +94,8 @@
                                        3
                                     </span>
                                  </span>
-								</h1>
+							</h1>
+							<div>
 								<ul class="p-0 max-h-[250px] relative overflow-x-hidden overflow-y-auto scrollbar">
 
 									<li class="w-full">
@@ -555,7 +267,7 @@
 									See all messages
 								</a>
 							</div>
-						</div>
+						</Notifications>
 					</div>
 
 				</li>
