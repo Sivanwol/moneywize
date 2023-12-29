@@ -2,6 +2,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import SideBarSubMenuItem from '@components/common/sidebar/SideBarSubMenuItem.svelte';
 	import { allowAccess } from '@utility/permission.js';
+	import * as _ from 'lodash';
 
 	const dispatch = createEventDispatcher();
 	/** @type {string} */
@@ -20,20 +21,35 @@
 	/** @type {string} */
 	export let sectionTitle;
 	export let sidebarCollapsed = false;
-	/** @type { {key: string, title: string, link: string}[] } */
+	/** @type { {key: string, title: string, link: string, permissions: string[]}[] } */
 	export let items = [];
 	/** @type {string[]} */
 	export let userRoles = [];
 	/** @type {string[]} */
 	export let permissions = [];
 
+	let hasSidebarItems = _.isArray(items) && items.length > 0;
 	console.log(sectionTitle, hasSectionTitle);
+
 	function handleSideBarSubTitleChange(event) {
 		const { id, enabled, title } = event.detail;
 		if (key === id) {
 			hasSubTitle = enabled;
 			subTitle = title;
 		}
+	}
+
+	let visibleSideBarSubItems = false;
+
+	function handleSideBarSubItemsDropdownToggle(event) {
+		visibleSideBarSubItems = !visibleSideBarSubItems;
+	}
+
+	function handleSideBarClick() {
+		if (hasSidebarItems && !sidebarCollapsed) {
+			return;
+		}
+		window.location = link;
 	}
 </script>
 {#if allowAccess(permissions, userRoles)}
@@ -43,7 +59,7 @@
 				{sectionTitle}
 			</span>
 		{/if}
-		<button class="rounded-e-[20px] hover:bg-primary/10 focus:bg-primary/10 active:bg-primary/10 dark:text-subtitle-dark flex 
+		<a tabindex="0" href="javascript:void(0)" on:click={handleSideBarClick} on:keydown={handleSideBarClick} class="rounded-e-[20px] hover:bg-primary/10 focus:bg-primary/10 active:bg-primary/10 dark:text-subtitle-dark flex 
 						h-12 cursor-pointer items-center gap-[16px] truncate px-6 py-4 text-[14px] font-medium text-body outline-none transition 
 						duration-300 ease-linear hover:text-primary hover:outline-none focus:text-primary focus:outline-none active:text-primary 
 						active:outline-none [&.active]:text-primary dark:[&.active]:text-title-dark motion-reduce:transition-none dark:hover:bg-box-dark-up 
@@ -62,9 +78,18 @@
 					{subTitle}
 				</div>
 			{/if}
-		</button>
+
+			{#if hasSidebarItems && !sidebarCollapsed}
+				<span id="{key}_dropdown" role="link" tabindex="0" on:click={handleSideBarSubItemsDropdownToggle}
+							on:keydown={handleSideBarSubItemsDropdownToggle}
+							class=" arrow-down text-gray-600 dark:text-subtitle-dark absolute end-0 me-[0.8rem] ms-auto text-[18px] transition-transform duration-300 ease-linear motion-reduce:transition-none group-hover:text-current">
+					 <i class="uil uil-angle-down"></i>
+				</span>
+			{/if}
+		</a>
 	</li>
-	{#if items.length > 0}
-		<SideBarSubMenuItem items={items} sidebarCollapsed={sidebarCollapsed} userRoles={userRoles} />
+	{#if hasSidebarItems && !sidebarCollapsed}
+		<SideBarSubMenuItem items={items} visibleSideBarSubItems={visibleSideBarSubItems}
+												sidebarCollapsed={sidebarCollapsed} userRoles={userRoles} />
 	{/if}
 {/if}

@@ -3,14 +3,23 @@
 	import { createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher();
+	/**
+	 * @type {{
+	 * 	key: string,
+	 * 	title: string,
+	 * 	link: string,
+	 * 	permissions: string[]
+	 * }[]}
+	 */
 	export let items = [];
 	export let sidebarCollapsed = false;
+	export let visibleSideBarSubItems = false;
 	export let userRoles = [];
 
 	
 </script>
 <ul
-	class="sub-item !visible m-0 hidden list-none p-0 [&.show]:block scrollbar overflow-y-scroll  {sidebarCollapsed? 'hidden': ''} ">
+	class="sub-item !visible m-0 {!visibleSideBarSubItems? 'hidden': ''} list-none p-0 [&.show]:block scrollbar overflow-y-scroll  {sidebarCollapsed? 'hidden': ''} ">
 	{#each items as menuItem (menuItem.key)}
 		{#if allowAccess(menuItem.permissions || [], userRoles)}
 			<li class="relative">
