@@ -15,6 +15,7 @@
 	let showMessageWindow = false;
 	let showNotificationWindow = false;
 	let showSectionWindow = false;
+	let showLanguageWindow = false;
 
 	async function handleToggleMessageWindow() {
 		let currentState = !showMessageWindow;
@@ -35,10 +36,17 @@
 		showSectionWindow = currentState;
 	}
 
+	async function handleToggleLanguageWindow() {
+		let currentState = !showLanguageWindow;
+		resetWindowStates();
+		showLanguageWindow = currentState;
+	}
+
 	function resetWindowStates() {
 		showMessageWindow = false;
 		showNotificationWindow = false;
 		showSectionWindow = false;
+		showLanguageWindow = false;
 	}
 </script>
 <style>
@@ -471,14 +479,13 @@
 							<i class="uil uil-setting"></i>
 						</button>
 						<Notifications labelBy="settings" openNotification="{showSectionWindow}">
-							<h1 slot="header"></h1>
 							<ul
 								class="flex flex-wrap items-center lg:[&>li]:flex-[50%] max-lg:[&>li]:flex-[100%] max-h-[251px] relative overflow-x-hidden overflow-y-auto scrollbar scrollbar">
 
 								<li class="w-full">
 									<figure
 										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="audio" class="h-fit me-4" src="images/settings/audio.png">
+										<img alt="audio" class="h-fit me-4" src="/img/settings/audio.png">
 										<figcaption>
 											<h1
 												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
@@ -491,7 +498,7 @@
 								<li class="w-full">
 									<figure
 										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="payment" class="h-fit me-4" src="images/settings/payment.png">
+										<img alt="payment" class="h-fit me-4" src="/img/settings/payment.png">
 										<figcaption>
 											<h1
 												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
@@ -504,7 +511,7 @@
 								<li class="w-full">
 									<figure
 										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="feature" class="h-fit me-4" src="images/settings/feature.png">
+										<img alt="feature" class="h-fit me-4" src="/img/settings/feature.png">
 										<figcaption>
 											<h1
 												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
@@ -517,7 +524,7 @@
 								<li class="w-full">
 									<figure
 										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="theme" class="h-fit me-4" src="images/settings/theme.png">
+										<img alt="theme" class="h-fit me-4" src="/img/settings/theme.png">
 										<figcaption>
 											<h1
 												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
@@ -531,7 +538,7 @@
 								<li class="w-full">
 									<figure
 										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="payment" class="h-fit me-4" src="images/settings/payment.png">
+										<img alt="payment" class="h-fit me-4" src="/img/settings/payment.png">
 										<figcaption>
 											<h1
 												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
@@ -544,7 +551,7 @@
 								<li class="w-full">
 									<figure
 										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="design" class="h-fit me-4" src="images/settings/design.png">
+										<img alt="design" class="h-fit me-4" src="/img/settings/design.png">
 										<figcaption>
 											<h1
 												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
@@ -557,7 +564,7 @@
 								<li class="w-full">
 									<figure
 										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="file" class="h-fit me-4" src="images/settings/file.png">
+										<img alt="file" class="h-fit me-4" src="/img/settings/file.png">
 										<figcaption>
 											<h1
 												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
@@ -571,7 +578,7 @@
 								<li class="w-full">
 									<figure
 										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="audio" class="h-fit me-4" src="images/settings/audio.png">
+										<img alt="audio" class="h-fit me-4" src="/img/settings/audio.png">
 										<figcaption>
 											<h1
 												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
@@ -588,14 +595,19 @@
 				<li>
 
 					<div class="relative" data-te-dropdown-ref>
-						<button aria-expanded="false" class="flex items-center" data-te-dropdown-toggle-ref id="flags"
+						<button aria-expanded="{showLanguageWindow}"
+										class="flex items-center"
+										data-te-dropdown-show={showLanguageWindow || null}
+										data-te-dropdown-toggle-ref id="flags"
+										on:click={handleToggleLanguageWindow}
+										on:keydown={(evt) => evt.key === 'Enter' && handleToggleLanguageWindow()}
 										type="button">
-							<img alt="flags" class="min-w-[20px] min-h-[20px]" src="/img/flags/english.png">
+							<img alt="flags" class="min-w-[20px] min-h-[20px]" src="/img/flags/english.png" />
 						</button>
-						<div
-							aria-labelledby="flags"
-							class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block"
-							data-te-dropdown-menu-ref>
+						<Notifications continerLimit=""
+													 labelBy="flags"
+													 openNotification="{showLanguageWindow}"
+													 overrideClasses="absolute z-[1000] ltr:float-left rtl:float-right m-0 min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block">
 							<ul
 								class="block bg-dark dark:bg-box-dark-down w-[100px] shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4 overflow-hidden">
 								<li class="bg-dark dark:bg-box-dark-down hover:bg-primary/10 dark:hover:bg-primary/10">
@@ -611,7 +623,7 @@
 									</button>
 								</li>
 							</ul>
-						</div>
+						</Notifications>
 					</div>
 
 				</li>
@@ -624,7 +636,7 @@
 										type="button">
 							<span class="sr-only">Open user menu</span>
 							<img alt="user photo" class="min-w-[32px] w-8 h-8 rounded-full xl:me-2"
-									 src="images/avatars/thumbs.png">
+									 src="/img/avatars/thumbs.png" />
 							<span class="hidden xl:block">Shamim Ahmed</span>
 							<i class="uil uil-angle-down text-light dark:text-subtitle-dark text-[18px] hidden xl:block"></i>
 						</button>

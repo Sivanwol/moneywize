@@ -12,7 +12,7 @@ export default {
 	theme: {
 		extend: {
 			colors: {
-				primary: '#8231D3',
+				primary: '#9035e8',
 				secondary: '#5840FF',
 				success: '#01B81A',
 				pink: '#f2eafb',

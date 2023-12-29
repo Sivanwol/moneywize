@@ -4,7 +4,9 @@
 	/** @type {string} */
 	export let labelBy; // string
 	/** @type {string} */
-	export let cssClass = ''; // string
+	export let continerLimit = ' px-[15px] py-[12px] md:min-w-[400px] sm:w-[300px] max-sm:w-[230px]'; // string
+	/** @type {string} */
+	export let overrideClasses = 'absolute z-[1000] ltr:float-left rtl:float-right m-0 min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block'; // string
 	/** @type {string} */
 
 	/** @type {() => void } */
@@ -23,6 +25,7 @@
 		openNotification = false;
 		onClose?.();
 	}
+
 </script>
 <style>
     .open-notification {
@@ -33,13 +36,11 @@
         background-color: #23241f;
     }
 </style>
-<div aria-labelledby={labelBy} class="absolute z-[1000] ltr:float-left rtl:float-right m-0 {openNotification?'open-notification':'hidden'} min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block"
+<div aria-labelledby={labelBy} class="{overrideClasses} {openNotification?'open-notification':'hidden'}"
 		 data-te-dropdown-menu-ref>
 	<div
-		class="bg-dark dark:bg-box-dark shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4 px-[15px] py-[12px] md:min-w-[400px] sm:w-[300px] max-sm:w-[230px]">
-		<div class={cssClass}>
-			<slot name="header" />
-			<slot />
-		</div>
+		class="bg-dark dark:bg-box-dark shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4 {continerLimit} ">
+		<slot name="header" />
+		<slot />
 	</div>
 </div>
