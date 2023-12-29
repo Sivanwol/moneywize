@@ -12,10 +12,25 @@
 		dispatch('toggleSidebar', {});
 	}
 
-	let showMessageNotification = false;
+	let showMessageWindow = false;
+	let showNotificationWindow = false;
 
-	async function handleToggleMessageNotification() {
-		showMessageNotification = !showMessageNotification;
+	async function handleToggleMessageWindow() {
+		let currentState = !showMessageWindow;
+		resetWindowStates();
+		showMessageWindow = currentState;
+
+	}
+
+	async function handleToggleNotificationWindow() {
+		let currentState = !showNotificationWindow;
+		resetWindowStates();
+		showNotificationWindow = currentState;
+	}
+
+	function resetWindowStates() {
+		showMessageWindow = false;
+		showNotificationWindow = false;
 	}
 </script>
 <style>
@@ -67,14 +82,13 @@
 				class="xl:flex items-center justify-end flex-auto mb-0 list-none ps-0 sm:gap-x-[25px] max-sm:gap-x-[15px] gap-y-[15px] max-xl:absolute max-xl:z-[1000] max-xl:m-0 max-xl:rounded-lg max-xl:border-none max-xl:bg-dark max-xl:bg-clip-padding max-xl:text-left max-xl:shadow-lg max-xl:dark:bg-neutral-700 max-xl:[&.active]:flex max-xl:end-0 max-xl:px-[20px] max-sm:px-[15px] max-xl:py-[10px] max-xl:top-[70px]"
 				id="right-ellipsis-trigger">
 				<li>
-
 					<div class="relative" data-te-dropdown-ref>
-						<button aria-expanded="{showMessageNotification}"
-										data-te-dropdown-show={showMessageNotification || null}
+						<button aria-expanded="{showMessageWindow}"
+										data-te-dropdown-show={showMessageWindow || null}
 										class="flex items-center text-[22px] text-[#a0a0a0] dark:text-subtitle-dark relative min-h-[40px] group"
 										data-te-dropdown-toggle-ref id="message"
-										on:click={handleToggleMessageNotification}
-										on:keydown={(evt) => evt.key === 'Enter' && handleToggleMessageNotification()}
+										on:click={handleToggleMessageWindow}
+										on:keydown={(evt) => evt.key === 'Enter' && handleToggleMessageWindow()}
 										type="button">
 							<i class="uil uil-envelope"></i>
 							<span
@@ -84,7 +98,7 @@
                               <span class="relative inline-flex w-1.5 h-1.5 rounded-full bg-success"></span>
                            </span>
 						</button>
-						<Notifications labelBy="message" openNotification="{showMessageNotification}">
+						<Notifications labelBy="message" openNotification="{showMessageWindow}">
 							<h1 slot="header"
 									class="flex items-center justify-center text-sm rounded-md bg-section dark:bg-box-dark-up h-[50px] p-[10px] text-dark dark:text-title-dark font-semibold">
                                  <span class="title-text">
@@ -274,9 +288,13 @@
 				<li>
 
 					<div class="relative" data-te-dropdown-ref>
-						<button aria-expanded="false"
-										class="flex items-center hs-dropdown-toggle text-[23px] text-[#a0a0a0] dark:text-subtitle-dark relative min-h-[40px] group"
+
+						<button aria-expanded="{showNotificationWindow}"
+										class="flex items-center text-[22px] text-[#a0a0a0] dark:text-subtitle-dark relative min-h-[40px] group"
+										data-te-dropdown-show={showNotificationWindow || null}
 										data-te-dropdown-toggle-ref id="notification"
+										on:click={handleToggleNotificationWindow}
+										on:keydown={(evt) => evt.key === 'Enter' && handleToggleNotificationWindow()}
 										type="button">
 							<i class="uil uil-bell"></i>
 							<span
@@ -286,11 +304,8 @@
                               <span class="relative inline-flex w-1.5 h-1.5 rounded-full bg-warning"></span>
                            </span>
 						</button>
-						<div aria-labelledby="notification"
-								 class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block"
-								 data-te-dropdown-menu-ref>
-							<div
-								class="bg-dark dark:bg-box-dark shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4 px-[15px] py-[12px] md:min-w-[400px] sm:w-[300px] max-sm:w-[230px]">
+
+						<Notifications labelBy="notification" openNotification="{showNotificationWindow}">
 								<h1
 									class="flex items-center justify-center text-sm rounded-md bg-section dark:bg-box-dark-up h-[50px] p-[10px] text-dark dark:text-title-dark font-semibold">
 											<span class="title-text me-2.5">Notifications<span
@@ -431,8 +446,7 @@
 								<a
 									class="flex items-center justify-center text-[13px] font-medium bg-normalBG dark:bg-box-dark-up h-[50px] text-light hover:text-primary dark:hover:text-subtitle-dark dark:text-title-dark mx-[-15px] mb-[-15px] rounded-b-6"
 									href="#">See all incoming activity</a>
-							</div>
-						</div>
+						</Notifications>
 					</div>
 
 				</li>
