@@ -1,12 +1,12 @@
 <script>
 	import { UilAlignCenter } from 'svelte-unicons';
 	import { createEventDispatcher } from 'svelte';
-	import UserMessagesHeader from '@components/User/UserMessagesHeader.svelte';
-	import UserNotificationsHeader from '@components/User/UserNotificationsHeader.svelte';
-	import SiteSectionSelectionHeader from '@components/User/SiteSectionSelectionHeader.svelte';
+	import UserMessagesHeader from '@components/user/UserMessagesHeader.svelte';
+	import UserNotificationsHeader from '@components/user/UserNotificationsHeader.svelte';
+	import SiteSectionSelectionHeader from '@components/user/SiteSectionSelectionHeader.svelte';
+	import UserSelectionLanguageHeader from '@components/user/UserSelectionLanguageHeader.svelte';
+	import UserMenuHeader from '@components/user/UserMenuHeader.svelte';
 	import { Language } from '@models/Language.js';
-	import UserSelectionLanguageHeader from '@components/User/UserSelectionLanguageHeader.svelte';
-	import UserMenuHeader from '@components/User/UserMenuHeader.svelte';
 	import { UserProfile } from '@models/UserProfile.js';
 
 	const dispatch = createEventDispatcher();
