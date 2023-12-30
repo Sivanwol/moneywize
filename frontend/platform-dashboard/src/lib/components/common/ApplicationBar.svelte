@@ -83,8 +83,7 @@
 		<!-- Header right menu -->
 
 		<div class="flex items-center ms-auto py-[15px] sm:gap-x-[25px] max-sm:gap-x-[15px] gap-y-[15px] relative">
-
-			<div class="relative">
+			<div class="relative hidden">
 				<button
 					class="transition-all theme-dropdown-trigger text-[20px] text-light dark:text-subtitle-dark [&.close>.uil-search]:hidden [&.close>.uil-multiply]:block"
 					type="button">
@@ -711,10 +710,7 @@
 								</button>
 							</div>
 						</Notifications>
-
 					</div>
-
-
 				</li>
 			</ul>
 		</div>
