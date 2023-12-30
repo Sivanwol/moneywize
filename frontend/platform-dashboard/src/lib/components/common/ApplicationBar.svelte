@@ -16,6 +16,7 @@
 	let showNotificationWindow = false;
 	let showSectionWindow = false;
 	let showLanguageWindow = false;
+	let showUserSettingsWindow = false;
 
 	async function handleToggleMessageWindow() {
 		let currentState = !showMessageWindow;
@@ -42,11 +43,18 @@
 		showLanguageWindow = currentState;
 	}
 
+	async function handleToggleUserSettingsWindow() {
+		let currentState = !showUserSettingsWindow;
+		resetWindowStates();
+		showUserSettingsWindow = currentState;
+	}
+
 	function resetWindowStates() {
 		showMessageWindow = false;
 		showNotificationWindow = false;
 		showSectionWindow = false;
 		showLanguageWindow = false;
+		showUserSettingsWindow = false;
 	}
 </script>
 <style>
@@ -628,31 +636,32 @@
 
 				</li>
 				<li>
-
 					<div class="relative" data-te-dropdown-ref>
-						<button aria-expanded="false"
-										class="flex items-center me-1.5 text-body dark:text-subtitle-dark text-sm font-medium capitalize rounded-full md:me-0 group whitespace-nowrap"
-										data-te-dropdown-toggle-ref id="author-dropdown"
+						<button aria-expanded="{showUserSettingsWindow}"
+										class="flex items-center"
+										data-te-dropdown-show={showUserSettingsWindow || null}
+										data-te-dropdown-toggle-ref id="user-settings"
+										on:click={handleToggleUserSettingsWindow}
+										on:keydown={(evt) => evt.key === 'Enter' && handleToggleUserSettingsWindow()}
 										type="button">
 							<span class="sr-only">Open user menu</span>
 							<img alt="user photo" class="min-w-[32px] w-8 h-8 rounded-full xl:me-2"
 									 src="/img/avatars/thumbs.png" />
-							<span class="hidden xl:block">Shamim Ahmed</span>
+							<span class="hidden xl:block">Sivan Wolberg</span>
 							<i class="uil uil-angle-down text-light dark:text-subtitle-dark text-[18px] hidden xl:block"></i>
 						</button>
 
 						<!-- Dropdown menu -->
-						<div
-							aria-labelledby="author-dropdown"
-							class="absolute z-[1000] ltr:float-left rtl:float-right m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block"
-							data-te-dropdown-menu-ref>
+						<Notifications continerLimit="min-w-[310px] max-sm:min-w-full"
+													 labelBy="user-settings"
+													 openNotification="{showUserSettingsWindow}">
 							<div
-								class="min-w-[310px] max-sm:min-w-full pt-4 px-[15px] py-[12px] bg-dark dark:bg-box-dark shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4">
+								class=" pt-4 px-[15px] py-[12px] bg-dark dark:bg-box-dark shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4">
 								<figure
 									class="flex items-center text-sm rounded-[8px] bg-section dark:bg-box-dark-up py-[20px] px-[25px] mb-[12px] gap-[15px]">
 									<img alt="user" class="w-8 h-8 rounded-full bg-regular" src="images/avatars/thumbs.png">
 									<figcaption>
-										<div class="text-dark dark:text-title-dark mb-0.5 text-sm">Shamim Ahmed</div>
+										<div class="text-dark dark:text-title-dark mb-0.5 text-sm">Sivan Wolberg</div>
 										<div class="mb-0 text-xs text-body dark:text-subtitle-dark">Software Engineer</div>
 									</figcaption>
 								</figure>
@@ -680,15 +689,6 @@
 										<div class="p-0 dark:hover:text-white hover:bg-primary/10 dark:hover:bg-box-dark-up rounded-4">
 											<button
 												class="inline-flex items-center text-light dark:text-subtitle-dark hover:text-primary hover:ps-6 w-full px-2.5 py-3 text-sm transition-all ease-in-out delay-150 gap-[10px]">
-												<i class="text-[16px] uil uil-key-skeleton"></i>
-												Billing
-											</button>
-										</div>
-									</li>
-									<li class="w-full">
-										<div class="p-0 dark:hover:text-white hover:bg-primary/10 dark:hover:bg-box-dark-up rounded-4">
-											<button
-												class="inline-flex items-center text-light dark:text-subtitle-dark hover:text-primary hover:ps-6 w-full px-2.5 py-3 text-sm transition-all ease-in-out delay-150 gap-[10px]">
 												<i class="text-[16px] uil uil-users-alt"></i>
 												Activity
 											</button>
@@ -704,12 +704,14 @@
 										</div>
 									</li>
 								</ul>
-								<a
-									class="flex items-center justify-center text-sm font-medium bg-normalBG dark:bg-box-dark-up h-[50px] text-light hover:text-primary dark:hover:text-subtitle-dark dark:text-title-dark mx-[-15px] mb-[-15px] rounded-b-6 gap-[6px]"
+								<button
+									class="flex items-center justify-center w-full text-sm font-medium bg-normalBG dark:bg-box-dark-up h-[50px] text-light hover:text-primary dark:hover:text-subtitle-dark dark:text-title-dark mb-[-15px] rounded-b-6 gap-[6px]"
 									href="log-in.html">
-									<i class="uil uil-sign-out-alt"></i> Sign Out</a>
+									<i class="uil uil-sign-out-alt"></i> Sign Out
+								</button>
 							</div>
-						</div>
+						</Notifications>
+
 					</div>
 
 
