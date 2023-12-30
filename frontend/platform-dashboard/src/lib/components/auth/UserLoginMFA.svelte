@@ -11,6 +11,7 @@
 	const inputStyle = 'outlined';
 	export let userToken = '';
 	export let otpToken = '';
+	let errorOnConfirm = false;
 	const { form, errors, state, handleSubmit } = createForm({
 		validationSchema: yup.object().shape({
 			code: yup.string().min(7).max(255).required()
@@ -20,24 +21,13 @@
 		},
 		onSubmit: async (values) => {
 			try {
+				errorOnConfirm = false;
 				const response = await requestLoginConfirm(userToken, otpToken, values.code);
-				if (response.status !== 200) {
-					dispatch('login', {
-						error: $_('login.error_confirm'),
-						tokens: null,
-						userId: null
-					});
+				if (!response.isValidRequest()) {
+					errorOnConfirm = true;
 					return;
 				}
-				const { tokens, userId } = response.data.data;
-				if (!response.data.status) {
-					dispatch('loginMfa', {
-						error: response.data.message,
-						tokens: null,
-						userId: null
-					});
-					return;
-				}
+				const { tokens, userId } = response.data;
 				dispatch('loginMfa', {
 					error: null,
 					tokens,
@@ -45,17 +35,13 @@
 				});
 
 			} catch (e) {
-				dispatch('loginMfa', {
-					error: e.message,
-					tokens: null,
-					userId: null
-				});
+				errorOnConfirm = true;
 			}
 		}
 	});
 	onMount(() => {
 		console.log({ userToken, otpToken });
-		if (!userToken || !otpToken) {
+		if (!userToken || userToken === '' || !otpToken || otpToken === '') {
 			dispatch('loginMfa', {
 				error: $_('login.error_confirm'),
 				tokens: null
@@ -71,10 +57,10 @@
 				{$_('login.code')}
 			</FloatingLabelInput>
 		</div>
-		{#if $errors.code}
-			<Helper color="red" name="email">
+		{#if errorOnConfirm}
+			<Helper color="red" name="code">
 				<span class="font-medium">{$_('common.alerts.snap')}</span>
-				{ $errors.code }
+				{ $_('login.error_confirm') }
 			</Helper>
 		{/if}
 		{#if !loaded}

@@ -17,10 +17,11 @@ export const requestLogin = async (email, passowrd) => {
 };
 export const requestLoginConfirm = async (userToken, otpToken, code) => {
 	try {
-		const response = await apiClientUnauthorized.post('/Auth/login/confirm', {
-			userToken,
-			otpToken,
-			code
+		console.log(userToken, otpToken, code);
+		const response = await apiClientUnauthorized.put('/Auth/login/confirm', {
+			UserToken: userToken,
+			OTPToken: otpToken,
+			Code: code
 		});
 		return new ApiResponse(response);
 	} catch (error) {

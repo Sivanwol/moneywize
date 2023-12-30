@@ -1,12 +1,12 @@
 <script>
-	import { Alert } from 'flowbite-svelte';
 	import { fade } from 'svelte/transition';
+	import { _ } from 'svelte-i18n';
 	import UserLogin from '@components/auth/UserLogin.svelte';
 	import UserLoginMFA from '@components/auth/UserLoginMFA.svelte';
 	import { get } from 'lodash-es';
-	import { _ } from 'svelte-i18n';
 	import { createAuth } from '@stores/authStore.js';
 	import { goto } from '$app/navigation';
+	import { Alert } from 'flowbite-svelte';
 
 	const inputStyle = 'outlined';
 	/** @type {any} */
@@ -24,6 +24,7 @@
 		const { tokens, userId, error } = event.detail;
 		if (tokens === null) {
 			formState.error = error;
+			visibleConfirmForm = false;
 			return;
 		}
 		const accessToken = get(tokens, 'accessToken');
@@ -35,10 +36,13 @@
 	}
 
 	function handleLogin(event) {
-		console.log(event);
+		console.log(event.detail);
+		formState.error = event.detail.error;
+		if (formState.error) {
+			return;
+		}
 		formState.userToken = event.detail.userToken;
 		formState.otpToken = event.detail.otpToken;
-		formState.error = event.detail.error;
 		visibleConfirmForm = true;
 		
 	}

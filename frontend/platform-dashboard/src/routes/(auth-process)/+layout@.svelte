@@ -7,7 +7,7 @@
         background: url('img/signin-bg.png') no-repeat center center/cover;
     }
 </style>
-<div class="container relative">
+<div class="relative">
 	<section>
 		<div class="overflow-hidden rounded-[0.5rem]  bg-background shadow-md md:shadow-xl">
 			<div class="md:hidden">

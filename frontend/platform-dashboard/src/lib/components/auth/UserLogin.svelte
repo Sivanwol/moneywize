@@ -22,9 +22,9 @@
 			try {
 				const response = await requestLogin(values.email, values.password);
 				loaded = true;
-				if (response.status !== 200) {
+				if (!response.isValidRequest()) {
 					dispatch('login', {
-						error: $_('login.error'),
+						error: response.errors[0],
 						otpToken: null,
 						userToken: null,
 						otpExpire: null
@@ -32,17 +32,7 @@
 					loaded = false;
 					return;
 				}
-				if (!response.data.status) {
-					dispatch('login', {
-						error: response.data.message,
-						otpToken: null,
-						userToken: null,
-						otpExpire: null
-					});
-					loaded = false;
-					return;
-				}
-				const { otpToken, userToken, otpExpire } = response.data.data;
+				const { otpToken, userToken, otpExpire } = response.data;
 				dispatch('login', {
 					error: null,
 					otpToken: otpToken,
