@@ -3,12 +3,14 @@
 
 	import { createEventDispatcher } from 'svelte';
 	import Notifications from '@components/common/Menus/Notifications.svelte';
+	import UserMessagesHeader from '@components/User/UserMessagesHeader.svelte';
+	import UserNotificationsHeader from '@components/User/UserNotificationsHeader.svelte';
 
 	const dispatch = createEventDispatcher();
 
 
 	function handleToggleSidebar() {
-		console.log('toggle sidebar');
+		resetWindowStates();
 		dispatch('toggleSidebar', {});
 	}
 
@@ -18,18 +20,6 @@
 	let showLanguageWindow = false;
 	let showUserSettingsWindow = false;
 
-	async function handleToggleMessageWindow() {
-		let currentState = !showMessageWindow;
-		resetWindowStates();
-		showMessageWindow = currentState;
-
-	}
-
-	async function handleToggleNotificationWindow() {
-		let currentState = !showNotificationWindow;
-		resetWindowStates();
-		showNotificationWindow = currentState;
-	}
 
 	async function handleToggleSectionWindow() {
 		let currentState = !showSectionWindow;
@@ -56,6 +46,22 @@
 		showLanguageWindow = false;
 		showUserSettingsWindow = false;
 	}
+
+	function handleMessagesWindowEvent(event) {
+		const { status } = event.detail;
+		resetWindowStates();
+		showMessageWindow = status;
+	}
+
+	function handleNotificationWindowEvent(event) {
+		const { status } = event.detail;
+		resetWindowStates();
+		showNotificationWindow = status;
+	}
+
+	function handleMouseLeave() {
+		resetWindowStates();
+	}
 </script>
 <style>
     .header-content {
@@ -64,7 +70,8 @@
     }
 </style>
 <header
-	class="sticky header-content top-0 flex w-full bg-dark z-[10] drop-shadow-1 dark:bg-box-dark dark:drop-shadow-none min-h-[70px]">
+	class="sticky header-content top-0 flex w-full bg-dark z-[10] drop-shadow-1 dark:bg-box-dark dark:drop-shadow-none min-h-[70px]"
+	on:mouseleave={handleMouseLeave} role="presentation">
 	<!-- Navigation -->
 	<div class="flex flex-1 nav-wrap md:ps-[20px] ps-[30px] pe-[30px]">
 		<!-- Header left menu -->
@@ -105,373 +112,13 @@
 				class="xl:flex items-center justify-end flex-auto mb-0 list-none ps-0 sm:gap-x-[25px] max-sm:gap-x-[15px] gap-y-[15px] max-xl:absolute max-xl:z-[1000] max-xl:m-0 max-xl:rounded-lg max-xl:border-none max-xl:bg-dark max-xl:bg-clip-padding max-xl:text-left max-xl:shadow-lg max-xl:dark:bg-neutral-700 max-xl:[&.active]:flex max-xl:end-0 max-xl:px-[20px] max-sm:px-[15px] max-xl:py-[10px] max-xl:top-[70px]"
 				id="right-ellipsis-trigger">
 				<li>
-					<div class="relative" data-te-dropdown-ref>
-						<button aria-expanded="{showMessageWindow}"
-										data-te-dropdown-show={showMessageWindow || null}
-										class="flex items-center text-[22px] text-[#a0a0a0] dark:text-subtitle-dark relative min-h-[40px] group"
-										data-te-dropdown-toggle-ref id="message"
-										on:click={handleToggleMessageWindow}
-										on:keydown={(evt) => evt.key === 'Enter' && handleToggleMessageWindow()}
-										type="button">
-							<i class="uil uil-envelope"></i>
-							<span
-								class="absolute flex w-1.5 h-1.5 translate-x-2/4 -translate-y-2/4 origin-[100%_0%] end-[3px] top-[8px] group-[[data-te-dropdown-show]]:hidden">
-                              <span
-																class="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping bg-success/20"></span>
-                              <span class="relative inline-flex w-1.5 h-1.5 rounded-full bg-success"></span>
-                           </span>
-						</button>
-						<Notifications labelBy="message" openNotification="{showMessageWindow}">
-							<h1 slot="header"
-									class="flex items-center justify-center text-sm rounded-md bg-section dark:bg-box-dark-up h-[50px] p-[10px] text-dark dark:text-title-dark font-semibold">
-                                 <span class="title-text">
-                                    Messages
-                                    <span
-																			class="inline-flex items-center justify-center w-5 h-5 text-xs text-white rounded-full ms-[8px] bg-success dark:text-title-dark">
-                                       3
-                                    </span>
-                                 </span>
-							</h1>
-							<div>
-								<ul class="p-0 max-h-[250px] relative overflow-x-hidden overflow-y-auto scrollbar">
-
-									<li class="w-full">
-										<div
-											class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark transition-[0.3s] hover:text-primary hover:bg-dark dark:hover:bg-dark/[.06] hover:shadow-custom dark:shadow-none dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.20)] dark:rounded-4">
-											<figure
-												class="inline-flex w-full mb-0 align-top sm:gap-x-[16px] gap-y-[8px] max-sm:flex-wrap">
-												<div class="text-light w-[40px] min-w-[40px] h-[40px] rounded-full relative">
-															<span
-																class="bg-current absolute content-[''] w-[12px] h-[12px] rounded-full border-2 border-white right-0 bottom-0"
-															></span>
-													<img class="object-cover w-[40px] h-[40px] bg-light-extra rounded-full"
-															 src="images/messages/app-developer.png">
-												</div>
-												<figcaption class="w-full -mt-1 text-start">
-													<h1 class="flex items-center justify-between mb-0.5 text-sm text-current font-semibold">
-														App developer
-														<span class="text-xs font-normal text-text-light">2.5 hrs ago</span>
-													</h1>
-													<div class="flex items-center gap-[30px] text-start">
-                                                <span class="ps-0 min-w-[216px] text-body dark:text-subtitle-dark">Lorem ipsum
-                                                   dolor amet cosec...</span>
-														<span
-															class="inline-flex items-center justify-center w-4 h-4 text-white rounded-full bg-light dark:text-white/[.87 text-10">3</span>
-													</div>
-												</figcaption>
-											</figure>
-										</div>
-									</li>
-									<li class="w-full">
-										<div
-											class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark transition-[0.3s] hover:text-primary hover:bg-dark dark:hover:bg-dark/[.06] hover:shadow-custom dark:shadow-none dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.20)] dark:rounded-4">
-											<figure
-												class="inline-flex w-full mb-0 align-top sm:gap-x-[16px] gap-y-[8px] max-sm:flex-wrap">
-												<div class="text-success w-[40px] min-w-[40px] h-[40px] rounded-full relative">
-															<span
-																class="bg-current absolute content-[''] w-[12px] h-[12px] rounded-full border-2 border-white right-0 bottom-0"
-															></span>
-													<img class="object-cover w-[40px] h-[40px] bg-light-extra rounded-full"
-															 src="images/messages/product.png">
-												</div>
-												<figcaption class="w-full -mt-1 text-start">
-													<h1 class="flex items-center justify-between mb-0.5 text-sm text-current font-semibold">
-														Product manager
-														<span class="text-xs font-normal text-text-success">2.5 hrs ago</span>
-													</h1>
-													<div class="flex items-center gap-[30px] text-start">
-                                                <span class="ps-0 min-w-[216px] text-body dark:text-subtitle-dark">Lorem ipsum
-                                                   dolor amet cosec...</span>
-														<span
-															class="inline-flex items-center justify-center w-4 h-4 text-white rounded-full bg-success dark:text-white/[.87 text-10">3</span>
-													</div>
-												</figcaption>
-											</figure>
-										</div>
-									</li>
-									<li class="w-full">
-										<div
-											class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark transition-[0.3s] hover:text-primary hover:bg-dark dark:hover:bg-dark/[.06] hover:shadow-custom dark:shadow-none dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.20)] dark:rounded-4">
-											<figure
-												class="inline-flex w-full mb-0 align-top sm:gap-x-[16px] gap-y-[8px] max-sm:flex-wrap">
-												<div class="text-success w-[40px] min-w-[40px] h-[40px] rounded-full relative">
-															<span
-																class="bg-current absolute content-[''] w-[12px] h-[12px] rounded-full border-2 border-white right-0 bottom-0"
-															></span>
-													<img class="object-cover w-[40px] h-[40px] bg-light-extra rounded-full"
-															 src="images/messages/ui-ux-design.png">
-												</div>
-												<figcaption class="w-full -mt-1 text-start">
-													<h1 class="flex items-center justify-between mb-0.5 text-sm text-current font-semibold">
-														UI UX Designing
-														<span class="text-xs font-normal text-text-success">6 hrs ago</span>
-													</h1>
-													<div class="flex items-center gap-[30px] text-start">
-                                                <span class="ps-0 min-w-[216px] text-body dark:text-subtitle-dark">Lorem ipsum
-                                                   dolor amet cosec...</span>
-														<span
-															class="inline-flex items-center justify-center w-4 h-4 text-white rounded-full bg-success dark:text-white/[.87 text-10">3</span>
-													</div>
-												</figcaption>
-											</figure>
-										</div>
-									</li>
-									<li class="w-full">
-										<div
-											class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark transition-[0.3s] hover:text-primary hover:bg-dark dark:hover:bg-dark/[.06] hover:shadow-custom dark:shadow-none dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.20)] dark:rounded-4">
-											<figure
-												class="inline-flex w-full mb-0 align-top sm:gap-x-[16px] gap-y-[8px] max-sm:flex-wrap">
-												<div class="text-warning w-[40px] min-w-[40px] h-[40px] rounded-full relative">
-															<span
-																class="bg-current absolute content-[''] w-[12px] h-[12px] rounded-full border-2 border-white right-0 bottom-0"
-															></span>
-													<img class="object-cover w-[40px] h-[40px] bg-light-extra rounded-full"
-															 src="images/messages/web-design-software-engineering.png">
-												</div>
-												<figcaption class="w-full -mt-1 text-start">
-													<h1 class="flex items-center justify-between mb-0.5 text-sm text-current font-semibold">
-														Software Development
-														<span class="text-xs font-normal text-text-warning">3 hrs ago</span>
-													</h1>
-													<div class="flex items-center gap-[30px] text-start">
-                                                <span class="ps-0 min-w-[216px] text-body dark:text-subtitle-dark">Lorem ipsum
-                                                   dolor amet cosec...</span>
-														<span
-															class="inline-flex items-center justify-center w-4 h-4 text-white rounded-full bg-warning dark:text-white/[.87 text-10">3</span>
-													</div>
-												</figcaption>
-											</figure>
-										</div>
-									</li>
-									<li class="w-full">
-										<div
-											class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark transition-[0.3s] hover:text-primary hover:bg-dark dark:hover:bg-dark/[.06] hover:shadow-custom dark:shadow-none dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.20)] dark:rounded-4">
-											<figure
-												class="inline-flex w-full mb-0 align-top sm:gap-x-[16px] gap-y-[8px] max-sm:flex-wrap">
-												<div class="text-success w-[40px] min-w-[40px] h-[40px] rounded-full relative">
-															<span
-																class="bg-current absolute content-[''] w-[12px] h-[12px] rounded-full border-2 border-white right-0 bottom-0"
-															></span>
-													<img class="object-cover w-[40px] h-[40px] bg-light-extra rounded-full"
-															 src="images/messages/firecircle-icon-graphic-branding-graphic-design-large-white.png">
-												</div>
-												<figcaption class="w-full -mt-1 text-start">
-													<h1 class="flex items-center justify-between mb-0.5 text-sm text-current font-semibold">
-														Designing Services
-														<span class="text-xs font-normal text-text-success">1.30 hrs ago</span>
-													</h1>
-													<div class="flex items-center gap-[30px] text-start">
-                                                <span class="ps-0 min-w-[216px] text-body dark:text-subtitle-dark">Lorem ipsum
-                                                   dolor amet cosec...</span>
-														<span
-															class="inline-flex items-center justify-center w-4 h-4 text-white rounded-full bg-success dark:text-white/[.87 text-10">2</span>
-													</div>
-												</figcaption>
-											</figure>
-										</div>
-									</li>
-									<li class="w-full">
-										<div
-											class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark transition-[0.3s] hover:text-primary hover:bg-dark dark:hover:bg-dark/[.06] hover:shadow-custom dark:shadow-none dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.20)] dark:rounded-4">
-											<figure
-												class="inline-flex w-full mb-0 align-top sm:gap-x-[16px] gap-y-[8px] max-sm:flex-wrap">
-												<div class="text-warning w-[40px] min-w-[40px] h-[40px] rounded-full relative">
-															<span
-																class="bg-current absolute content-[''] w-[12px] h-[12px] rounded-full border-2 border-white right-0 bottom-0"
-															></span>
-													<img class="object-cover w-[40px] h-[40px] bg-light-extra rounded-full"
-															 src="images/messages/app.png">
-												</div>
-												<figcaption class="w-full -mt-1 text-start">
-													<h1 class="flex items-center justify-between mb-0.5 text-sm text-current font-semibold">
-														App Development
-														<span class="text-xs font-normal text-text-warning">2 hrs ago</span>
-													</h1>
-													<div class="flex items-center gap-[30px] text-start">
-                                                <span class="ps-0 min-w-[216px] text-body dark:text-subtitle-dark">Lorem ipsum
-                                                   dolor amet cosec...</span>
-														<span
-															class="inline-flex items-center justify-center w-4 h-4 text-white rounded-full bg-warning dark:text-white/[.87 text-10">1</span>
-													</div>
-												</figcaption>
-											</figure>
-										</div>
-									</li>
-								</ul>
-								<a
-									class="flex items-center justify-center text-[13px] font-medium bg-normalBG dark:bg-box-dark-up h-[50px] text-light hover:text-primary dark:hover:text-subtitle-dark dark:text-title-dark mx-[-15px] mb-[-15px] rounded-b-6"
-									href="#">
-									See all messages
-								</a>
-							</div>
-						</Notifications>
-					</div>
-
+					<UserMessagesHeader messages={[]} on:statusMessageWindow={handleMessagesWindowEvent} openWindow={showMessageWindow}
+															unreadMessages={0} />
 				</li>
 				<li>
-
-					<div class="relative" data-te-dropdown-ref>
-
-						<button aria-expanded="{showNotificationWindow}"
-										class="flex items-center text-[22px] text-[#a0a0a0] dark:text-subtitle-dark relative min-h-[40px] group"
-										data-te-dropdown-show={showNotificationWindow || null}
-										data-te-dropdown-toggle-ref id="notification"
-										on:click={handleToggleNotificationWindow}
-										on:keydown={(evt) => evt.key === 'Enter' && handleToggleNotificationWindow()}
-										type="button">
-							<i class="uil uil-bell"></i>
-							<span
-								class="absolute flex w-1.5 h-1.5 translate-x-2/4 -translate-y-2/4 origin-[100%_0%] end-[3px] top-[8px] group-[[data-te-dropdown-show]]:hidden">
-                              <span
-																class="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping bg-warning/20"></span>
-                              <span class="relative inline-flex w-1.5 h-1.5 rounded-full bg-warning"></span>
-                           </span>
-						</button>
-
-						<Notifications labelBy="notification" openNotification="{showNotificationWindow}">
-							<h1
-								class="flex items-center justify-center text-sm rounded-md bg-section dark:bg-box-dark-up h-[50px] p-[10px] text-dark dark:text-title-dark font-semibold">
-											<span class="title-text me-2.5">Notifications<span
-												class="inline-flex items-center justify-center w-5 h-5 text-xs text-white rounded-full bg-warning ms-3 dark:text-title-dark">3</span></span>
-							</h1>
-							<ul class="p-0 max-h-[250px] relative overflow-x-hidden overflow-y-auto scrollbar">
-								<li class="w-full sm:mb-0 mb-[10px]">
-									<button
-										class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
-										<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
-											<div
-												class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-warning/10 text-warning">
-												<i class="text-current uil uil-heart text-[16px]"></i>
-											</div>
-											<div class="flex items-center justify-between flex-1">
-												<div class="text-start">
-													<h1
-														class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
-														<span class="text-primary me-1.5 font-medium">Ibrahim Riaz</span>
-														sent you a message
-													</h1>
-													<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
-														3 hours ago
-													</p>
-												</div>
-												<div><span
-													class="inline-flex items-center justify-center bg-warning w-1.5 h-1.5 ms-3 rounded-full"></span>
-												</div>
-											</div>
-										</div>
-									</button>
-								</li>
-								<li class="w-full sm:mb-0 mb-[10px]">
-									<button
-										class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
-										<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
-											<div
-												class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-primary/10 text-primary">
-												<i class="text-current uil uil-inbox text-[16px]"></i>
-											</div>
-											<div class="flex items-center justify-between flex-1">
-												<div class="text-start">
-													<h1
-														class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
-														<span class="text-primary me-1.5 font-medium">Shamim Ahmed</span>
-														sent you a message
-													</h1>
-													<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
-														3 hours ago
-													</p>
-												</div>
-												<div><span
-													class="inline-flex items-center justify-center bg-primary w-1.5 h-1.5 ms-3 rounded-full"></span>
-												</div>
-											</div>
-										</div>
-									</button>
-								</li>
-								<li class="w-full sm:mb-0 mb-[10px]">
-									<button
-										class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
-										<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
-											<div
-												class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-secondary/10 text-secondary">
-												<i class="text-current uil uil-upload text-[16px]"></i>
-											</div>
-											<div class="flex items-center justify-between flex-1">
-												<div class="text-start">
-													<h1
-														class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
-														<span class="text-primary me-1.5 font-medium">Tanjim Ahmed</span>
-														sent you a message
-													</h1>
-													<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
-														2 hours ago
-													</p>
-												</div>
-												<div><span
-													class="inline-flex items-center justify-center bg-secondary w-1.5 h-1.5 ms-3 rounded-full"></span>
-												</div>
-											</div>
-										</div>
-									</button>
-								</li>
-								<li class="w-full sm:mb-0 mb-[10px]">
-									<button
-										class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
-										<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
-											<div
-												class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-info/10 text-info">
-												<i class="text-current uil uil-signout text-[16px]"></i>
-											</div>
-											<div class="flex items-center justify-between flex-1">
-												<div class="text-start">
-													<h1
-														class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
-														<span class="text-primary me-1.5 font-medium">Masud Rana</span>
-														sent you a message
-													</h1>
-													<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
-														9 hours ago
-													</p>
-												</div>
-												<div><span
-													class="inline-flex items-center justify-center bg-info w-1.5 h-1.5 ms-3 rounded-full"></span>
-												</div>
-											</div>
-										</div>
-									</button>
-								</li>
-								<li class="w-full sm:mb-0 mb-[10px]">
-									<button
-										class="group relative block w-full px-3 sm:py-3.5 max-sm:py-1.5 text-body dark:text-subtitle-dark hover:bg-dark dark:hover:bg-box-dark-up hover:shadow-custom dark:shadow-none dark:rounded-4">
-										<div class="flex items-start gap-x-[15px] gap-y-[5px] flex-wrap max-xs:flex-col">
-											<div
-												class="flex items-center justify-center rounded-full w-[30px] h-[30px] bg-danger/10 text-danger">
-												<i class="text-current uil uil-at text-[16px]"></i>
-											</div>
-											<div class="flex items-center justify-between flex-1">
-												<div class="text-start">
-													<h1
-														class="flex items-center justify-between mb-0.5 text-[#5a5f7d] dark:text-title-dark text-sm font-normal flex-wrap">
-														<span class="text-primary me-1.5 font-medium">Abdur Rahim</span>
-														sent you a message
-													</h1>
-													<p class="mb-0 text-xs text-body dark:text-subtitle-dark">
-														1 min ago
-													</p>
-												</div>
-												<div><span
-													class="inline-flex items-center justify-center bg-danger w-1.5 h-1.5 ms-3 rounded-full"></span>
-												</div>
-											</div>
-										</div>
-									</button>
-								</li>
-							</ul>
-							<a
-								class="flex items-center justify-center text-[13px] font-medium bg-normalBG dark:bg-box-dark-up h-[50px] text-light hover:text-primary dark:hover:text-subtitle-dark dark:text-title-dark mx-[-15px] mb-[-15px] rounded-b-6"
-								href="#">See all incoming activity</a>
-						</Notifications>
-					</div>
-
+					<UserNotificationsHeader messages={[]} on:statusNotificationWindow={handleNotificationWindowEvent}
+																	 openWindow={showNotificationWindow}
+																	 unreadMessages={0} />
 				</li>
 				<li>
 
