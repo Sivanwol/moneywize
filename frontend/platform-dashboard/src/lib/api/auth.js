@@ -1,4 +1,4 @@
-import { apiClientUnauthorized } from '@utility/apiCaller';
+import { apiClientAuthorized, apiClientUnauthorized } from '@utility/apiCaller';
 import { ApiResponse } from '@utility/ApiResponse';
 
 export const requestLogin = async (email, passowrd) => {
@@ -21,6 +21,17 @@ export const requestLoginConfirm = async (userToken, otpToken, code) => {
 			userToken,
 			otpToken,
 			code
+		});
+		return new ApiResponse(response);
+	} catch (error) {
+		console.log(error);
+		return new ApiResponse(error.response);
+	}
+};
+export const requestRefreshToken = async (refreshToken) => {
+	try {
+		const response = await apiClientAuthorized.post('/Auth/refresh-token', {
+			refreshToken
 		});
 		return new ApiResponse(response);
 	} catch (error) {

@@ -24,27 +24,31 @@
 				if (response.status !== 200) {
 					dispatch('login', {
 						error: $_('login.error_confirm'),
-						tokens: null
+						tokens: null,
+						userId: null
 					});
 					return;
 				}
-				const { tokens } = response.data.data;
+				const { tokens, userId } = response.data.data;
 				if (!response.data.status) {
 					dispatch('loginMfa', {
 						error: response.data.message,
-						tokens: null
+						tokens: null,
+						userId: null
 					});
 					return;
 				}
 				dispatch('loginMfa', {
 					error: null,
-					tokens: tokens
+					tokens,
+					userId
 				});
 
 			} catch (e) {
 				dispatch('loginMfa', {
 					error: e.message,
-					tokens: null
+					tokens: null,
+					userId: null
 				});
 			}
 		}

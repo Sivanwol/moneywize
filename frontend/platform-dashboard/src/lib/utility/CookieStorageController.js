@@ -4,13 +4,19 @@ import { SAUTH_TOKEN } from '../constants';
 
 const getItem = key => {
   const data = Cookies.get(key);
-  if (!data) return null;
+  if (!data) {
+    // system will save null value to cookies if we remove it
+    removeItem(key);
+    return null;
+  }
   try {
     const token = SAUTH_TOKEN(key);
     const decrypt = Crypt(data, token).decrypt();
     return JSON.parse(decrypt);
   } catch (err) {
-    return data;
+    // this is not a json string and not matched for decrypt so we remove it from cookies
+    removeItem(key);
+    return null;
   }
 };
 

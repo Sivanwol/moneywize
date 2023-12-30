@@ -1,13 +1,18 @@
 <script>
 	import { Footer, FooterBrand, FooterCopyright, FooterLink, FooterLinkGroup } from 'flowbite-svelte';
+	import { setAccessToken } from '@utility/apiCaller.js';
 	import { _ } from 'svelte-i18n';
 	import ApplicationBar from '@components/common/ApplicationBar.svelte';
 	import SideBar from '@components/common/sidebar/SideBar.svelte';
+	import { createAuth } from '@stores/authStore.js';
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { requestRefreshToken } from '@api/auth.js';
 
+	$: auth = createAuth();
 	let sidebarCollapsed = false;
 	let userRoles = ['admin'];
 	function handleToggleSidebar(event) {
-		console.log(event.detail);
 		sidebarCollapsed = !sidebarCollapsed;
 		if (sidebarCollapsed) {
 			document.querySelectorAll('.navBar .sub-item-wrapper').forEach(function(item) {
@@ -26,6 +31,36 @@
 			});
 		}
 	}
+
+	onMount(async () => {
+		if (!auth.isLoggedIn()) {
+			await goto('/login');
+		}
+		if (auth.isLoggedIn()) {
+			setAccessToken(auth.getAccessToken());
+			if (auth.isRenewToken()) {
+				const res = await requestRefreshToken(auth.getRefreshToken());
+				if (res.status === 200) {
+					/** @type {{accessToken: string, refreshToken: {tokenString: string, expiresIn: number}}} */
+					const { accessToken, refreshToken } = res.data;
+					if (accessToken && refreshToken) {
+						auth.reloadTokens({
+							accessToken,
+							refreshToken: refreshToken.tokenString,
+							expireAt: refreshToken.expiresIn
+						});
+						setAccessToken(auth.getAccessToken());
+						return;
+					}
+					auth.logout();
+					await goto('/login');
+				} else {
+					auth.logout();
+					await goto('/login');
+				}
+			}
+		}
+	});
 </script>
 <style lang="postcss">
     /* Mobile devices */

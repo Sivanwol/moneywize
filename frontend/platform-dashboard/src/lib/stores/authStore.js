@@ -9,11 +9,11 @@ export function createAuth(initialValue = null) {
 
 	return {
 		subscribe,
-		create(userId, accessToken, tokenString, expireAt) {
+		login(userId, accessToken, refreshToken, expireAt) {
 			const auth = AuthJWT.fromJson({
 				userId,
 				accessToken,
-				tokenString,
+				refreshToken,
 				expireAt
 			});
 			removeItem('auth');
@@ -36,13 +36,31 @@ export function createAuth(initialValue = null) {
 			if (!auth) return null;
 			return auth.userId;
 		},
-		getToken() {
+		reloadTokens({ accessToken, refreshToken, expireAt }) {
+			/** @type {(AuthJWT)} */
+			const authOld = getItem('auth');
+			if (!authOld) return null;
+			const userId = authOld.userId;
+			const auth = AuthJWT.fromJson({
+				userId,
+				accessToken,
+				refreshToken,
+				expireAt
+			});
+			const expiresInDays = auth.expireAt.days();
+			removeItem('auth');
+			setItem('auth', auth, expiresInDays);
+			update((prev) => {
+				return [auth, ...prev];
+			});
+		},
+		getAccessToken() {
 			/** @type {(AuthJWT)} */
 			const auth = getItem('auth');
 			if (!auth) return null;
 			return auth.accessToken;
 		},
-		hasToken() {
+		isLoggedIn() {
 			return hasItem('auth');
 		},
 
@@ -53,10 +71,10 @@ export function createAuth(initialValue = null) {
 			const now = moment();
 			const expireAt = moment(auth.expireAt);
 			const diff = expireAt.diff(now, 'minutes');
-			return diff < 30;
+			return diff < 3;
 		},
 
-		remove(note) {
+		logout(note) {
 			removeItem('auth');
 			update((prev) => {
 				return prev.filter(item => item !== note);
