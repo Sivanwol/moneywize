@@ -1,52 +1,57 @@
 <script>
 	import { UilAlignCenter } from 'svelte-unicons';
-
 	import { createEventDispatcher } from 'svelte';
-	import Notifications from '@components/common/Menus/Notifications.svelte';
 	import UserMessagesHeader from '@components/User/UserMessagesHeader.svelte';
 	import UserNotificationsHeader from '@components/User/UserNotificationsHeader.svelte';
+	import SiteSectionSelectionHeader from '@components/User/SiteSectionSelectionHeader.svelte';
+	import { Language } from '@models/Language.js';
+	import UserSelectionLanguageHeader from '@components/User/UserSelectionLanguageHeader.svelte';
+	import UserMenuHeader from '@components/User/UserMenuHeader.svelte';
+	import { UserProfile } from '@models/UserProfile.js';
 
 	const dispatch = createEventDispatcher();
 
+	const languages = [
+		Language.fromJson({ id: 1, name: 'English', code: 'en', flag: '/img/flags/english.png' }),
+		Language.fromJson({ id: 2, name: 'Spanish', code: 'es', flag: '/img/flags/spanish.png' })
+	];
+	let selectedLanguage = languages[0];
+	let userProfile = UserProfile.fromJson({
+		id: 1,
+		firstName: 'Jo',
+		lastName: 'Hoi',
+		email: 'ho@test.com',
+		phone: '0542454511',
+		role: 'Admin',
+		avatarImage: '/img/avatars/thumbs-2.png',
+		createdAt: '2021-09-01'
+	});
+
+	let showMessageWindow = false;
+	let showNotificationWindow = false;
+	let showSiteSectionWindow = false;
+	let showLanguageWindow = false;
+	let showUserSettingsWindow = false;
 
 	function handleToggleSidebar() {
 		resetWindowStates();
 		dispatch('toggleSidebar', {});
 	}
 
-	let showMessageWindow = false;
-	let showNotificationWindow = false;
-	let showSectionWindow = false;
-	let showLanguageWindow = false;
-	let showUserSettingsWindow = false;
-
-
-	async function handleToggleSectionWindow() {
-		let currentState = !showSectionWindow;
-		resetWindowStates();
-		showSectionWindow = currentState;
-	}
-
-	async function handleToggleLanguageWindow() {
-		let currentState = !showLanguageWindow;
-		resetWindowStates();
-		showLanguageWindow = currentState;
-	}
-
-	async function handleToggleUserSettingsWindow() {
-		let currentState = !showUserSettingsWindow;
-		resetWindowStates();
-		showUserSettingsWindow = currentState;
-	}
-
 	function resetWindowStates() {
 		showMessageWindow = false;
 		showNotificationWindow = false;
-		showSectionWindow = false;
+		showSiteSectionWindow = false;
 		showLanguageWindow = false;
 		showUserSettingsWindow = false;
 	}
 
+	function handleSiteSectionWindowEvent(event) {
+		const { status } = event.detail;
+		resetWindowStates();
+		showSiteSectionWindow = status;
+	}
+	
 	function handleMessagesWindowEvent(event) {
 		const { status } = event.detail;
 		resetWindowStates();
@@ -59,6 +64,28 @@
 		showNotificationWindow = status;
 	}
 
+	function handleSelectionLanguageWindow(event) {
+		const { status } = event.detail;
+		resetWindowStates();
+		showLanguageWindow = status;
+	}
+
+	function handleUserSettingsWindow(event) {
+		const { status } = event.detail;
+		resetWindowStates();
+		showUserSettingsWindow = status;
+	}
+
+	function onLanguageSelected(event) {
+		const { selected } = event.detail;
+		resetWindowStates();
+		const lang = languages.find(l => l.id === selected);
+		if (lang) {
+			selectedLanguage = lang;
+			console.log(`Language selected: ${selectedLanguage.name}`);
+		}
+	}
+	
 	function handleMouseLeave() {
 		resetWindowStates();
 	}
@@ -121,243 +148,17 @@
 																	 unreadMessages={0} />
 				</li>
 				<li>
-
-					<div class="relative" data-te-dropdown-ref>
-						<button aria-expanded="{showSectionWindow}"
-										class="flex items-center text-[22px] text-[#a0a0a0] dark:text-subtitle-dark relative min-h-[40px] group"
-										data-te-dropdown-show={showSectionWindow || null}
-										data-te-dropdown-toggle-ref id="settings"
-										on:click={handleToggleSectionWindow}
-										on:keydown={(evt) => evt.key === 'Enter' && handleToggleSectionWindow()}
-										type="button">
-							<i class="uil uil-setting"></i>
-						</button>
-						<Notifications labelBy="settings" openNotification="{showSectionWindow}">
-							<ul
-								class="flex flex-wrap items-center lg:[&>li]:flex-[50%] max-lg:[&>li]:flex-[100%] max-h-[251px] relative overflow-x-hidden overflow-y-auto scrollbar scrollbar">
-
-								<li class="w-full">
-									<figure
-										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="audio" class="h-fit me-4" src="/img/settings/audio.png">
-										<figcaption>
-											<h1
-												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-												Diagram Maker</h1>
-											<p class="mb-0 text-body dark:text-subtitle-dark text-start">Plan user flows & test
-												scenarios </p>
-										</figcaption>
-									</figure>
-								</li>
-								<li class="w-full">
-									<figure
-										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="payment" class="h-fit me-4" src="/img/settings/payment.png">
-										<figcaption>
-											<h1
-												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-												payments</h1>
-											<p class="mb-0 text-body dark:text-subtitle-dark text-start">We handle billions of
-												dollars </p>
-										</figcaption>
-									</figure>
-								</li>
-								<li class="w-full">
-									<figure
-										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="feature" class="h-fit me-4" src="/img/settings/feature.png">
-										<figcaption>
-											<h1
-												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-												All Features</h1>
-											<p class="mb-0 text-body dark:text-subtitle-dark text-start">Introducing Increment
-												subscriptions </p>
-										</figcaption>
-									</figure>
-								</li>
-								<li class="w-full">
-									<figure
-										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="theme" class="h-fit me-4" src="/img/settings/theme.png">
-										<figcaption>
-											<h1
-												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-												Themes</h1>
-											<p class="mb-0 text-body dark:text-subtitle-dark text-start">Third party themes that are
-												compatible
-											</p>
-										</figcaption>
-									</figure>
-								</li>
-								<li class="w-full">
-									<figure
-										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="payment" class="h-fit me-4" src="/img/settings/payment.png">
-										<figcaption>
-											<h1
-												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-												payments</h1>
-											<p class="mb-0 text-body dark:text-subtitle-dark text-start">We handle billions of
-												dollars </p>
-										</figcaption>
-									</figure>
-								</li>
-								<li class="w-full">
-									<figure
-										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="design" class="h-fit me-4" src="/img/settings/design.png">
-										<figcaption>
-											<h1
-												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-												Design Mockups</h1>
-											<p class="mb-0 text-body dark:text-subtitle-dark text-start">Share planning visuals with
-												clients </p>
-										</figcaption>
-									</figure>
-								</li>
-								<li class="w-full">
-									<figure
-										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="file" class="h-fit me-4" src="/img/settings/file.png">
-										<figcaption>
-											<h1
-												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-												Content Planner</h1>
-											<p class="mb-0 text-body dark:text-subtitle-dark text-start">Centralize content gathering
-												and editing
-											</p>
-										</figcaption>
-									</figure>
-								</li>
-								<li class="w-full">
-									<figure
-										class="flex items-start px-4 py-3 mb-0 hover:shadow-action dark:hover:shadow-[0_5px_30px_rgba(1,4,19,.60)]">
-										<img alt="audio" class="h-fit me-4" src="/img/settings/audio.png">
-										<figcaption>
-											<h1
-												class="mb-0.5 -mt-1 text-[15px] font-medium capitalize text-dark dark:text-title-dark text-start">
-												Diagram Maker</h1>
-											<p class="mb-0 text-body dark:text-subtitle-dark text-start">Plan user flows & test
-												scenarios </p>
-										</figcaption>
-									</figure>
-								</li>
-							</ul>
-						</Notifications>
-					</div>
+					<SiteSectionSelectionHeader on:statusSiteSelectionWindow={handleSiteSectionWindowEvent}
+																			openWindow={showSiteSectionWindow} />
 				</li>
 				<li>
-
-					<div class="relative" data-te-dropdown-ref>
-						<button aria-expanded="{showLanguageWindow}"
-										class="flex items-center"
-										data-te-dropdown-show={showLanguageWindow || null}
-										data-te-dropdown-toggle-ref id="flags"
-										on:click={handleToggleLanguageWindow}
-										on:keydown={(evt) => evt.key === 'Enter' && handleToggleLanguageWindow()}
-										type="button">
-							<img alt="flags" class="min-w-[20px] min-h-[20px]" src="/img/flags/english.png" />
-						</button>
-						<Notifications continerLimit=""
-													 labelBy="flags"
-													 openNotification="{showLanguageWindow}"
-													 overrideClasses="absolute z-[1000] ltr:float-left rtl:float-right m-0 min-w-max list-none overflow-hidden rounded-lg border-none bg-dark bg-clip-padding text-left text-base shadow-lg dark:shadow-boxLargeDark dark:bg-box-dark-down  [&[data-te-dropdown-show]]:block">
-							<ul
-								class="block bg-dark dark:bg-box-dark-down w-[100px] shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4 overflow-hidden">
-								<li class="bg-dark dark:bg-box-dark-down hover:bg-primary/10 dark:hover:bg-primary/10">
-									<button class="flex items-center px-3 py-1.5 text-sm text-dark dark:text-subtitle-dark">
-										<img alt="english" class="w-3.5 h-3.5 me-2" src="/img/flags/english.png">
-										<span>English</span>
-									</button>
-								</li>
-								<li class="bg-dark dark:bg-box-dark-down hover:bg-primary/10 dark:hover:bg-primary/10">
-									<button class="flex items-center px-3 py-1.5 text-sm text-dark dark:text-subtitle-dark">
-										<img alt="spanish" class="w-3.5 h-3.5 me-2" src="/img/flags/spanish.png">
-										<span>Spanish</span>
-									</button>
-								</li>
-							</ul>
-						</Notifications>
-					</div>
-
+					<UserSelectionLanguageHeader languages={languages} on:selectedLanguage={onLanguageSelected}
+																			 on:statusLanguageWindow={handleSelectionLanguageWindow}
+																			 openWindow={showLanguageWindow} selectLanguage={selectedLanguage} />
 				</li>
 				<li>
-					<div class="relative" data-te-dropdown-ref>
-						<button aria-expanded="{showUserSettingsWindow}"
-										class="flex items-center"
-										data-te-dropdown-show={showUserSettingsWindow || null}
-										data-te-dropdown-toggle-ref id="user-settings"
-										on:click={handleToggleUserSettingsWindow}
-										on:keydown={(evt) => evt.key === 'Enter' && handleToggleUserSettingsWindow()}
-										type="button">
-							<span class="sr-only">Open user menu</span>
-							<img alt="user photo" class="min-w-[32px] w-8 h-8 rounded-full xl:me-2"
-									 src="/img/avatars/thumbs.png" />
-							<span class="hidden xl:block">Sivan Wolberg</span>
-							<i class="uil uil-angle-down text-light dark:text-subtitle-dark text-[18px] hidden xl:block"></i>
-						</button>
-
-						<!-- Dropdown menu -->
-						<Notifications continerLimit="min-w-[310px] max-sm:min-w-full"
-													 labelBy="user-settings"
-													 openNotification="{showUserSettingsWindow}">
-							<div
-								class=" pt-4 px-[15px] py-[12px] bg-dark dark:bg-box-dark shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4">
-								<figure
-									class="flex items-center text-sm rounded-[8px] bg-section dark:bg-box-dark-up py-[20px] px-[25px] mb-[12px] gap-[15px]">
-									<img alt="user" class="w-8 h-8 rounded-full bg-regular" src="images/avatars/thumbs.png">
-									<figcaption>
-										<div class="text-dark dark:text-title-dark mb-0.5 text-sm">Sivan Wolberg</div>
-										<div class="mb-0 text-xs text-body dark:text-subtitle-dark">Software Engineer</div>
-									</figcaption>
-								</figure>
-								<ul class="m-0 pb-[10px] overflow-x-hidden overflow-y-auto scrollbar bg-transparent max-h-[230px]">
-
-									<li class="w-full">
-										<div class="p-0 dark:hover:text-white hover:bg-primary/10 dark:hover:bg-box-dark-up rounded-4">
-											<button
-												class="inline-flex items-center text-light dark:text-subtitle-dark hover:text-primary hover:ps-6 w-full px-2.5 py-3 text-sm transition-all ease-in-out delay-150 gap-[10px]">
-												<i class="text-[16px] uil uil-user"></i>
-												Profile
-											</button>
-										</div>
-									</li>
-									<li class="w-full">
-										<div class="p-0 dark:hover:text-white hover:bg-primary/10 dark:hover:bg-box-dark-up rounded-4">
-											<button
-												class="inline-flex items-center text-light dark:text-subtitle-dark hover:text-primary hover:ps-6 w-full px-2.5 py-3 text-sm transition-all ease-in-out delay-150 gap-[10px]">
-												<i class="text-[16px] uil uil-setting"></i>
-												Settings
-											</button>
-										</div>
-									</li>
-									<li class="w-full">
-										<div class="p-0 dark:hover:text-white hover:bg-primary/10 dark:hover:bg-box-dark-up rounded-4">
-											<button
-												class="inline-flex items-center text-light dark:text-subtitle-dark hover:text-primary hover:ps-6 w-full px-2.5 py-3 text-sm transition-all ease-in-out delay-150 gap-[10px]">
-												<i class="text-[16px] uil uil-users-alt"></i>
-												Activity
-											</button>
-										</div>
-									</li>
-									<li class="w-full">
-										<div class="p-0 dark:hover:text-white hover:bg-primary/10 dark:hover:bg-box-dark-up rounded-4">
-											<button
-												class="inline-flex items-center text-light dark:text-subtitle-dark hover:text-primary hover:ps-6 w-full px-2.5 py-3 text-sm transition-all ease-in-out delay-150 gap-[10px]">
-												<i class="text-[16px] uil uil-bell"></i>
-												Help
-											</button>
-										</div>
-									</li>
-								</ul>
-								<button
-									class="flex items-center justify-center w-full text-sm font-medium bg-normalBG dark:bg-box-dark-up h-[50px] text-light hover:text-primary dark:hover:text-subtitle-dark dark:text-title-dark mb-[-15px] rounded-b-6 gap-[6px]"
-									href="log-in.html">
-									<i class="uil uil-sign-out-alt"></i> Sign Out
-								</button>
-							</div>
-						</Notifications>
-					</div>
+					<UserMenuHeader on:statusUserSettingsWindow={handleUserSettingsWindow} openWindow={showUserSettingsWindow}
+													userProfile={userProfile} />
 				</li>
 			</ul>
 		</div>

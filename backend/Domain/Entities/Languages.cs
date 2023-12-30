@@ -10,5 +10,7 @@ public class Languages : BaseEntity {
     [Column(TypeName = "varchar(5)")]
     public string Code { get; set; }
 
+    public string Flag { get; set; }
+
     public DateTime? SupportedAt { get; set; }
 }

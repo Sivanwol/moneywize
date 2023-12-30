@@ -12,13 +12,13 @@
 
 	function handleToggleMessageWindow() {
 		openWindow = !openWindow;
-		dispatch('statusNotificationsWindow', {
+		dispatch('statusNotificationWindow', {
 			status: openWindow
 		});
 	}
 
 	onMount(() => {
-		dispatch('statusNotificationsWindow', {
+		dispatch('statusNotificationWindow', {
 			status: openWindow
 		});
 	});
@@ -41,8 +41,9 @@
 		{/if}
 	</button>
 	<Notifications labelBy="notification" openNotification="{openWindow}">
-		<h1 class="flex items-center justify-center text-sm rounded-md bg-section dark:bg-box-dark-up h-[50px] p-[10px] text-dark dark:text-title-dark font-semibold"
-				slot="header">
+		<h1
+			class="flex items-center justify-center text-sm rounded-md bg-section dark:bg-box-dark-up h-[50px] p-[10px] text-dark dark:text-title-dark font-semibold"
+			slot="header">
                                  <span class="title-text">
                                     Notifications
 																	 {#if unreadMessages > 0 && messages.length > 0}
