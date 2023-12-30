@@ -3,6 +3,7 @@ using Application.Constraints;
 using Application.Contract;
 using Application.Exceptions;
 using Application.Responses.Base;
+using Application.Utils;
 using Domain.DTO.User;
 using Domain.Entities;
 using Domain.Persistence.Repositories.Interfaces;
@@ -66,7 +67,7 @@ public class RegisterHandler : IRequestHandler<RegisterRequest, EmptyResponse> {
                 Guid.Parse(loggedUser.Id),
                 loggedUser.Id,
                 nameof(ApplicationUser),
-                "Register",
+                ActivityLogOperationType.UserRegister,
                 "User Request Registered", "User request registered owner User not matching permissions",
                 ActivityStatus.Failed);
             throw new AuthenticationException("Invalid user not matching permissions");
@@ -121,7 +122,7 @@ public class RegisterHandler : IRequestHandler<RegisterRequest, EmptyResponse> {
                 Guid.Parse(loggedUser.Id),
                 user.Id,
                 nameof(ApplicationUser),
-                "Register",
+                ActivityLogOperationType.UserRegister,
                 "User Request Registered", "User request registered",
                 ActivityStatus.Success);
             return new EmptyResponse();

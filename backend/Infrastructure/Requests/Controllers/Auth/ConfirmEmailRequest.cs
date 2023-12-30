@@ -14,9 +14,6 @@ public class ConfirmEmailRequest {
     [SwaggerSchema("Code of the from the email")]
     public string Code { get; set; }
 
-    [SwaggerSchema("allow Redirect")]
-    public bool AllowRedirect { get; set; } = false;
-
 
     public Processor.Services.User.ConfirmEmailRequest ToProcessorEntity(Guid loggedUserId, string ipAddress, string userAgent) {
         return new Processor.Services.User.ConfirmEmailRequest {

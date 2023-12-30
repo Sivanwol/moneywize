@@ -7,4 +7,6 @@ public class SentOTPCodeMail {
     public string Code { get; set; }
     public string HomePageUrl { get; set; }
     public string HostImageUrl { get; set; }
+
+    public string EmailConfirmUrl { get; set; }
 }

@@ -1,5 +1,5 @@
 namespace Infrastructure.Enums;
 
 public enum SMSProviders {
-    INFOU
+    INFOU = 1
 }

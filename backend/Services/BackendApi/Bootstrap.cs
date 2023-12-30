@@ -17,6 +17,7 @@ using Infrastructure.Validators;
 using MassTransit;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
@@ -88,6 +89,9 @@ public class Bootstrap {
             options.User.AllowedUserNameCharacters =
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
         });
+        services.Configure<RazorViewEngineOptions>(options => {
+            options.ViewLocationFormats.Add("{0}.cshtml");
+        });
         services.AddGenericServiceExtension(Configuration, () => {
             var serverVersion = new MySqlServerVersion(new Version(5, 7));
             services.AddDbContext<DomainContext>(options => {
@@ -105,7 +109,7 @@ public class Bootstrap {
                 }
             });
             services.Configure<MailServerConfig>(Configuration.GetSection("MailConfig"));
-            services.Configure<FrontEndPaths>(Configuration.GetSection("FrontEndPaths"));
+            services.Configure<FrontEndPaths>(Configuration.GetSection("FrontEndWebPaths"));
 
             services.AddTransient<IDomainContext>(provider => provider.GetService<DomainContext>()!);
             services.AddTransient<ITemplateService, TemplateService>();
@@ -213,7 +217,7 @@ public class Bootstrap {
 
         app.UseEndpoints(endpoints => {
             // endpoints.MapGroup("/auth").MapIdentityApi<ApplicationUser>();
-            endpoints.MapControllers();
+            endpoints.MapControllers().RequireCors("AllowAll");
         });
         Log.Information("End Perp Setup Starting Server");
     }

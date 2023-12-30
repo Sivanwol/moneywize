@@ -16,15 +16,16 @@ public static class GenericServiceExtension {
         Action? moreConfigurationServices) {
         Log.Information("Pre Configure Server");
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        services.AddControllers();
-        services.AddEndpointsApiExplorer();
         services.AddCors(options => {
             options.AddPolicy("AllowAll", builder => {
-                builder.AllowAnyOrigin()
+                builder
+                    .AllowAnyOrigin()
                     .AllowAnyMethod()
                     .AllowAnyHeader();
             });
         });
+        services.AddControllers();
+        services.AddEndpointsApiExplorer();
         services.Configure<ForwardedHeadersOptions>(options => {
             options.ForwardedHeaders =
                 ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -54,6 +55,7 @@ public static class GenericServiceExtension {
         app.UseForwardedHeaders(new ForwardedHeadersOptions {
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
         });
+        app.UseCors("AllowAll");
         app.UseWebSockets();
         app.UseHttpsRedirection();
         Log.Information("Pre Extra Bind Configure Server");

@@ -45,7 +45,7 @@ public static class MasstransitExtension {
             bus.SetSnakeCaseEndpointNameFormatter();
             bus.AddQuartzConsumers();
             registerTransitConsumers?.Invoke(bus);
-            if (config.IsTesting) {
+            if (config.DeveloperMode) {
                 bus.UsingInMemory((context, cfg) => { cfg.ConfigureEndpoints(context); });
                 return;
             }

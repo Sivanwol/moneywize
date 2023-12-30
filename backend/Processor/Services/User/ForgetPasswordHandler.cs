@@ -42,14 +42,21 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
         Log.Logger.Information($"RequestOtpHandler: [{request.Provider},{request.CountryId}, {request.PhoneNumber}]");
         Log.Logger.Information("Start Prep for Sending SMS OTP");
         Log.Logger.Information($"Locating User By Phone: {request.CountryId}-{request.PhoneNumber}");
+        Countries? country = null;
         if (IsIdentifyByPhoneNumber(request)) {
-            var country = await _countriesRepository.GetById(request.CountryId!.Value);
+            country = await _countriesRepository.GetById(request.CountryId!.Value);
             if (country == null)
                 throw new EntityNotFoundException("Country", request.CountryId!.Value.ToString());
         }
         var user = await LocateUser(request);
-        if (request.Provider == MFAProvider.SMS) {
-            LoadProvider(user.Country.Provider);
+        if (user == null) {
+            throw new EntityNotFoundException("User", $"{request.CountryId}-{request.PhoneNumber}");
+        }
+        if (user.RegisterCompletedAt == null) {
+            throw new UserNotCompletedRegistrationException(user.Id);
+        }
+        if (request.Provider == MFAProvider.SMS && country is { Provider: not null }) {
+            LoadProvider(country, country.Provider.Value);
         }
         if (request.ReSend) {
             return await HandleResend(user, request);
@@ -65,14 +72,14 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
         return !string.IsNullOrEmpty(request.PhoneNumber) && request.CountryId != null && string.IsNullOrEmpty(request.Email);
     }
 
-    private void LoadProvider(SMSProviders provider) {
+    private void LoadProvider(Countries country, SMSProviders provider) {
         Log.Logger.Information($"Loading Sms Provider: {provider}");
         switch (provider) {
             case SMSProviders.INFOU:
                 SMSSender.Instance.Load(_loggerFactory, _infoUSmsConfig);
                 break;
             default:
-                throw new MFAProviderImplementedException(Enum.GetName(typeof(SMSProviders), provider)!);
+                throw new Application.Exceptions.MFAProviderNotImplementedException(country.Id, provider.ToString());
         }
     }
 

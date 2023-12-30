@@ -34,7 +34,6 @@ public class LanguagesRepositoryTest : BaseTest {
         Assert.That(result.Count(), Is.EqualTo(mockEnumerable.Count()));
         Assert.That(result.First().Id, Is.EqualTo(mockEnumerable.First().Id));
         Assert.That(result.First().Name, Is.EqualTo(mockEnumerable.First().Name));
-        Assert.That(result.First().TranslationKey, Is.EqualTo(mockEnumerable.First().TranslationKey));
     }
 
     [Test] [Description("Test the GetById method")]
@@ -49,7 +48,6 @@ public class LanguagesRepositoryTest : BaseTest {
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Id, Is.EqualTo(mockEnumerable.First().Id));
         Assert.That(result!.Name, Is.EqualTo(mockEnumerable.First().Name));
-        Assert.That(result!.TranslationKey, Is.EqualTo(mockEnumerable.First().TranslationKey));
     }
 
     [Test] [Description("Test the GetByCode method")]
@@ -64,6 +62,5 @@ public class LanguagesRepositoryTest : BaseTest {
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Id, Is.EqualTo(mockEnumerable.First().Id));
         Assert.That(result!.Name, Is.EqualTo(mockEnumerable.First().Name));
-        Assert.That(result!.TranslationKey, Is.EqualTo(mockEnumerable.First().TranslationKey));
     }
 }

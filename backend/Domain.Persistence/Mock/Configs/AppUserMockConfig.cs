@@ -20,5 +20,9 @@ public sealed class AppUserMockConfig : AutoFaker<ApplicationUser> {
         //RuleFor(fake => fake.LockoutEnd, fake => fake.Date.Future());
         RuleFor(fake => fake.AccessFailedCount, fake => fake.Random.Number(1, 1000));
         RuleFor(fake => fake.PasswordHash, fake => fake.Random.String2(128));
+        RuleFor(fake => fake.Token, fake => fake.Random.String2(128));
+        RuleFor(fake => fake.RegisterCompletedAt, fake => fake.Date.Recent());
+        RuleFor(fake => fake.AccessFailedCount, fake => fake.Random.Number(1, 1000));
+        RuleFor(fake => fake.PasswordHash, fake => fake.Random.String2(128));
     }
 }

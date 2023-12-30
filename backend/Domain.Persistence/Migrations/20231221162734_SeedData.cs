@@ -1,29 +1,321 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Application.Utils;
+using Domain.Entities;
+using Domain.Persistence.Context;
+using Infrastructure.Enums;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Domain.Persistence.Migrations
 {
-    /// <inheritdoc />
     public partial class SeedData : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder) {
+            migrationBuilder.InsertData(
+                nameof(Countries), 
+                new[] { "CountryName", "CountryCode", "CountryNumber"}, 
+                columnTypes: new[] { "nvarchar(max)", "nvarchar(max)", "nvarchar(max)" },
+                new object[,] {
+                    //...more countries from America
+                    { "United States", "US", "1"},
+                    { "Canada", "CA", "1" },
+                    { "Mexico", "MX", "52"},
+                    { "Argentina", "AR", "54" },
+                    { "Brazil", "BR", "55" },
+                    { "Chile", "CL", "56" },
+                    { "Colombia", "CO", "57" },
+                    { "Peru", "PE", "51" },
+                    { "Venezuela", "VE", "58" },
+                    { "Ecuador", "EC", "593" },
+                    { "Uruguay", "UY", "598" },
+                    { "Paraguay", "PY", "595" },
+                    { "Bolivia", "BO", "591" },
+                    { "Guatemala", "GT", "502" },
+                    { "Cuba", "CU", "53" },
+                    { "Honduras", "HN", "504" },
+                    { "Dominican Republic", "DO", "1" },
+                    { "El Salvador", "SV", "503" },
+                    { "Costa Rica", "CR", "506" },
+                    { "Panama", "PA", "507" },
+                    { "Nicaragua", "NI", "505" },
+                    { "Puerto Rico", "PR", "1" },
+                    { "Jamaica", "JM", "1" },
+                    { "Trinidad and Tobago", "TT", "1" },
+                    { "Haiti", "HT", "509" },
+                    { "Bahamas", "BS", "1" },
+                    { "Barbados", "BB", "1" },
+                    { "Belize", "BZ", "501" },
+                    { "Guyana", "GY", "592" },
+                    { "Bermuda", "BM", "1" },
+                    { "Suriname", "SR", "597" },
+                    { "Cayman Islands", "KY", "1" },
+                    { "Antigua and Barbuda", "AG", "1" },
+                    { "Saint Lucia", "LC", "1" },
+                    { "Aruba", "AW", "297" },
+                    { "Grenada", "GD", "1" },
+                    { "Saint Vincent and the Grenadines", "VC", "1" },
+                    { "Turks and Caicos Islands", "TC", "1" },
+                    { "British Virgin Islands", "VG", "1" },
+                    { "Saint Kitts and Nevis", "KN", "1" },
+                    { "Montserrat", "MS", "1" },
+                    { "Anguilla", "AI", "1" },
+                    { "Saint Martin", "MF", "590" },
+                    { "Martinique", "MQ", "596" },
+                    { "Guadeloupe", "GP", "590" },
+                    { "Saint Barthélemy", "BL", "590" },
+                    { "Puerto Rico", "PR", "1" },
+                    { "Dominica", "DM", "1" },
+                    { "Curaçao", "CW", "599" },
+                    { "Bonaire, Sint Eustatius and Saba", "BQ", "599" },
+                    { "Sint Maarten", "SX", "1" },
+                    { "Saint Pierre and Miquelon", "PM", "508" },
+                    { "Greenland", "GL", "299" },
+                    { "Falkland Islands", "FK", "500" },
+                    { "United States Minor Outlying Islands", "UM", "1" },
+                    { "American Samoa", "AS", "1" },
+                    { "Guam", "GU", "1" },
+                    { "Northern Mariana Islands", "MP", "1" },
+                    { "Palau", "PW", "680" },
+                    { "Cook Islands", "CK", "682" },
+                    { "Tuvalu", "TV", "688" },
+                    { "Wallis and Futuna", "WF", "681" },
+                    { "Nauru", "NR", "674" },
+                    { "Niue", "NU", "683" },
+                    { "Tokelau", "TK", "690" },
+                    { "Saint Helena", "SH", "290" },
+                    { "Ascension Island", "AC", "247" },
+                    { "Tristan da Cunha", "TA", "290" },
+                    
+
+                    //European countries
+                    { "Germany", "DE", "49" },
+                    { "France", "FR", "33" },
+                    { "United Kingdom", "GB", "44" },
+                    { "Italy", "IT", "39" },
+                    { "Spain", "ES", "34" },
+                    { "Belgium", "BE", "32" },
+                    { "Greece", "GR", "30" },
+                    { "Netherlands", "NL", "31" },
+                    { "Portugal", "PT", "351" },
+                    { "Sweden", "SE", "46" },
+                    { "Switzerland", "CH", "41" },
+                    { "Norway", "NO", "47" },
+                    { "Denmark", "DK", "45" },
+                    { "Poland", "PL", "48" },
+                    { "Austria", "AT", "43" },
+                    { "Romania", "RO", "40" },
+                    { "Czech Republic", "CZ", "420" },
+                    { "Ireland", "IE", "353" },
+                    { "Russian Federation", "RU", "7" },
+                    { "Hungary", "HU", "36" },
+                    { "Ukraine", "UA", "380" },
+                    { "Finland", "FI", "358" },
+                    { "Bulgaria", "BG", "359" },
+                    { "Croatia", "HR", "385" },
+                    { "Serbia", "RS", "381" },
+                    { "Slovakia", "SK", "421" },
+                    { "Lithuania", "LT", "370" },
+                    { "Slovenia", "SI", "386" },
+                    { "Estonia", "EE", "372" },
+                    { "Latvia", "LV", "371" },
+                    { "Cyprus", "CY", "357" },
+                    { "Luxembourg", "LU", "352" },
+                    { "Malta", "MT", "356" },
+                    { "Iceland", "IS", "354" },
+                    { "Albania", "AL", "355" },
+                    { "Moldova", "MD", "373"},
+                    { "North Macedonia", "MK", "389" },
+                    { "Montenegro", "ME", "382" },
+                    { "Belarus", "BY", "375" },
+                    { "Georgia", "GE", "995" },
+                    { "Andorra", "AD", "376" },
+                    { "Liechtenstein", "LI", "423" },
+                    { "Monaco", "MC", "377" },
+                    { "San Marino", "SM", "378" },
+                    { "Vatican City", "VA", "379" },
+
+                    //Middle Eastern countries
+                    { "Saudi Arabia", "SA", "966" },
+                    { "Egypt", "EG", "20" },
+                    { "Turkey", "TR", "90" },
+                    { "Israel", "IL", "972" },
+                    { "Jordan", "JO", "962" },
+                    { "Kuwait", "KW", "965" },
+                    { "Oman", "OM", "968" },
+                    { "United Arab Emirates", "AE", "971" },
+
+                    //...more countries from Asia
+                    { "Japan", "JP", "81"},
+                    { "South Korea", "KR", "82" },
+                    { "China", "CN", "86" },
+                    { "India", "IN", "91"},
+                    { "Indonesia", "ID", "62"},
+                    { "Malaysia", "MY", "60"},
+                    { "Philippines", "PH", "63"},
+                    { "Singapore", "SG", "65"},
+                    { "Thailand", "TH", "66"},
+                    { "Vietnam", "VN", "84"},
+                    { "Hong Kong", "HK", "852"},
+                    { "Taiwan", "TW", "886"},
+                    { "Bangladesh", "BD", "880"},
+                    { "Sri Lanka", "LK", "94" },
+                    { "Syria", "SY", "963" },
+                    { "Lebanon", "LB", "961"},
+                    { "Maldives", "MV", "960"},
+                    { "Kazakhstan", "KZ", "7"},
+                    { "Uzbekistan", "UZ", "998" },
+                    { "Kyrgyzstan", "KG", "996" },
+                    { "Turkmenistan", "TM", "993"},
+                    { "Azerbaijan", "AZ", "994" },
+                    { "Afghanistan", "AF", "93" },
+                    { "Bahrain", "BH", "973"},
+                    { "Brunei Darussalam", "BN", "673" },
+                    { "Bhutan", "BT", "975"},
+                    { "Cambodia", "KH", "855" },
+                    { "East Timor", "TL", "670"},
+                    { "Georgia", "GE", "995"},
+                    { "Iran", "IR", "98" },
+                    { "Korea", "KP", "850" },
+                    { "Laos", "LA", "856" },
+                    { "Macau", "MO", "853" },
+                    { "Mongolia", "MN", "976" },
+                    { "Myanmar", "MM", "95" },
+                    { "Nepal", "NP", "977" },
+                    
+                    // ... More countries from Africa
+                    { "Algeria", "DZ", "213" },
+                    { "Angola", "AO", "244"},
+                    { "Benin", "BJ", "229"},
+                    { "Botswana", "BW", "267" },
+                    { "Burkina Faso", "BF", "226"},
+                    { "Burundi", "BI", "257" },
+                    { "Cameroon", "CM", "237" },
+                    { "Cape Verde", "CV", "238" },
+                    { "Central African Republic", "CF", "236" },
+                    { "Chad", "TD", "235" },
+                    { "Comoros", "KM", "269" },
+                    { "Congo", "CG", "242" },
+                    { "Djibouti", "DJ", "253"},
+                    { "Equatorial Guinea", "GQ", "240" },
+                    { "Eritrea", "ER", "291" },
+                    { "Ethiopia", "ET", "251"},
+                    { "Gabon", "GA", "241" },
+                    { "Gambia", "GM", "220"},
+                    { "Ghana", "GH", "233" },
+                    { "Guinea", "GN", "224"},
+                    { "Guinea-Bissau", "GW", "245"},
+                    { "Ivory Coast", "CI", "225" },
+                    { "Kenya", "KE", "254" },
+                    { "Lesotho", "LS", "266" },
+                    { "Liberia", "LR", "231" },
+                    { "Libya", "LY", "218"},
+                    { "Madagascar", "MG", "261"},
+                    { "Malawi", "MW", "265"},
+                    { "Mali", "ML", "223"},
+                    { "Mauritania", "MR", "222"},
+                    { "Mauritius", "MU", "230"},
+                    { "Mayotte", "YT", "262" },
+                    { "Morocco", "MA", "212"},
+                    { "Mozambique", "MZ", "258" },
+                    { "Namibia", "NA", "264"},
+                    { "Niger", "NE", "227"},
+                    { "Nigeria", "NG", "234"},
+                    { "Rwanda", "RW", "250"},
+                    { "Sao Tome and Principe", "ST", "239"},
+                    { "Senegal", "SN", "221" },
+                    { "Seychelles", "SC", "248" },
+                    { "Sierra Leone", "SL", "232" },
+                    { "Somalia", "SO", "252" },
+                    { "South Africa", "ZA", "27" },
+                    { "South Sudan", "SS", "211"},
+                    { "Sudan", "SD", "249" },
+                    { "Swaziland", "SZ", "268"},
+                    { "Tanzania", "TZ", "255" },
+                    { "Togo", "TG", "228" },
+                    { "Tunisia", "TN", "216" },
+                    { "Uganda", "UG", "256" },
+                    { "Western Sahara", "EH", "212"},
+                    { "Zambia", "ZM", "260"},
+                    { "Zimbabwe", "ZW", "263"},
+                    
+                }
+            );
+            migrationBuilder.InsertData(nameof(Languages), new [] { "Name", "Code" }, 
+                new object[,] { 
+                { "English", "en" },
+                { "Spanish", "es" },
+                { "French", "fr" },
+                { "German", "de" },
+                { "Italian", "it" },
+                { "Portuguese", "pt" },
+                { "Russian", "ru" },
+                { "Arabic", "ar" },
+                { "Chinese", "zh" },
+                { "Japanese", "ja" },
+                { "Korean", "ko" },
+                { "Turkish", "tr" },
+                { "Dutch", "nl" },
+                { "Polish", "pl" },
+                { "Swedish", "sv" },
+                { "Norwegian", "no" },
+                { "Danish", "da" },
+                { "Finnish", "fi" },
+                { "Hebrew", "he" },
+                { "Indonesian", "id" },
+                { "Malay", "ms" },
+                { "Thai", "th" },
+                { "Vietnamese", "vi" },
+                { "Hindi", "hi" },
+                { "Bengali", "bn" },
+                { "Punjabi", "pa" },
+                { "Telugu", "te" },
+                { "Tamil", "ta" },
+                { "Marathi", "mr" },
+                { "Gujarati", "gu" },
+                { "Kannada", "kn" },
+                { "Malayalam", "ml" },
+                { "Odia", "or" },
+                { "Assamese", "as" },
+                { "Maithili", "bh" },
+                { "Urdu", "ur" },
+                { "Arabic", "ar" },
+                { "Persian", "fa" },
+                { "Amharic", "am" },
+                { "Hausa", "ha" },
+                { "Swahili", "sw" },
+                { "Igbo", "ig" },
+                { "Yoruba", "yo" },
+                { "Oromo", "om" },
+                });
+            migrationBuilder.Sql($"UPDATE {nameof(Countries)} SET SupportedAt = now(), Provider=1 WHERE CountryCode = 'IL'");
+            migrationBuilder.Sql($"UPDATE {nameof(Languages)} SET SupportedAt = now() WHERE Code in ('en', 'he')");
+            //Adding Asian countries
             migrationBuilder.InsertData("AspNetRoles", new[] { "Id", "Name", "NormalizedName" }, new object[,]
             {
                 { Guid.NewGuid().ToString(), "Admin", "ADMIN" },
                 { Guid.NewGuid().ToString(), "IT", "IT" },
                 { Guid.NewGuid().ToString(), "Client", "CLIENT" }
             });
-
+            
+            var passwordHasher = new PasswordHasher<IdentityUser>();
+            var user = new IdentityUser { UserName = "admin" };
+            var passwordHash = passwordHasher.HashPassword(user, "ut!hf5353S");
+            migrationBuilder.Sql(
+                "INSERT into AspNetUsers (Id, UserName, NormalizedUserName, Email, NormalizedEmail, EmailConfirmed, PasswordHash, SecurityStamp, ConcurrencyStamp, PhoneNumber, PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnabled, AccessFailedCount, Token, FirstName, LastName, CountryId, DisplayLanguageId, Address, Latitude, Longitude, RegisterCompletedAt,TermsApproved) values " +
+                $"('{Guid.NewGuid().ToString()}', 'adminWolbergPro', 'ADMINWOLBERGPRO', 'admin@wolberg.pro', 'ADMIN@WOLBERG.PRO', 1, '{passwordHash}','{Guid.NewGuid().ToString()}', '{Guid.NewGuid().ToString()}', '545566786', 1, 1,  0, 0, '{StringExtensions.GenerateToken()}', 'Admin', 'User', (SELECT id FROM {nameof(Countries)} WHERE CountryCode = 'IL'), (SELECT id FROM {nameof(Languages)} WHERE Code = 'en'), '', 0, 0, now(), 1 )");
+            migrationBuilder.Sql($"INSERT INTO AspNetUserRoles (UserId, RoleId) VALUES ((SELECT Id FROM AspNetUsers WHERE UserName = 'adminWolbergPro'), (SELECT Id FROM AspNetRoles WHERE Name = 'Admin'))");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DeleteData("AspNetRoles", "Id", new object[] { "Admin" });
-            migrationBuilder.DeleteData("AspNetRoles", "Id", new object[] { "IT" });
-            migrationBuilder.DeleteData("AspNetRoles", "Id", new object[] { "Client" });
+            // Don't Uncomment this code, it will delete all data from the database Use Only for testing/development purposes
+            // migrationBuilder.Sql($"DELETE FROM {nameof(Countries)}");
+            // migrationBuilder.Sql($"DELETE FROM {nameof(Languages)}");
+            // migrationBuilder.Sql($"DELETE FROM {nameof(ApplicationUser)}");
+            // migrationBuilder.DeleteData("AspNetRoles", "Id", new object[] { "Admin" });
+            // migrationBuilder.DeleteData("AspNetRoles", "Id", new object[] { "IT" });
+            // migrationBuilder.DeleteData("AspNetRoles", "Id", new object[] { "Client" });
         }
     }
 }

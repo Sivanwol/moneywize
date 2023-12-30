@@ -30,6 +30,5 @@ public class ResetPasswordValidator : AbstractValidator<ResetPasswordRequest> {
             .Matches(@"^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,18}$")
             .WithMessage(
                 "Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character");
-        ;
     }
 }

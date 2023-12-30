@@ -1,3 +1,4 @@
+using Application.Configs.General;
 using Domain.Entities;
 using Domain.Persistence.Mock.Services;
 using Domain.Persistence.Repositories;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MockQueryable.Moq;
 using Moq;
 using Test.Shared.Common;
@@ -72,7 +74,9 @@ public class OTPRepositoryTest : BaseTest {
         var mockObjUser = mockEnumerableUser.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.UserOtpCodes).Returns(mockObj.Object!);
         Context.Setup(x => x.Users).Returns(mockObjUser.Object);
-        var repository = new OTPRepository(Context.Object, LoggerFactory.Create(x => x.AddConsole()), templateService, new Mock<IMailService>().Object, backendConfig);
+        var frontConfigMock = new Mock<IOptions<FrontEndPaths>>();
+        var repository = new OTPRepository(Context.Object, LoggerFactory.Create(x => x.AddConsole()), templateService, frontConfigMock.Object, new Mock<IMailService>().Object,
+            backendConfig);
         var result = await repository.VerifyOTP(user, expected, code);
         Assert.Multiple(() => {
             if (overrideCode) {

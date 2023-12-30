@@ -1,0 +1,86 @@
+{
+  "sections": [
+    {
+      "hasTitle": true,
+      "title": "Section 1",
+      "permissions": [
+        "admin"
+      ],
+      "items": [
+        {
+          "key": "menu-item-1",
+          "title": "menu item 1",
+          "hasSubtitle": true,
+          "hasIcon": true,
+          "link": "/",
+          "icon": "uil-envelope"
+        },
+        {
+          "key": "menu-item-2",
+          "title": "menu item 2",
+          "hasIcon": true,
+          "icon": "uil-envelope",
+          "link": "/"
+        }
+      ]
+    },
+    {
+      "hasTitle": true,
+      "title": "AVB",
+      "items": [
+        {
+          "key": "menu-item-1",
+          "title": "menu item 3",
+          "hasSubtitle": false,
+          "hasIcon": true,
+          "link": "/",
+          "icon": "uil-envelope"
+        },
+        {
+          "key": "menu-item-2",
+          "title": "menu item 4",
+          "hasIcon": true,
+          "icon": "uil-envelope",
+          "link": "/",
+          "permissions": [
+            "admin"
+          ],
+          "items": [
+            {
+              "key": "menu-item-2-1",
+              "title": "Item 1",
+              "link": "/"
+            },
+            {
+              "key": "menu-item-2-2",
+              "title": "Item 2",
+              "link": "/"
+            }
+          ]
+        },
+        {
+          "key": "menu-item-3",
+          "title": "Section 1",
+          "hasIcon": true,
+          "link": "/",
+          "icon": "uil-envelope",
+          "items": [
+            {
+              "key": "menu-item-3-1",
+              "title": "Item 1",
+              "link": "/",
+              "permissions": [
+                "admin"
+              ]
+            },
+            {
+              "key": "menu-item-3-2",
+              "title": "Item 2",
+              "link": "/"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

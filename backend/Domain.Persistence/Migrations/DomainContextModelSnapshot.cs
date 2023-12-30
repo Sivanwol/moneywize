@@ -37,9 +37,8 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("EntityId")
-                        .HasMaxLength(36)
-                        .HasColumnType("char(36)");
+                    b.Property<string>("EntityId")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("EntityType")
                         .IsRequired()
@@ -55,6 +54,10 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
+
+                    b.Property<string>("OwnerUserId")
+                        .HasMaxLength(36)
+                        .HasColumnType("varchar(36)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -143,6 +146,9 @@ namespace Domain.Persistence.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<DateTime?>("RegisterCompletedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("longtext");
 
@@ -185,8 +191,8 @@ namespace Domain.Persistence.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<DateTime?>("ComplateAt")
                         .HasColumnType("datetime(6)");
@@ -922,27 +928,26 @@ namespace Domain.Persistence.Migrations
 
                     b.Property<string>("CountryCode")
                         .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("CountryCode3")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(5)");
 
                     b.Property<string>("CountryName")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("CountryNumber")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(5)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-                    b.Property<int>("Provider")
+                    b.Property<int?>("Provider")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("SupportedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -962,7 +967,7 @@ namespace Domain.Persistence.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(5)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -971,11 +976,10 @@ namespace Domain.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(20)");
 
-                    b.Property<string>("TranslationKey")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<DateTime?>("SupportedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()

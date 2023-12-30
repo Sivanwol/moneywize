@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Application.Configs;
 using Application.Exceptions;
 using Application.Utils;
+using Domain.DTO.OTP;
 using Domain.Entities;
 using Domain.Persistence.Repositories.Interfaces;
 using Domain.Requests.Processor.Services.User;
@@ -43,13 +44,20 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
 
     public async Task<VerifyOTPResponse> Handle(VerifyOtpUserRequest request, CancellationToken cancellationToken) {
         var user = await GetValidUserByToken(request.UserToken);
-        var country = await GetValidCountryByUser(user);
         var expiredCodeInMinutes = _config.OTPCodeExpiredInMinutes;
         var otpEntity = await GetOtpEntity(request, expiredCodeInMinutes, user);
         var result = await _otpRepository.VerifyOTP(user, otpEntity, request.Code);
 
         Guid? userId = result.IsValid ? new Guid(user.Id) : null;
         var claims = new List<Claim>();
+
+        if (_config is { DeveloperMode: true, DeveloperModeEnabledOTP: false }) {
+            await RecordActivity(request, user, result, userId!.Value);
+            return new VerifyOTPResponse {
+                UserId = userId,
+                Tokens = _jwtAuthManager.GenerateTokens(request.UserToken, claims.ToArray(), SystemClock.Now().DateTime)
+            };
+        }
         if (result.IsValid) {
             Log.Logger.Information($"Clearing OTP Codes for User: [{userId}]");
             await _applicationUserRepository.ClearOtpCodes(Guid.Parse(user.Id));
@@ -72,14 +80,7 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
             };
             roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
         }
-        if (request.ActionOtpType == ActionOtpType.Login) {
-            await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), "Login", "User Received access tokens", "User Request Logged In",
-                result.IsValid ? ActivityStatus.Success : ActivityStatus.Failed, request.IpAddress, request.UserAgent);
-        } else {
-            await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), "ForgotPassword", "User Received access tokens",
-                "User Request Forgot Password",
-                result.IsValid ? ActivityStatus.Success : ActivityStatus.Failed, request.IpAddress, request.UserAgent);
-        }
+        await RecordActivity(request, user, result, userId!.Value);
         // await _signInManager.SignInAsync(user, true);
         return new VerifyOTPResponse {
             UserId = userId,
@@ -89,6 +90,19 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
         };
     }
 
+    private async Task RecordActivity(VerifyOtpUserRequest request, ApplicationUser user, VerifyOTPResponseData result, Guid userId) {
+
+        if (request.ActionOtpType == ActionOtpType.Login) {
+            await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), ActivityLogOperationType.UserVerifyOTP, "User Received access tokens",
+                "User Request origin Logged In",
+                result.IsValid ? ActivityStatus.Success : ActivityStatus.Failed, request.IpAddress, request.UserAgent);
+            return;
+        }
+        await _activityLogRepository.AddActivity(userId, user.Id, nameof(ApplicationUserOtpCodes), ActivityLogOperationType.UserVerifyOTP, "User Received access tokens",
+            "User Request origin Forgot Password",
+            result.IsValid ? ActivityStatus.Success : ActivityStatus.Failed, request.IpAddress, request.UserAgent);
+    }
+
     private async Task<ApplicationUser> GetValidUserByToken(string userToken) {
         Log.Logger.Information($"VerifyOtpHandler: [{userToken}]");
         var user = await _applicationUserRepository.GetUserByToken(userToken);
@@ -96,15 +110,6 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
             throw new EntityNotFoundException("User", userToken);
         }
         return user;
-    }
-
-    private async Task<Countries> GetValidCountryByUser(ApplicationUser user) {
-        Log.Logger.Information($"Locating User By Phone: {user.Country.Id}-{user.PhoneNumber}");
-        var country = await _countriesRepository.GetById(user.Country.Id);
-        if (country == null) {
-            throw new EntityNotFoundException("Countries", user.Country.Id.ToString());
-        }
-        return country;
     }
 
     private async Task<ApplicationUserOtpCodes> GetOtpEntity(VerifyOtpUserRequest request, int expiredCodeInMinutes, ApplicationUser user) {

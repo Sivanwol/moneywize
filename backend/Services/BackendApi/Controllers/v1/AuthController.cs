@@ -18,6 +18,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Annotations;
 using ConfirmEmailRequest = Infrastructure.Requests.Controllers.Auth.ConfirmEmailRequest;
@@ -25,6 +26,7 @@ using ResetPasswordRequest = Infrastructure.Requests.Controllers.Auth.ResetPassw
 namespace BackendApi.Controllers.v1;
 
 [ApiVersion("1.0")]
+[Produces("application/json")]
 [Authorize]
 public class AuthController : BaseApiController {
     private readonly IValidator<ConfirmEmailRequest> _confirmEmailValidator;
@@ -38,7 +40,7 @@ public class AuthController : BaseApiController {
     private readonly IValidator<RegisterNewUserRequest> _registerNewUserValidator;
     private readonly IValidator<MobileRequestOTPUserRequest> _requestOTPValidator;
     private readonly IValidator<ResetPasswordRequest> _resetPasswordValidator;
-    private readonly IValidator<VerifyOtpUserRequest> _verifyOtpUserValidator;
+    private readonly IValidator<VerifyOTPUserRequest> _verifyOtpUserValidator;
 
     public AuthController(
         IMediator mediator,
@@ -46,8 +48,8 @@ public class AuthController : BaseApiController {
         IHttpContextAccessor httpContextAccessor,
         ILoggerFactory loggerFactory,
         IJwtAuthManager jwtAuthManager,
-        FrontEndPaths frontConfig,
-        IValidator<VerifyOtpUserRequest> verifyOtpUserValidator,
+        IOptions<FrontEndPaths> frontEndPathsConfig,
+        IValidator<VerifyOTPUserRequest> verifyOtpUserValidator,
         IValidator<ResetPasswordRequest> resetPasswordValidator,
         IValidator<ConfirmEmailRequest> confirmEmailValidator,
         IValidator<ForgetPasswordRequest> forgetPasswordValidator,
@@ -57,7 +59,7 @@ public class AuthController : BaseApiController {
         IValidator<RegisterNewUserRequest> registerNewUserValidator) : base(mediator, configuration) {
         _logger = loggerFactory.CreateLogger<AuthController>();
         _jwtAuthManager = jwtAuthManager;
-        _frontConfig = frontConfig;
+        _frontConfig = frontEndPathsConfig.Value;
         _registerNewUserValidator = registerNewUserValidator;
         _forgetPasswordValidator = forgetPasswordValidator;
         _verifyOtpUserValidator = verifyOtpUserValidator;
@@ -89,11 +91,8 @@ public class AuthController : BaseApiController {
         }
 
         try {
-            var response = await Mediator.Send(new LoginWebUserRequest {
-                Email = request.Email,
-                Password = request.Password,
-                RememberMe = request.RememberMe
-            });
+            var response = await Mediator.Send(request.ToProcessorEntity(_httpContextAccessor.HttpContext!.Connection.RemoteIpAddress!.ToString(),
+                _httpContextAccessor.HttpContext!.Request.Headers["User-Agent"].ToString()));
             return ResponseHelper.CreateResponse(response);
         }
         catch (UserNotFoundException e) {
@@ -104,6 +103,12 @@ public class AuthController : BaseApiController {
         }
         catch (UserLockedoutException e) {
             return ResponseHelper.CreateEmptyResponse(["User account locked out"], HttpStatusCode.Unauthorized);
+        }
+        catch (UserNotCompletedRegistrationException e) {
+            _logger.LogError(e, "User not completed registration");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "User not completed registration"
+            }, HttpStatusCode.Unauthorized);
         }
         catch (InvalidLoginException e) {
             return ResponseHelper.CreateEmptyResponse(["User not found or password is not correct"], HttpStatusCode.Unauthorized);
@@ -129,7 +134,7 @@ public class AuthController : BaseApiController {
         "Auth"
     })]
     [AllowAnonymous]
-    public async Task<IActionResult> LoginConfirm([SwaggerRequestBody("OTP Verify payload", Required = true)] VerifyOtpUserRequest request) {
+    public async Task<IActionResult> LoginConfirm([SwaggerRequestBody("OTP Verify payload", Required = true)] VerifyOTPUserRequest request) {
         var validator = await _verifyOtpUserValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
@@ -195,6 +200,7 @@ public class AuthController : BaseApiController {
     })]
     [SwaggerResponse(StatusCodes.Status200OK, "Response of request OTP", typeof(DataResponse<RequestOTPResponse>))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad request", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized", typeof(DataResponse<EmptyResponse>))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     [AllowAnonymous]
     public async Task<IActionResult> ForgotPassword(ForgetPasswordRequest request) {
@@ -212,7 +218,7 @@ public class AuthController : BaseApiController {
                 "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
-        catch (MFAProviderImplementedException e) {
+        catch (MFAProviderNotImplementedException e) {
             _logger.LogError(e, "MFA Provider is not implemented");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "MFA Provider is not implemented"
@@ -223,6 +229,12 @@ public class AuthController : BaseApiController {
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "OTP not found"
             }, HttpStatusCode.Forbidden);
+        }
+        catch (UserNotCompletedRegistrationException e) {
+            _logger.LogError(e, "User not completed registration");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "User not completed registration"
+            }, HttpStatusCode.Unauthorized);
         }
         catch (Exception e) {
             _logger.LogError(e, "Error in RequestOTPCode");
@@ -243,7 +255,7 @@ public class AuthController : BaseApiController {
         "Auth"
     })]
     [AllowAnonymous]
-    public async Task ForgotPasswordConfirm(VerifyOtpUserRequest request) {
+    public async Task ForgotPasswordConfirm([SwaggerRequestBody("OTP Verify payload", Required = true)] VerifyOTPUserRequest request) {
         var validator = await _verifyOtpUserValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             _logger.LogError($"unable to confirm OTP for user [{request.UserToken} , {request.OTPToken}] with error [{HandlerErrorResponse(validator)}]");
@@ -257,17 +269,23 @@ public class AuthController : BaseApiController {
                 IpAddress = HttpContext.Connection.RemoteIpAddress!.ToString(),
                 UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
             });
+            ResponseHelper.CreateResponse(result);
             if (result.UserId == null) {
                 _logger.LogError($"unable to confirm OTP for user [{request.UserToken} , {request.OTPToken}]");
             }
         }
         catch (EntityNotFoundException e) {
             _logger.LogError(e, "One of the entities was not found");
+            ResponseHelper.CreateEmptyResponse(new List<string> {
+                "One of the params was not found"
+            }, HttpStatusCode.BadRequest);
         }
         catch (Exception e) {
             _logger.LogError(e, "Error in RequestOTPCode");
+            ResponseHelper.CreateEmptyResponse(new List<string> {
+                e.Message
+            }, HttpStatusCode.InternalServerError);
         }
-        Redirect($"{_frontConfig.BaseUrl}/{_frontConfig.LoginPath}");
     }
 
     /// <summary>
@@ -281,6 +299,7 @@ public class AuthController : BaseApiController {
     })]
     [SwaggerResponse(StatusCodes.Status200OK, "Response of request Reset Password", typeof(DataResponse<EmptyResponse>))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad request", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized", typeof(DataResponse<EmptyResponse>))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     public async Task<IActionResult> ResetPassword(ResetPasswordRequest request) {
         var validator = await _resetPasswordValidator.ValidateAsync(request);
@@ -303,6 +322,12 @@ public class AuthController : BaseApiController {
                 e.Message
             }, HttpStatusCode.Unauthorized);
         }
+        catch (UserNotCompletedRegistrationException e) {
+            _logger.LogError(e, "User not completed registration");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "User not completed registration"
+            }, HttpStatusCode.Unauthorized);
+        }
         catch (Exception e) {
             _logger.LogError(e, "Error in ResetPassword");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
@@ -318,6 +343,7 @@ public class AuthController : BaseApiController {
     })]
     [SwaggerResponse(StatusCodes.Status200OK, "Response of request OTP", typeof(DataResponse<RequestOTPResponse>))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad request", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized", typeof(DataResponse<EmptyResponse>))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     public async Task<IActionResult> RequestOTPCode([SwaggerRequestBody("OTP Request payload", Required = true)] MobileRequestOTPUserRequest request) {
         var validationResult = await _requestOTPValidator.ValidateAsync(request);
@@ -325,7 +351,8 @@ public class AuthController : BaseApiController {
             return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validationResult), HttpStatusCode.BadRequest);
         }
         try {
-            var result = await Mediator.Send(request.ToProcessorEntity());
+            var result = await Mediator.Send(request.ToProcessorEntity(_httpContextAccessor.HttpContext!.Connection.RemoteIpAddress!.ToString(),
+                _httpContextAccessor.HttpContext!.Request.Headers["User-Agent"].ToString()));
             return ResponseHelper.CreateResponse(result);
         }
         catch (EntityNotFoundException e) {
@@ -334,7 +361,7 @@ public class AuthController : BaseApiController {
                 "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
-        catch (MFAProviderImplementedException e) {
+        catch (MFAProviderNotImplementedException e) {
             _logger.LogError(e, "MFA Provider is not implemented");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "MFA Provider is not implemented"
@@ -345,6 +372,12 @@ public class AuthController : BaseApiController {
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "OTP not found"
             }, HttpStatusCode.Forbidden);
+        }
+        catch (UserNotCompletedRegistrationException e) {
+            _logger.LogError(e, "User not completed registration");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "User not completed registration"
+            }, HttpStatusCode.Unauthorized);
         }
         catch (Exception e) {
             _logger.LogError(e, "Error in RequestOTPCode");
@@ -360,6 +393,7 @@ public class AuthController : BaseApiController {
     })]
     [SwaggerResponse(StatusCodes.Status200OK, "Response of request refresh OTP", typeof(DataResponse<MobileAuthResponse>))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad request", typeof(DataResponse<EmptyResponse>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized", typeof(DataResponse<EmptyResponse>))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     [Authorize]
     public async Task<IActionResult> RefreshToken(RefreshTokenRequest request) {
@@ -419,9 +453,6 @@ public class AuthController : BaseApiController {
             var result = await Mediator.Send(request.ToProcessorEntity(Guid.Parse(loginUserId!),
                 HttpContext.Connection.RemoteIpAddress!.ToString(),
                 HttpContext.Request.Headers["User-Agent"].ToString()));
-            if (request.AllowRedirect) {
-                Redirect($"{_frontConfig.BaseUrl}/{_frontConfig.LoginPath}");
-            }
             return ResponseHelper.CreateResponse(result);
         }
         catch (EntityNotFoundException e) {

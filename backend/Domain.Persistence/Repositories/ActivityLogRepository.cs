@@ -1,3 +1,4 @@
+using Application.Utils;
 using Domain.DTO.Filters;
 using Domain.Entities;
 using Domain.Persistence.Context;
@@ -26,11 +27,12 @@ public class ActivityLogRepository : BaseRepository, IActivityLogRepository {
             OwnerUserId = ownerUserId.HasValue ? ownerUserId.Value.ToString() : null,
             UserId = userId.HasValue ? userId.Value.ToString() : null,
             EntityId = entityId,
+            CreatedAt = SystemClock.Now().DateTime,
             EntityType = entityType,
             OperationType = operationType,
             Activity = activity,
             Details = details,
-            Status = nameof(status)
+            Status = status.ToString(),
         };
         Context.ActivityLogs.Add(activityLog);
         return Context.Instance.SaveChangesAsync();
@@ -49,9 +51,10 @@ public class ActivityLogRepository : BaseRepository, IActivityLogRepository {
             EntityId = entityId,
             EntityType = entityType,
             OperationType = operationType,
+            CreatedAt = SystemClock.Now().DateTime,
             Activity = activity,
             Details = details,
-            Status = nameof(status),
+            Status = status.ToString(),
             IpAddress = ipAddress,
             UserAgent = userAgent
         };
