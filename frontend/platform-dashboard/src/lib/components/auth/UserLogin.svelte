@@ -67,7 +67,7 @@
 		</div>
 		{#if $errors.email !== '' || $errors.password !== ''}
 			<Helper color="red" name="email">
-				<span class="font-medium">{$_('common.alert.snap')}</span>
+				<span class="font-medium">{$_('common.alerts.snap')}</span>
 				{$_('login.error')}
 			</Helper>
 		{/if}

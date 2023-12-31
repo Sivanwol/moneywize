@@ -18,8 +18,8 @@ public class VerifyOTPValidator : AbstractValidator<VerifyOTPUserRequest> {
         RuleFor(x => x.OTPToken)
             .NotEmpty()
             .WithMessage("OTPToken is required")
-            .MinimumLength(MAX_TOKEN_LENGTH)
-            .WithMessage($"OTPToken must be at least {MAX_TOKEN_LENGTH} characters")
+            .MinimumLength(MAX_TOKEN_LENGTH - 1)
+            .WithMessage($"OTPToken must be at least {MAX_TOKEN_LENGTH - 1} characters")
             .MaximumLength(MAX_TOKEN_LENGTH)
             .WithMessage($"OTPToken must not exceed {MAX_TOKEN_LENGTH} characters");
 
@@ -27,8 +27,8 @@ public class VerifyOTPValidator : AbstractValidator<VerifyOTPUserRequest> {
         RuleFor(x => x.UserToken)
             .NotEmpty()
             .WithMessage("UserToken is required")
-            .MinimumLength(MAX_TOKEN_LENGTH)
-            .WithMessage($"UserToken must be at least {MAX_TOKEN_LENGTH} characters")
+            .MinimumLength(MAX_TOKEN_LENGTH - 1)
+            .WithMessage($"UserToken must be at least {MAX_TOKEN_LENGTH - 1} characters")
             .MaximumLength(MAX_TOKEN_LENGTH)
             .WithMessage($"UserToken must not exceed {MAX_TOKEN_LENGTH} characters");
     }

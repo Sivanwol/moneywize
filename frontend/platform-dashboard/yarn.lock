@@ -2,11 +2,6 @@
 # yarn lockfile v1
 
 
-"@5no/crypt@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@5no/crypt/-/crypt-1.0.6.tgz#d1ec95f8866acdd582f227382a231db4729ca028"
-  integrity sha512-FFkdVISurPTbzTb0uI1SuCHWlqhoUH6fawGj+E9izXS3cAi95c4xv4o+85WD+69b9v2NltrhVrg0NNQ+pojWuw==
-
 "@aashutoshrathi/word-wrap@^1.2.3":
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/@aashutoshrathi/word-wrap/-/word-wrap-1.2.6.tgz#bd9154aec9983f77b3a034ecaa015c2e4201f6cf"

@@ -54,9 +54,6 @@
 					}
 					auth.logout();
 					await goto('/login');
-				} else {
-					auth.logout();
-					await goto('/login');
 				}
 			}
 		}

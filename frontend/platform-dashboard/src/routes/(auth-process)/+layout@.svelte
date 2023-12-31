@@ -1,6 +1,16 @@
 <script>
 	import { _ } from 'svelte-i18n';
 	import { Footer, FooterBrand, FooterCopyright, FooterLink, FooterLinkGroup } from 'flowbite-svelte';
+	import { onMount } from 'svelte';
+	import { createAuth } from '@stores/authStore.js';
+	import { goto } from '$app/navigation';
+
+	$: auth = createAuth();
+	onMount(async () => {
+		if (auth.isLoggedIn()) {
+			await goto('/platform/main');
+		}
+	});
 </script>
 <style lang="postcss">
     .signin-statment {

@@ -1,14 +1,11 @@
-import { writable } from 'svelte/store';
 import { getItem, hasItem, removeItem, setItem } from '@utility/CookieStorageController';
 import { AuthJWT } from '@models/AuthJWT.js';
 import moment from 'moment';
 
 /** @type {(AuthJWT)} */
 export function createAuth(initialValue = null) {
-	const { subscribe, update } = writable(initialValue);
-
+	const AuthCookieKey = 'app_user_auth';
 	return {
-		subscribe,
 		login(userId, accessToken, refreshToken, expireAt) {
 			const auth = AuthJWT.fromJson({
 				userId,
@@ -16,69 +13,104 @@ export function createAuth(initialValue = null) {
 				refreshToken,
 				expireAt
 			});
-			removeItem('auth');
+			removeItem(AuthCookieKey);
 			const expiresInDays = auth.expireAt.days();
-			setItem('auth', auth, expiresInDays);
-			update((prev) => {
-				return [auth, ...prev];
-			});
+			setItem(AuthCookieKey, JSON.stringify(auth), expiresInDays);
 		},
 
+		/** @returns {(string| null)} */
 		getRefreshToken() {
-			/** @type {(AuthJWT)} */
-			const auth = getItem('auth');
-			if (!auth) return null;
-			return auth.refreshToken;
+			try {
+				/** @type {(AuthJWT)} */
+				const auth = getItem(AuthCookieKey);
+				if (!auth) return null;
+				return auth.refreshToken;
+			} catch (e) {
+				console.log(e);
+				removeItem(AuthCookieKey);
+			}
+			return null;
 		},
+		/** @returns {(string| null)} */
 		getUserId() {
-			/** @type {(AuthJWT)} */
-			const auth = getItem('auth');
-			if (!auth) return null;
-			return auth.userId;
+			try {
+				/** @type {(AuthJWT)} */
+				const auth = getItem(AuthCookieKey);
+				if (!auth) return null;
+				return auth.userId;
+			} catch (e) {
+				removeItem(AuthCookieKey);
+				return null;
+			}
 		},
 		reloadTokens({ accessToken, refreshToken, expireAt }) {
-			/** @type {(AuthJWT)} */
-			const authOld = getItem('auth');
-			if (!authOld) return null;
-			const userId = authOld.userId;
-			const auth = AuthJWT.fromJson({
-				userId,
-				accessToken,
-				refreshToken,
-				expireAt
-			});
-			const expiresInDays = auth.expireAt.days();
-			removeItem('auth');
-			setItem('auth', auth, expiresInDays);
-			update((prev) => {
-				return [auth, ...prev];
-			});
+			try {
+				/** @type {(AuthJWT)} */
+				const authOld = getItem(AuthCookieKey);
+				if (!authOld) return null;
+				const userId = authOld.userId;
+				const auth = AuthJWT.fromJson({
+					userId,
+					accessToken,
+					refreshToken,
+					expireAt
+				});
+				const expiresInDays = auth.expireAt.days();
+				removeItem(AuthCookieKey);
+				setItem(AuthCookieKey, JSON.stringify(auth), expiresInDays);
+			} catch (e) {// invalid auth object in cookie someone has tempered with it
+				console.log(e);
+				removeItem(AuthCookieKey);
+			}
 		},
+		/** @returns {(string| null)} */
 		getAccessToken() {
-			/** @type {(AuthJWT)} */
-			const auth = getItem('auth');
-			if (!auth) return null;
-			return auth.accessToken;
+			try {
+				/** @type {(AuthJWT)} */
+				const auth = getItem(AuthCookieKey);
+				if (!auth) return null;
+				return auth.accessToken;
+			} catch (e) {// invalid auth object in cookie someone has tempered with it
+				console.log(e);
+				removeItem(AuthCookieKey);
+			}
+			return null;
 		},
 		isLoggedIn() {
-			return hasItem('auth');
+			const hasAuth = hasItem(AuthCookieKey);
+			let hasAuthValid = true;
+			try {
+				/** @type {(AuthJWT)} */
+				const auth = getItem(AuthCookieKey);
+				if (!auth) hasAuthValid = false;
+			} catch (e) { // invalid auth object in cookie someone has tempered with it
+				console.log(e);
+				debugger;
+				hasAuthValid = false;
+				removeItem(AuthCookieKey);
+			}
+			return hasAuthValid && hasAuth;
 		},
 
+		/** @returns {(boolean| null)} */
 		isRenewToken() {
-			/** @type {(AuthJWT)} */
-			const auth = getItem('auth');
-			if (!auth) return false;
-			const now = moment();
-			const expireAt = moment(auth.expireAt);
-			const diff = expireAt.diff(now, 'minutes');
-			return diff < 3;
+			try {
+				/** @type {(AuthJWT)} */
+				const auth = getItem(AuthCookieKey);
+				if (!auth) return null;
+				const now = moment();
+				const expireAt = moment(auth.expireAt);
+				const diff = expireAt.diff(now, 'minutes');
+				return diff < 3;
+			} catch (e) {// invalid auth object in cookie someone has tempered with it
+				console.log(e);
+				removeItem(AuthCookieKey);
+			}
+			return null;
 		},
 
 		logout(note) {
-			removeItem('auth');
-			update((prev) => {
-				return prev.filter(item => item !== note);
-			});
+			removeItem(AuthCookieKey);
 		}
 	};
 
