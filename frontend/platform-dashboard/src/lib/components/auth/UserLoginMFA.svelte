@@ -25,6 +25,12 @@
 				const response = await requestLoginConfirm(userToken, otpToken, values.code);
 				if (!response.isValidRequest()) {
 					errorOnConfirm = true;
+
+					dispatch('loginMfa', {
+						error: response.errors[0],
+						tokens: null,
+						userId: null
+					});
 					return;
 				}
 				const { tokens, userId } = response.data;

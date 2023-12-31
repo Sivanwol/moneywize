@@ -8,6 +8,7 @@ using Application.Extensions;
 using Domain.Entities;
 using Domain.Persistence;
 using Domain.Persistence.Context;
+using GraphQL.AspNet.Configuration;
 using HealthChecks.ApplicationStatus.DependencyInjection;
 using HealthChecks.UI.Client;
 using Infrastructure.Services.Auth;
@@ -117,7 +118,15 @@ public class Bootstrap {
             services.AddSingleton<IJwtAuthManager, JwtAuthManager>();
             services.AddValidatorsExtension();
             services.AddRazorPages();
-
+            services.AddGraphQL(schemaOptions => {
+                if (Environment.IsDevelopment()) {
+                    schemaOptions.ExecutionOptions.DebugMode = true;
+                    schemaOptions.ExecutionOptions.EnableMetrics = true;
+                }
+            });
+            if (Environment.IsProduction()) {
+                services.AddGraphQLLocalQueryCache();
+            }
             services.AddHostedService<JwtRefreshTokenCache>();
         });
         if (Environment.IsDevelopment() || applicationConfig.EnableSwagger) {
@@ -187,6 +196,8 @@ public class Bootstrap {
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
         Log.Information("Perp Server");
         var applicationConfig = Configuration.GetSection("ApplicationConfig").Get<BackendApplicationConfig>()!;
+
+        app.UseGraphQL();
         if (Environment.IsDevelopment() || applicationConfig.EnableSwagger) {
             app.UseSwaggerExtension(env);
         }

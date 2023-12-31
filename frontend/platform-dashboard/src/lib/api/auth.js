@@ -31,7 +31,7 @@ export const requestLoginConfirm = async (userToken, otpToken, code) => {
 };
 export const requestRefreshToken = async (refreshToken) => {
 	try {
-		const response = await apiClientAuthorized.post('/Auth/refresh-token', {
+		const response = await apiClientAuthorized.post('/Auth/refresh_tokens', {
 			refreshToken
 		});
 		return new ApiResponse(response);

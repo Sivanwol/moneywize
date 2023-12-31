@@ -20,6 +20,8 @@
     "@fortawesome/free-regular-svg-icons": "^6.1.2",
     "@fortawesome/free-solid-svg-icons": "^6.1.2",
     "@iconscout/unicons": "^4.0.8",
+    "@kitql/client": "^0.5.12",
+    "@kitql/graphql-codegen": "^0.5.4",
     "@playwright/test": "^1.28.1",
     "@sveltejs/adapter-auto": "^3.0.0",
     "@sveltejs/kit": "^2.0.0",
