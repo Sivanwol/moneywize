@@ -2,11 +2,14 @@
 	import Notifications from '@components/common/Menus/Notifications.svelte';
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { UserProfile } from '@models/UserProfile';
+	import { createAuth } from '@stores/authStore.js';
+	import { goto } from '$app/navigation';
 
 	const dispatch = createEventDispatcher();
 
 	export let openWindow = false;
 
+	$: auth = createAuth();
 	/** @type { UserProfile } */
 	export let userProfile;
 
@@ -22,6 +25,11 @@
 			status: openWindow
 		});
 	});
+
+	function handleLogout() {
+		auth.logout();
+		goto('/login');
+	}
 
 </script>
 <div class="relative" data-te-dropdown-ref>
@@ -95,7 +103,12 @@
 			</ul>
 			<button
 				class="flex items-center justify-center w-full text-sm font-medium bg-normalBG dark:bg-box-dark-up h-[50px] text-light hover:text-primary dark:hover:text-subtitle-dark dark:text-title-dark mb-[-15px] rounded-b-6 gap-[6px]"
-				href="log-in.html">
+				on:click={handleLogout}
+				on:keydown={(event) => {
+					if (event.key === 'Enter') {
+						handleLogout();
+					}
+				}}>
 				<i class="uil uil-sign-out-alt"></i> Sign Out
 			</button>
 		</div>
