@@ -1,9 +1,11 @@
 using Application.Configs;
 using Application.Configs.Providers;
+using Application.Constraints;
 using Application.Exceptions;
 using Application.Utils;
 using Domain.Entities;
 using Domain.Persistence.Repositories.Interfaces;
+using EasyCaching.Core;
 using Infrastructure.Enums;
 using Infrastructure.Requests.Processor.Services.User;
 using Infrastructure.Responses.Controllers.Auth;
@@ -11,11 +13,15 @@ using Infrastructure.Utils.SMS;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Serilog;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 namespace Processor.Services.User;
 
 public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPResponse> {
     private readonly IActivityLogRepository _activityLogRepository;
     private readonly IApplicationUserRepository _applicationUserRepository;
+    private readonly IRedisCachingProvider _cache;
     private readonly BackendApplicationConfig _config;
     private readonly ICountriesRepository _countriesRepository;
     private readonly InfoUSmsConfig _infoUSmsConfig;
@@ -28,6 +34,7 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
     public RequestOtpHandler(
         IMediator mediator,
         ILoggerFactory logger,
+        IEasyCachingProviderFactory factory,
         IOTPRepository otpRepository,
         IApplicationUserRepository applicationUserRepository,
         IActivityLogRepository activityLogRepository,
@@ -37,6 +44,7 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
         InfoUSmsConfig infoUSmsConfig) {
         _otpRepository = otpRepository;
         _countriesRepository = countriesRepository;
+        _cache = factory.GetRedisProvider(Cache.ProviderName);
         _applicationUserRepository = applicationUserRepository;
         _logger = logger.CreateLogger<RequestOtpHandler>();
         _mediator = mediator;
@@ -53,9 +61,19 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
         _logger.LogInformation($"Locating User By Phone: {request.CountryId}-{request.PhoneNumber}");
         Countries? country = null;
         if (IsIdentifyByPhoneNumber(request)) {
-            country = await _countriesRepository.GetById(request.CountryId!.Value);
-            if (country == null)
-                throw new EntityNotFoundException("Country", request.CountryId!.Value.ToString());
+            var cacheKey = await _cache.KeyExistsAsync(Cache.GetKey($"COUNTRY_{request.CountryId}"));
+            if (cacheKey) {
+                var payload = await _cache.StringGetAsync(Cache.GetKey($"COUNTRY_{request.CountryId}"));
+                country = JsonConvert.DeserializeObject<Countries>(payload);
+            }
+            if (country == null) {
+                country = await _countriesRepository.GetById(request.CountryId!.Value);
+                if (country == null) {
+                    Log.Logger.Warning("Country not found");
+                    throw new EntityNotFoundException("Country", request.CountryId!.Value.ToString());
+                }
+                await _cache.StringSetAsync(Cache.GetKey($"COUNTRY_{request.CountryId}"), country.ToJson(), TimeSpan.FromDays(1));
+            }
             if (country.Provider == null)
                 throw new MFAProviderNotImplementedException(country.Id);
         }

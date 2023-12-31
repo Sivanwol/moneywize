@@ -11,10 +11,20 @@
     <ItemGroup>
         <PackageReference Include="AspNetCore.HealthChecks.ApplicationStatus" Version="7.0.0"/>
         <PackageReference Include="AspNetCore.HealthChecks.MySql" Version="7.0.0"/>
+        <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="7.0.0"/>
+        <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="7.0.1"/>
         <PackageReference Include="AspNetCore.HealthChecks.UI" Version="7.0.2"/>
         <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="7.1.0"/>
         <PackageReference Include="AspNetCore.HealthChecks.UI.MySql.Storage" Version="7.0.0"/>
         <PackageReference Include="AspNetCore.HealthChecks.UI.SqlServer.Storage" Version="7.0.0"/>
+        <PackageReference Include="EasyCaching.Core" Version="1.9.2"/>
+        <PackageReference Include="EasyCaching.Extensions.EasyCompressor" Version="1.4.0"/>
+        <PackageReference Include="EasyCaching.Redis" Version="1.9.2"/>
+        <PackageReference Include="EasyCaching.Serialization.Json" Version="1.9.2"/>
+        <PackageReference Include="EasyCaching.Serialization.MessagePack" Version="1.9.2"/>
+        <PackageReference Include="EasyCaching.Serialization.SystemTextJson" Version="1.9.2"/>
+        <PackageReference Include="EasyCompressor.LZ4" Version="1.4.0"/>
+        <PackageReference Include="EFCoreSecondLevelCacheInterceptor" Version="4.1.1"/>
         <PackageReference Include="FluentValidation" Version="11.7.1"/>
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0"/>
         <PackageReference Include="GraphQL.AspNet" Version="2.0.0-beta1"/>

@@ -8,29 +8,31 @@ using Domain.DTO.User;
 using Domain.Entities;
 using Domain.Persistence.Repositories.Interfaces;
 using Domain.Utils;
+using EasyCaching.Core;
 using Infrastructure.Enums;
 using Infrastructure.Requests.Processor.Services.User;
 using Infrastructure.Services.Email;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 using Serilog;
 namespace Processor.Services.User;
 
 public class RegisterHandler : IRequestHandler<RegisterRequest, EmptyResponse> {
     private readonly IActivityLogRepository _activityLogRepository;
     private readonly IApplicationUserRepository _applicationUserRepository;
+    private readonly IRedisCachingProvider _cache;
     private readonly BackendApplicationConfig _config;
     private readonly ICountriesRepository _countriesRepository;
     private readonly IMailService _emailService;
     private readonly ILanguagesRepository _languagesRepository;
     private readonly IMediator _mediator;
-    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ITemplateService _templateService;
     private readonly UserManager<ApplicationUser> _userManager;
 
     public RegisterHandler(IMediator mediator,
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager,
+        IEasyCachingProviderFactory factory,
         BackendApplicationConfig config,
         IApplicationUserRepository applicationUserRepository,
         ICountriesRepository countriesRepository,
@@ -38,7 +40,7 @@ public class RegisterHandler : IRequestHandler<RegisterRequest, EmptyResponse> {
         ITemplateService templateService,
         IMailService emailService) {
         _mediator = mediator;
-        _signInManager = signInManager;
+        _cache = factory.GetRedisProvider(Cache.ProviderName);
         _userManager = userManager;
         _applicationUserRepository = applicationUserRepository;
         _templateService = templateService;
@@ -72,7 +74,20 @@ public class RegisterHandler : IRequestHandler<RegisterRequest, EmptyResponse> {
                 ActivityStatus.Failed);
             throw new AuthenticationException("Invalid user not matching permissions");
         }
-        var country = await _countriesRepository.GetById(request.CountryId!.Value);
+        var cacheKey = await _cache.KeyExistsAsync(Cache.GetKey($"COUNTRY_{request.CountryId}"));
+        Countries? country = null;
+        if (cacheKey) {
+            var payload = await _cache.StringGetAsync(Cache.GetKey($"COUNTRY_{request.CountryId}"));
+            country = JsonConvert.DeserializeObject<Countries>(payload);
+        }
+        if (country == null) {
+            country = await _countriesRepository.GetById(request.CountryId!.Value);
+            if (country == null) {
+                Log.Logger.Warning("Country not found");
+                throw new EntityNotFoundException(nameof(Countries), request.CountryId.Value);
+            }
+            await _cache.StringSetAsync(Cache.GetKey($"COUNTRY_{request.CountryId}"), country.ToJson(), TimeSpan.FromDays(1));
+        }
         if (country == null) {
             Log.Logger.Warning("Country not found");
             throw new EntityNotFoundException(nameof(Countries), request.CountryId.Value);

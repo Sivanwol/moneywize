@@ -61,6 +61,11 @@ public static class MasstransitExtension {
                 cfg.Host(configuration.RabbitMqHost, configuration.RabbitMqVirtualHost, h => {
                     h.Username(configuration.RabbitMqUsername);
                     h.Password(configuration.RabbitMqPassword);
+                    if (configuration.RabbitMqSslProtocol) {
+                        h.UseSsl(ssl => {
+                            ssl.Protocol = System.Security.Authentication.SslProtocols.Tls12;
+                        });
+                    }
                 });
             });
         });

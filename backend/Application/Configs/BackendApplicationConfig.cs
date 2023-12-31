@@ -4,6 +4,17 @@ public class BackendApplicationConfig : BaseConfig {
     public bool DisableHealthCheck { get; set; }
     public string AzureServiceBus { get; set; }
     public string AzureServiceBusUri { get; set; }
+    public bool EnableEFCaching { get; set; }
+
+    #region Redis Configs
+
+    public bool RedisSsl { get; set; }
+    public string RedisHost { get; set; }
+    public string RedisAuth { get; set; }
+    public int RedisPort { get; set; }
+    public int RedisDb { get; set; }
+
+    #endregion
 
     #region Email Configs
 
@@ -15,6 +26,7 @@ public class BackendApplicationConfig : BaseConfig {
 
     #region RabbitMQ Configs
 
+    public bool RabbitMqSslProtocol { get; set; }
     public string RabbitMqHost { get; set; }
     public string RabbitMqVirtualHost { get; set; }
     public string RabbitMqUsername { get; set; }

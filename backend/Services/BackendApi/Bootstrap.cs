@@ -2,6 +2,7 @@ using System.Text;
 using Application.Configs;
 using Application.Configs.General;
 using Application.Configs.Providers;
+using Application.Constraints;
 using Application.Events;
 using Application.Events.Flow;
 using Application.Extensions;
@@ -132,6 +133,30 @@ public class Bootstrap {
         if (Environment.IsDevelopment() || applicationConfig.EnableSwagger) {
             services.AddSwaggerExtension(applicationConfig, "Application Backend Api Docs");
         }
+        services.AddLZ4Compressor("lz4");
+        // More info: https://easycaching.readthedocs.io/en/latest/Redis/
+        services.AddEasyCaching(option => {
+            option.UseRedis(config => {
+
+                    config.DBConfig.AllowAdmin = true;
+                    config.DBConfig.SyncTimeout = 10000;
+                    config.DBConfig.AsyncTimeout = 10000;
+                    config.DBConfig.Endpoints.Add(new EasyCaching.Core.Configurations.ServerEndPoint(applicationConfig.RedisHost, applicationConfig.RedisPort));
+                    if (applicationConfig.RedisAuth.Trim() != "") {
+                        config.DBConfig.Password = applicationConfig.RedisAuth;
+                    }
+                    if (applicationConfig.RabbitMqSslProtocol) {
+                        config.DBConfig.IsSsl = true;
+                    }
+                    config.DBConfig.Database = applicationConfig.RedisDb;
+                    config.EnableLogging = true;
+                    config.DBConfig.ConnectionTimeout = 10000;
+                    config.SerializerName = Cache.SerializerName;
+                }, Cache.ProviderName)
+                .WithJson("json")
+                .WithMessagePack(Cache.SerializerName)
+                .WithCompressor(Cache.SerializerName, "lz4");
+        });
 
         // add repositories
         services.AddRepositoriesExtension();
@@ -159,12 +184,29 @@ public class Bootstrap {
         services.AddApiVersionExtension(applicationConfig);
         // health checks registration 
         if (!applicationConfig.DisableHealthCheck) { // we check if we want the health checks to be disabled (mostly in dev)
+            var redisConnectionString = applicationConfig.RedisSsl
+                ? $"rediss://{applicationConfig.RedisHost}:{applicationConfig.RedisPort},defaultDatabase={applicationConfig.RedisDb}"
+                : $"redis://{applicationConfig.RedisHost}:{applicationConfig.RedisPort},defaultDatabase={applicationConfig.RedisDb}";
+            if (applicationConfig.RedisAuth.Trim() == "") {
+                redisConnectionString += $",password={applicationConfig.RedisAuth}";
+            }
+            var rabbitMqConnectionString = applicationConfig.RabbitMqSslProtocol
+                ? $"amqps://{applicationConfig.RabbitMqUsername}:{applicationConfig.RabbitMqPassword}@{applicationConfig.RabbitMqHost}"
+                : $"amqp://{applicationConfig.RabbitMqUsername}:{applicationConfig.RabbitMqPassword}@{applicationConfig.RabbitMqHost}";
             services.AddHealthChecks()
                 .AddMySql(ActiveConnectionString, tags: new[] {
                     "db"
                 })
+                .AddRedis(redisConnectionString, tags: new[] {
+                    "redis"
+                })
+                .AddRabbitMQ(rabbitConnectionString: rabbitMqConnectionString, tags: new[] {
+                    "rabbitmq"
+                })
                 .AddApplicationStatus();
-            services.AddHealthChecksUI().AddSqlServerStorage(ActiveConnectionString);
+            services
+                .AddHealthChecksUI()
+                .AddMySqlStorage(ActiveConnectionString);
         }
         // auth registration
 

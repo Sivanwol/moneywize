@@ -21,7 +21,7 @@ public static class StringExtensions {
             .Take(lengthHash)
             .Select(randomByte => alphabet[randomByte % alphabet.Length])
         );
-        return $"{baseHash}.{randomHash}";
+        return $"{baseHash}{randomHash}".Replace(".", "");
     }
 
     private static byte RandomByte() {
@@ -38,8 +38,8 @@ public static class StringExtensions {
 
         // Step 2, convert byte array to hex string
         var sb = new StringBuilder();
-        for (var i = 0; i < hashBytes.Length; i++) {
-            sb.Append(hashBytes[i].ToString("X2"));
+        foreach (var t in hashBytes) {
+            sb.Append(t.ToString("X2"));
         }
         return sb.ToString();
     }
