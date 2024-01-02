@@ -5,6 +5,7 @@ using MediatR;
 namespace Infrastructure.Requests.Processor.Services.User;
 
 public class UserActivityRequest : IRequest<EntityPage<Activity>> {
+    public Guid LoggedInUserId { get; set; }
     public Guid UserId { get; set; }
     public EntityPage PageControl { get; set; }
 }

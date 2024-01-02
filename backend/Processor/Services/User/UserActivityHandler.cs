@@ -1,3 +1,4 @@
+using Application.Constraints;
 using Application.Exceptions;
 using Domain.DTO.Filters;
 using Domain.DTO.Filters.Fields;
@@ -8,21 +9,42 @@ using Infrastructure.GQL;
 using Infrastructure.GQL.Common;
 using Infrastructure.Requests.Processor.Services.User;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
+using Serilog;
 namespace Processor.Services.User;
 
 public class UserActivityHandler : IRequestHandler<UserActivityRequest, EntityPage<Activity>> {
     private readonly IActivityLogRepository _activityRepository;
-    private readonly IApplicationUserRepository _userRepository;
+    private readonly IApplicationUserRepository _applicationUserRepository;
+    private readonly UserManager<ApplicationUser> _userManager;
     public UserActivityHandler(
         IApplicationUserRepository userRepository,
-        IActivityLogRepository activityRepository) {
+        IActivityLogRepository activityRepository,
+        UserManager<ApplicationUser> userManager) {
         _activityRepository = activityRepository;
-        _userRepository = userRepository;
+        _applicationUserRepository = userRepository;
+        _userManager = userManager;
     }
     public async Task<EntityPage<Activity>> Handle(UserActivityRequest request, CancellationToken cancellationToken) {
-        var user = await _userRepository.GetById(request.UserId);
+        var user = await _applicationUserRepository.GetById(request.UserId);
         if (user == null) {
             throw new EntityNotFoundException(nameof(ApplicationUser), request.UserId.ToString());
+        }
+        if (request.UserId != request.LoggedInUserId) {
+            var loggedUser = await _applicationUserRepository.GetById(request.LoggedInUserId);
+            if (loggedUser == null) {
+                Log.Logger.Error($"GetUserProfileHandler: Logged user not found");
+                throw new EntityNotFoundException(nameof(ApplicationUser), request.LoggedInUserId.ToString());
+            }
+            var loggedRoles = await _userManager.GetRolesAsync(loggedUser);
+            var matchedRoles = new List<string>() {
+                Roles.Admin,
+                Roles.IT
+            };
+            if (!matchedRoles.Any(x => loggedRoles.Contains(x))) {
+                Log.Logger.Error($"GetUserProfileHandler: User not authorized");
+                throw new AuthorizationException();
+            }
         }
         var pageFilter = BuildPageFilter(request);
         var activities = await _activityRepository.GetActivities(pageFilter);

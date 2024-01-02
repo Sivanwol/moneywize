@@ -37,6 +37,7 @@ public class UserController : BaseGraphController {
                 return Error("User not found");
             }
             var user = await Mediator.Send(new GetUserProfileRequest {
+                LoggedInUserId = Guid.Parse(userId),
                 UserId = Guid.Parse(userId)
             });
             return Ok(user);
@@ -55,11 +56,13 @@ public class UserController : BaseGraphController {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         try {
-            if (userId == Guid.Empty) {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == Guid.Empty || Guid.Parse(loggedUserId!) == Guid.Empty) {
                 Log.Logger.Error("GetMyProfile: User not found");
                 return BadRequest("User not found");
             }
             var user = await Mediator.Send(new GetUserProfileRequest {
+                LoggedInUserId = Guid.Parse(loggedUserId!),
                 UserId = userId
             });
             return Ok(user);
@@ -67,6 +70,10 @@ public class UserController : BaseGraphController {
         catch (EntityNotFoundException e) {
             Log.Logger.Error(e, e.Message);
             return Error("Failed to find user");
+        }
+        catch (AuthorizationException e) {
+            Log.Logger.Error(e, e.Message);
+            return Error("User not authorized");
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);
@@ -84,7 +91,8 @@ public class UserController : BaseGraphController {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         try {
-            if (userId == Guid.Empty) {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == Guid.Empty || Guid.Parse(loggedUserId!) == Guid.Empty) {
                 Log.Logger.Error("GetMyProfile: User not found");
                 return BadRequest("User not found");
             }
