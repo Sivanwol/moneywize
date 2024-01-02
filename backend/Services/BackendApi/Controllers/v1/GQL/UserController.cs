@@ -15,7 +15,7 @@ public class UserController : BaseGraphController {
         BackendApplicationConfig configuration) : base(mediator, configuration) { }
     [QueryRoot("myProfile")]
     [Description("Will return the current user profile")]
-    public async Task<User> GetUserProfile() {
+    public async Task<User> GetMyProfile() {
         var userId = User.Claims.FirstOrDefault(x => x.Type == "id")?.Value;
         if (userId == null) {
             throw new Exception("User not found");
