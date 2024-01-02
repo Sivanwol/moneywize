@@ -75,6 +75,8 @@ namespace Domain.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OwnerUserId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("ActivityLogs");
@@ -117,17 +119,11 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<double>("Latitude")
-                        .HasColumnType("double");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<double>("Longitude")
-                        .HasColumnType("double");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -1540,9 +1536,15 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ActivityLog", b =>
                 {
+                    b.HasOne("Domain.Entities.ApplicationUser", "OwnerUser")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId");
+
                     b.HasOne("Domain.Entities.ApplicationUser", "User")
                         .WithMany("ActivityLogs")
                         .HasForeignKey("UserId");
+
+                    b.Navigation("OwnerUser");
 
                     b.Navigation("User");
                 });

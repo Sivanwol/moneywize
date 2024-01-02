@@ -7,6 +7,8 @@ using Application.Utils.Service;
 using FluentValidation;
 using GraphQL.AspNet.Attributes;
 using GraphQL.AspNet.Interfaces.Controllers;
+using Infrastructure.GQL;
+using Infrastructure.GQL.Common;
 using Infrastructure.GQL.Inputs.Common;
 using Infrastructure.Requests.Processor.Services.User;
 using MediatR;
@@ -25,7 +27,7 @@ public class UserController : BaseGraphController {
         IValidator<EntityPage> pageValidator) : base(mediator, configuration) {
         _pageValidator = pageValidator;
     }
-    [Query]
+    [Query("getMyProfile", typeof(User))]
     [Description("Will return the current user profile")]
     public async Task<IGraphActionResult> GetMyProfile() {
         try {
@@ -45,11 +47,13 @@ public class UserController : BaseGraphController {
         }
     }
 
-    [Query]
+    [Query("getUserProfile", typeof(User))]
     [Description("Will return the user profile")]
     public async Task<IGraphActionResult> GetUserProfile(
         [FromGraphQL("userId")] [Description("User Id")]
         Guid userId) {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         try {
             if (userId == Guid.Empty) {
                 Log.Logger.Error("GetMyProfile: User not found");
@@ -69,12 +73,16 @@ public class UserController : BaseGraphController {
             return Error("Something went wrong");
         }
     }
-    [Query]
-    public async Task<IGraphActionResult> GetActivities(
+
+    [Query("getUserActivities", typeof(EntityPage<Activity>))]
+    [Description("Will return the user activities")]
+    public async Task<IGraphActionResult> GetUserActivities(
         [FromGraphQL("userId")] [Description("User Id")]
         Guid userId,
         [FromGraphQL("page")] [Description("Entity Page Data( paging , sorting , filtering )")]
         EntityPage page) {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         try {
             if (userId == Guid.Empty) {
                 Log.Logger.Error("GetMyProfile: User not found");
@@ -84,7 +92,21 @@ public class UserController : BaseGraphController {
             if (!validator.IsValid) {
                 return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
             }
-            return null;
+            try {
+                var activities = await Mediator.Send(new UserActivityRequest {
+                    UserId = userId,
+                    PageControl = page
+                });
+                return Ok(activities);
+            }
+            catch (EntityNotFoundException e) {
+                Log.Logger.Error(e, e.Message);
+                return Error("Failed to find user");
+            }
+            catch (Exception e) {
+                Log.Logger.Error(e, e.Message);
+                return Error("Something went wrong");
+            }
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);

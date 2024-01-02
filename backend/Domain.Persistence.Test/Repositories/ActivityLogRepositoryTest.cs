@@ -332,10 +332,10 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         var fillters = new RecordFilterPagination<ActivityLogFilters>();
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("Activity", FilterStringOperation.Equal) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("Activity", FilterStringOperation.Equal) {
             FilterValue = mockEnumerable.First().Activity
         });
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("Activity", FilterStringOperation.Equal, DisableFilter) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("Activity", FilterStringOperation.Equal, DisableFilter) {
             FilterValue = mockEnumerable.Last().Activity
         });
         var result = await repository.GetActivities(fillters);
@@ -377,13 +377,13 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         var fillters = new RecordFilterPagination<ActivityLogFilters>();
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("Activity", FilterStringOperation.Equal) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("Activity", FilterStringOperation.Equal) {
             FilterValue = filterValue1
         });
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("Activity", FilterStringOperation.Equal) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("Activity", FilterStringOperation.Equal) {
             FilterValue = filterValue2
         });
-        fillters.Filter.IpAddressFilters.Add(new StringFilterField("IpAddress", FilterStringOperation.Equal) {
+        fillters.Filters.IpAddressFilters.Add(new StringFilterField("IpAddress", FilterStringOperation.Equal) {
             FilterValue = mockEnumerable[idx].IpAddress
         });
         var result = await repository.GetActivities(fillters);
@@ -421,7 +421,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         var fillters = new RecordFilterPagination<ActivityLogFilters>();
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.Equal) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.Equal) {
             FilterValue = mockData.First().EntityType
         });
         var result = await repository.GetActivities(fillters);
@@ -457,7 +457,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         var fillters = new RecordFilterPagination<ActivityLogFilters>();
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.NotEqual) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.NotEqual) {
             FilterValue = mockData.First().EntityType
         });
         var result = await repository.GetActivities(fillters);
@@ -493,7 +493,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         var fillters = new RecordFilterPagination<ActivityLogFilters>();
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.Contains) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.Contains) {
             FilterValue = "Test"
         });
         var result = await repository.GetActivities(fillters);
@@ -530,7 +530,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         var fillters = new RecordFilterPagination<ActivityLogFilters>();
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.NotContains) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.NotContains) {
             FilterValue = "Test"
         });
         var result = await repository.GetActivities(fillters);
@@ -565,7 +565,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         var fillters = new RecordFilterPagination<ActivityLogFilters>();
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.StartsWith) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.StartsWith) {
             FilterValue = "Test"
         });
         var result = await repository.GetActivities(fillters);
@@ -601,7 +601,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         var fillters = new RecordFilterPagination<ActivityLogFilters>();
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.NotStartsWith) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.NotStartsWith) {
             FilterValue = "Test"
         });
         var result = await repository.GetActivities(fillters);
@@ -636,7 +636,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         var fillters = new RecordFilterPagination<ActivityLogFilters>();
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.EndsWith) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.EndsWith) {
             FilterValue = "Test"
         });
         var result = await repository.GetActivities(fillters);
@@ -672,7 +672,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         var fillters = new RecordFilterPagination<ActivityLogFilters>();
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.NotEndsWith) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.NotEndsWith) {
             FilterValue = "Test"
         });
         var result = await repository.GetActivities(fillters);
@@ -706,7 +706,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         var fillters = new RecordFilterPagination<ActivityLogFilters>();
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.In) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.In) {
             FilterValues = new List<string>()
         });
         try {
@@ -715,17 +715,17 @@ public class ActivityLogRepositoryTest : BaseTest {
         }
         catch (InvalidOperationException ex) {
             // Assert
-            StringAssert.Contains("Filter values are not provided.", ex.Message);
+            StringAssert.Contains("Filters values are not provided.", ex.Message);
         }
-        fillters.Filter.ActivityFilters.Clear();
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.In));
+        fillters.Filters.ActivityFilters.Clear();
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.In));
         try {
             await repository.GetActivities(fillters);
             Assert.Fail("Expected exception was not thrown.");
         }
         catch (InvalidOperationException ex) {
             // Assert
-            StringAssert.Contains("Filter values are not provided.", ex.Message);
+            StringAssert.Contains("Filters values are not provided.", ex.Message);
         }
 
     }
@@ -739,7 +739,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         var fillters = new RecordFilterPagination<ActivityLogFilters>();
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.In) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.In) {
             FilterValues = new List<string> {
                 mockData.First().EntityType,
                 mockData.Last().EntityType
@@ -777,7 +777,7 @@ public class ActivityLogRepositoryTest : BaseTest {
         var mockObj = mockEnumerable.AsQueryable().BuildMockDbSet();
         Context.Setup(x => x.ActivityLogs).Returns(mockObj.Object);
         var fillters = new RecordFilterPagination<ActivityLogFilters>();
-        fillters.Filter.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.NotIn) {
+        fillters.Filters.ActivityFilters.Add(new StringFilterField("EntityType", FilterStringOperation.NotIn) {
             FilterValues = new List<string> {
                 mockData.First().EntityType
             }

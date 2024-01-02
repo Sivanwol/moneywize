@@ -14,6 +14,7 @@ using GraphQL.AspNet.Configuration;
 using GraphQL.AspNet.Security;
 using HealthChecks.ApplicationStatus.DependencyInjection;
 using HealthChecks.UI.Client;
+using Infrastructure.Enums;
 using Infrastructure.Services.Auth;
 using Infrastructure.Services.Auth.Models;
 using Infrastructure.Services.Email;
@@ -130,6 +131,10 @@ public class Bootstrap {
                 schemaOptions.ResponseOptions.ExposeExceptions = true;
                 schemaOptions.ResponseOptions.ExposeMetrics = true;
                 schemaOptions.ExecutionOptions.MaxQueryDepth = 15;
+                schemaOptions.AddType<SortDirection>();
+                schemaOptions.AddType<FilterOperations>();
+                schemaOptions.AddType<PageSize>();
+                schemaOptions.AddType<EntityColumnOperationType>();
             });
             if (Environment.IsProduction()) {
                 services.AddGraphQLLocalQueryCache();

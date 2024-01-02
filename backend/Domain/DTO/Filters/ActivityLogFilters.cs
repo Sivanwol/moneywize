@@ -10,7 +10,7 @@ public class ActivityLogFilters : BaseFilters {
         IpAddressFilters = new List<StringFilterField>();
         UserAgentFilters = new List<StringFilterField>();
         IdFilters = new List<IdFilterField>();
-        UserIdFilters = new List<GuidFilterField>();
+        UserIdFilters = new List<StringFilterField>();
         EntityIdFilters = new List<StringFilterField>();
         OperationTypeFilters = new List<StringFilterField>();
         ActivityFilters = new List<StringFilterField>();
@@ -21,7 +21,7 @@ public class ActivityLogFilters : BaseFilters {
     public ICollection<StringFilterField> IpAddressFilters { get; }
     public ICollection<StringFilterField> UserAgentFilters { get; }
     public ICollection<IdFilterField> IdFilters { get; }
-    public ICollection<GuidFilterField> UserIdFilters { get; }
+    public ICollection<StringFilterField> UserIdFilters { get; }
     public ICollection<StringFilterField> EntityIdFilters { get; }
     public ICollection<StringFilterField> OperationTypeFilters { get; }
     public ICollection<StringFilterField> ActivityFilters { get; }
@@ -49,12 +49,17 @@ public class ActivityLogFilters : BaseFilters {
         var predicate = PredicateBuilder.New<T>(false);
         Func<Expression<Func<T, bool>>, Expression<Func<T, bool>>, Expression<Func<T, bool>>> operatorFunc = filterCollectionOperation == FilterCollectionOperation.Or
             ? (Func<Expression<Func<T, bool>>, Expression<Func<T, bool>>, Expression<Func<T, bool>>>)((p1, p2) => p1.Or(p2))
-            : (p1, p2) => p1.And(p2);
+            : (p1, p2) => {
+                if (p1.ToString() == "f => False" && p2.ToString() != "f => False") {
+                    return p2;
+                }
+                return p1.And(p2);
+            };
 
         predicate = ApplyFiltersPredicate<T, string, StringFilterField>(IpAddressFilters, predicate, operatorFunc);
         predicate = ApplyFiltersPredicate<T, string, StringFilterField>(UserAgentFilters, predicate, operatorFunc);
         predicate = ApplyFiltersPredicate<T, int, IdFilterField>(IdFilters, predicate, operatorFunc);
-        predicate = ApplyFiltersPredicate<T, Guid, GuidFilterField>(UserIdFilters, predicate, operatorFunc);
+        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(UserIdFilters, predicate, operatorFunc);
         predicate = ApplyFiltersPredicate<T, string, StringFilterField>(EntityIdFilters, predicate, operatorFunc);
         predicate = ApplyFiltersPredicate<T, string, StringFilterField>(OperationTypeFilters, predicate, operatorFunc);
         predicate = ApplyFiltersPredicate<T, string, StringFilterField>(ActivityFilters, predicate, operatorFunc);
