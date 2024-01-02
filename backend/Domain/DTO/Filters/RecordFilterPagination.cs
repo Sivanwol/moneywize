@@ -1,18 +1,9 @@
 using System.Linq.Expressions;
 using Domain.DTO.Filters.Common;
+using Infrastructure.Enums;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 namespace Domain.DTO.Filters;
-
-public enum SortDirection {
-    Ascending,
-    Descending
-}
-
-public enum FilterCollectionOperation {
-    Or,
-    And
-}
 
 public class RecordFilterPagination<TFilter> where TFilter : IFilter {
 

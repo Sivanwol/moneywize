@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Domain.DTO.Filters.Common;
 using Domain.DTO.Filters.Fields;
+using Infrastructure.Enums;
 using LinqKit;
 namespace Domain.DTO.Filters;
 

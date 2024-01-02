@@ -1,6 +1,7 @@
 namespace Application.Configs;
 
 public class BackendApplicationConfig : BaseConfig {
+    public bool EnableGraphQLCache;
     public bool DisableHealthCheck { get; set; }
     public string AzureServiceBus { get; set; }
     public string AzureServiceBusUri { get; set; }

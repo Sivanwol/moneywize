@@ -125,10 +125,11 @@ public class Bootstrap {
             services.AddValidatorsExtension();
             services.AddRazorPages();
             services.AddGraphQL(schemaOptions => {
-
+                schemaOptions.QueryHandler.Route = "/api/gql";
                 schemaOptions.AuthorizationOptions.Method = AuthorizationMethod.PerField;
                 schemaOptions.ResponseOptions.ExposeExceptions = true;
                 schemaOptions.ResponseOptions.ExposeMetrics = true;
+                schemaOptions.ExecutionOptions.MaxQueryDepth = 15;
             });
             if (Environment.IsProduction()) {
                 services.AddGraphQLLocalQueryCache();
@@ -137,6 +138,9 @@ public class Bootstrap {
         });
         if (Environment.IsDevelopment() || applicationConfig.EnableSwagger) {
             services.AddSwaggerExtension(applicationConfig, "Application Backend Api Docs");
+        }
+        if (!Environment.IsDevelopment() || applicationConfig.EnableGraphQLCache) {
+            services.AddGraphQLLocalQueryCache();
         }
         services.AddLZ4Compressor("lz4");
         // More info: https://easycaching.readthedocs.io/en/latest/Redis/
@@ -158,7 +162,7 @@ public class Bootstrap {
                     config.DBConfig.ConnectionTimeout = 10000;
                     config.SerializerName = Cache.SerializerName;
                 }, Cache.ProviderName)
-                .WithJson("json")
+                .WithJson()
                 .WithMessagePack(Cache.SerializerName)
                 .WithCompressor(Cache.SerializerName, "lz4");
         });

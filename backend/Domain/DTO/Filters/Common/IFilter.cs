@@ -1,3 +1,4 @@
+using Infrastructure.Enums;
 namespace Domain.DTO.Filters.Common;
 
 public interface IFilter {

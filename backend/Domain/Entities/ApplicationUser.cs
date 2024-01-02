@@ -34,4 +34,18 @@ public class ApplicationUser : IdentityUser, ISoftDeletable {
             Roles = roles
         };
     }
+
+    public User ToGql() {
+        return new() {
+            Id = Id,
+            Email = Email,
+            FirstName = FirstName,
+            LastName = LastName,
+            PhoneNumber = PhoneNumber,
+            Address = Address,
+            Country = Country?.ToGql(),
+            DisplayLanguage = DisplayLanguage?.ToGql(),
+            Roles = new List<string>()
+        };
+    }
 }
