@@ -83,10 +83,10 @@ namespace Domain.Persistence.Migrations
                 {
                     ConfigurableUserViewId = table.Column<int>(type: "int", nullable: false),
                     ConfigurableEntityColumnDefinitionId = table.Column<int>(type: "int", nullable: false),
-                    IsPinable = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsPinable = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
                     Order = table.Column<int>(type: "int", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)"),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)")
                 },
                 constraints: table =>
                 {
@@ -112,8 +112,8 @@ namespace Domain.Persistence.Migrations
                 {
                     ConfigurableUserViewId = table.Column<int>(type: "int", nullable: false),
                     ConfigurableUserViewTagsId = table.Column<int>(type: "int", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)"),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)")
                 },
                 constraints: table =>
                 {
