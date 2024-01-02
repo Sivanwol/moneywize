@@ -35,4 +35,8 @@ public interface IDomainContext : IDisposable {
     DbSet<Assets> Assets { get; set; }
     DbSet<ConfigurableCategories> ConfigurableCategories { get; set; }
     DbSet<ConfigurableEntityColumnDefinition> ConfigurableEntityColumnDefinitions { get; set; }
+    DbSet<ConfigurableUserView> ConfigurableUserViews { get; set; }
+    DbSet<ConfigurableUserViewHasConfigurableEntityColumnDefinition> ConfigurableUserViewHasConfigurableEntityColumnDefinitions { get; set; }
+    DbSet<ConfigurableUserViewTags> ConfigurableUserViewTags { get; set; }
+    DbSet<ConfigurableUserViewHasConfigurableUserViewTags> ConfigurableUserViewHasConfigurableUserViewTags { get; set; }
 }

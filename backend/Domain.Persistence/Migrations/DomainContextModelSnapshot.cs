@@ -920,9 +920,6 @@ namespace Domain.Persistence.Migrations
                     b.Property<bool>("IsFilterable")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<bool>("IsPublic")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<bool>("IsSortable")
                         .HasColumnType("tinyint(1)");
 
@@ -956,6 +953,151 @@ namespace Domain.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("ConfigurableEntityColumnDefinitions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ConfigurableUserView", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("varchar(8)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsPredefined")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsShareAble")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("LastUsed")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Settings")
+                        .IsRequired()
+                        .HasColumnType("json");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("ConfigurableUserViews");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ConfigurableUserViewHasConfigurableEntityColumnDefinition", b =>
+                {
+                    b.Property<int>("ConfigurableUserViewId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ConfigurableEntityColumnDefinitionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsPinable")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ConfigurableUserViewId", "ConfigurableEntityColumnDefinitionId");
+
+                    b.HasIndex("ConfigurableEntityColumnDefinitionId");
+
+                    b.ToTable("ConfigurableUserViewHasConfigurableEntityColumnDefinitions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ConfigurableUserViewHasConfigurableUserViewTags", b =>
+                {
+                    b.Property<int>("ConfigurableUserViewId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ConfigurableUserViewTagsId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ConfigurableUserViewId", "ConfigurableUserViewTagsId");
+
+                    b.HasIndex("ConfigurableUserViewTagsId");
+
+                    b.ToTable("ConfigurableUserViewHasConfigurableUserViewTags");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ConfigurableUserViewTags", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("ConfigurableUserViewTags");
                 });
 
             modelBuilder.Entity("Domain.Entities.Contacts", b =>
@@ -1889,6 +2031,68 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Domain.Entities.ConfigurableUserView", b =>
+                {
+                    b.HasOne("Domain.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ConfigurableUserViewHasConfigurableEntityColumnDefinition", b =>
+                {
+                    b.HasOne("Domain.Entities.ConfigurableEntityColumnDefinition", "ConfigurableEntityColumnDefinition")
+                        .WithMany("Views")
+                        .HasForeignKey("ConfigurableEntityColumnDefinitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.ConfigurableUserView", "ConfigurableUserView")
+                        .WithMany("Columns")
+                        .HasForeignKey("ConfigurableUserViewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ConfigurableUserViewHasConfigurableEntityColumnDefinitions_~1");
+
+                    b.Navigation("ConfigurableEntityColumnDefinition");
+
+                    b.Navigation("ConfigurableUserView");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ConfigurableUserViewHasConfigurableUserViewTags", b =>
+                {
+                    b.HasOne("Domain.Entities.ConfigurableUserView", "ConfigurableUserView")
+                        .WithMany("Tags")
+                        .HasForeignKey("ConfigurableUserViewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.ConfigurableUserViewTags", "ConfigurableUserViewTags")
+                        .WithMany("Views")
+                        .HasForeignKey("ConfigurableUserViewTagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ConfigurableUserViewHasConfigurableUserViewTags_Configurabl~1");
+
+                    b.Navigation("ConfigurableUserView");
+
+                    b.Navigation("ConfigurableUserViewTags");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ConfigurableUserViewTags", b =>
+                {
+                    b.HasOne("Domain.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Entities.Contacts", b =>
                 {
                     b.HasOne("Domain.Entities.Countries", "Country")
@@ -2092,6 +2296,23 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("Assets");
 
                     b.Navigation("Tags");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ConfigurableEntityColumnDefinition", b =>
+                {
+                    b.Navigation("Views");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ConfigurableUserView", b =>
+                {
+                    b.Navigation("Columns");
+
+                    b.Navigation("Tags");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ConfigurableUserViewTags", b =>
+                {
+                    b.Navigation("Views");
                 });
 
             modelBuilder.Entity("Domain.Entities.Contacts", b =>

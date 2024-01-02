@@ -55,7 +55,7 @@ namespace Domain.Persistence.Migrations
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     DataType = table.Column<int>(type: "int", nullable: false),
                     FilterOperationType = table.Column<int>(type: "int", nullable: false),
-                    IsWritable = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsHidden = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsSortable = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsFilterable = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsPublic = table.Column<bool>(type: "tinyint(1)", nullable: false),
