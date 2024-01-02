@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Serilog;
 namespace Application.Extensions;
 
@@ -24,7 +26,15 @@ public static class GenericServiceExtension {
                     .AllowAnyHeader();
             });
         });
-        services.AddControllers();
+        services.AddControllers().AddNewtonsoftJson(options => {
+            options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+            options.SerializerSettings.Formatting = Formatting.Indented;
+            options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
+            options.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.None;
+        });
+        ;
+        ;
         services.AddEndpointsApiExplorer();
         services.Configure<ForwardedHeadersOptions>(options => {
             options.ForwardedHeaders =

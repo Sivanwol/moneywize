@@ -11,7 +11,6 @@ namespace Infrastructure.Services.Auth;
 public class JwtAuthManager : IJwtAuthManager {
 
     private readonly JwtTokenConfig _jwtTokenConfig;
-    private readonly byte[] _secret;
 
     private readonly ConcurrentDictionary<string, RefreshToken>
         _usersRefreshTokens; // can store in a database or a distributed cache
@@ -19,7 +18,6 @@ public class JwtAuthManager : IJwtAuthManager {
     public JwtAuthManager(JwtTokenConfig jwtTokenConfig) {
         _jwtTokenConfig = jwtTokenConfig;
         _usersRefreshTokens = new ConcurrentDictionary<string, RefreshToken>();
-        _secret = Encoding.ASCII.GetBytes(jwtTokenConfig.Secret);
     }
 
     public IImmutableDictionary<string, RefreshToken> UsersRefreshTokensReadOnlyDictionary =>
@@ -42,17 +40,15 @@ public class JwtAuthManager : IJwtAuthManager {
     }
 
     public JwtAuthResult GenerateTokens(string userToken, IList<Claim> claims, DateTime now) {
-        var shouldAddAudienceClaim =
-            string.IsNullOrWhiteSpace(claims?.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Aud)?.Value);
-        var jwtToken = new JwtSecurityToken(
-            _jwtTokenConfig.Issuer,
-            shouldAddAudienceClaim ? _jwtTokenConfig.Audience : string.Empty,
-            claims,
-            expires: now.AddMinutes(_jwtTokenConfig.AccessTokenExpiration),
-            signingCredentials: new SigningCredentials(new SymmetricSecurityKey(_secret),
-                SecurityAlgorithms.HmacSha256Signature));
-        var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtToken);
+        var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtTokenConfig.Secret));
 
+        var accessToken = new JwtSecurityTokenHandler().CreateEncodedJwt(new SecurityTokenDescriptor {
+            Issuer = _jwtTokenConfig.Issuer,
+            Audience = _jwtTokenConfig.Audience,
+            Subject = new ClaimsIdentity(claims),
+            Expires = now.AddMinutes(_jwtTokenConfig.AccessTokenExpiration),
+            SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha512)
+        });
         var refreshToken = new RefreshToken {
             UserToken = userToken,
             TokenString = GenerateRefreshTokenString(),
@@ -68,7 +64,7 @@ public class JwtAuthManager : IJwtAuthManager {
 
     public JwtAuthResult Refresh(string refreshToken, string accessToken, DateTime now) {
         var (principal, jwtToken) = DecodeJwtToken(accessToken);
-        if (jwtToken == null || !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256Signature)) {
+        if (jwtToken == null || !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512)) {
             throw new SecurityTokenException("Invalid token");
         }
 
@@ -92,14 +88,14 @@ public class JwtAuthManager : IJwtAuthManager {
         var principal = new JwtSecurityTokenHandler()
             .ValidateToken(token,
                 new TokenValidationParameters {
-                    ValidateIssuer = true,
-                    ValidIssuer = _jwtTokenConfig.Issuer,
+                    // ValidateIssuer = true,
+                    // ValidIssuer = _jwtTokenConfig.Issuer,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(_secret),
-                    ValidAudience = _jwtTokenConfig.Audience,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.FromMinutes(1)
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtTokenConfig.Secret)),
+                    // ValidAudience = _jwtTokenConfig.Audience,
+                    // ValidateAudience = true,
+                    // ValidateLifetime = true,
+                    // ClockSkew = TimeSpan.FromMinutes(1)
                 },
                 out var validatedToken);
         return (principal, validatedToken as JwtSecurityToken);

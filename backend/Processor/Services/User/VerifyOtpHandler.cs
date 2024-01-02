@@ -49,8 +49,14 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
         var result = await _otpRepository.VerifyOTP(user, otpEntity, request.Code);
 
         Guid? userId = result.IsValid ? new Guid(user.Id) : null;
-        var claims = new List<Claim>();
+        var roles = await _userManager.GetRolesAsync(user);
 
+        var claims = new List<Claim> {
+            new(ClaimTypes.NameIdentifier, user.Id),
+            new(ClaimTypes.Email, user.Email!),
+            new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
+        };
+        roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
         if (_config is { DeveloperMode: true, DeveloperModeEnabledOTP: false }) {
             await RecordActivity(request, user, result, userId!.Value);
             return new VerifyOTPResponse {
@@ -74,11 +80,6 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
                     await _userManager.UpdateAsync(user);
                 }
             }
-            var roles = await _userManager.GetRolesAsync(user);
-            claims = new List<Claim> {
-                new(ClaimTypes.NameIdentifier, user.Id)
-            };
-            roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
         }
         await RecordActivity(request, user, result, userId!.Value);
         // await _signInManager.SignInAsync(user, true);

@@ -21,7 +21,7 @@ public class GetUserProfileHandler : IRequestHandler<GetUserProfileRequest, Infr
         ILanguagesRepository _languagesRepository) {
         _applicationUserRepository = applicationUserRepository;
         _mediator = mediator;
-        this._userManager = userManager;
+        _userManager = userManager;
         this._countriesRepository = _countriesRepository;
         this._languagesRepository = _languagesRepository;
     }

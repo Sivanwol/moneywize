@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using Application.Configs;
 using Application.Configs.General;
@@ -10,6 +11,7 @@ using Domain.Entities;
 using Domain.Persistence;
 using Domain.Persistence.Context;
 using GraphQL.AspNet.Configuration;
+using GraphQL.AspNet.Security;
 using HealthChecks.ApplicationStatus.DependencyInjection;
 using HealthChecks.UI.Client;
 using Infrastructure.Services.Auth;
@@ -94,6 +96,8 @@ public class Bootstrap {
         services.Configure<RazorViewEngineOptions>(options => {
             options.ViewLocationFormats.Add("{0}.cshtml");
         });
+
+        // services.AddEntityFrameworkMySqlJsonNewtonsoft();
         services.AddGenericServiceExtension(Configuration, () => {
             var serverVersion = new MySqlServerVersion(new Version(5, 7));
             services.AddDbContext<DomainContext>(options => {
@@ -121,10 +125,10 @@ public class Bootstrap {
             services.AddValidatorsExtension();
             services.AddRazorPages();
             services.AddGraphQL(schemaOptions => {
-                if (Environment.IsDevelopment()) {
-                    schemaOptions.ExecutionOptions.DebugMode = true;
-                    schemaOptions.ExecutionOptions.EnableMetrics = true;
-                }
+
+                schemaOptions.AuthorizationOptions.Method = AuthorizationMethod.PerField;
+                schemaOptions.ResponseOptions.ExposeExceptions = true;
+                schemaOptions.ResponseOptions.ExposeMetrics = true;
             });
             if (Environment.IsProduction()) {
                 services.AddGraphQLLocalQueryCache();
@@ -216,22 +220,22 @@ public class Bootstrap {
             .AddSignInManager()
             .AddDefaultTokenProviders();
         services.AddAuthentication(o => {
-            o.DefaultScheme = IdentityConstants.ApplicationScheme;
+            o.DefaultScheme = IdentityConstants.BearerScheme;
             o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         });
 
         services.AddAuthentication("Bearer").AddJwtBearer(x => {
-            x.RequireHttpsMetadata = true;
+            x.RequireHttpsMetadata = false;
             x.SaveToken = true;
+            x.IncludeErrorDetails = true;
             x.TokenValidationParameters = new TokenValidationParameters {
-                ValidateIssuer = true,
-                ValidIssuer = jwtTokenConfig.Issuer,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtTokenConfig.Secret)),
                 ValidAudience = jwtTokenConfig.Audience,
+                ValidIssuer = jwtTokenConfig.Issuer,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtTokenConfig.Secret)),
                 ValidateAudience = true,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.FromMinutes(1)
+                ValidateIssuer = true,
+                NameClaimType = ClaimTypes.NameIdentifier
             };
         });
     }
@@ -240,7 +244,6 @@ public class Bootstrap {
         Log.Information("Perp Server");
         var applicationConfig = Configuration.GetSection("ApplicationConfig").Get<BackendApplicationConfig>()!;
 
-        app.UseGraphQL();
         if (Environment.IsDevelopment() || applicationConfig.EnableSwagger) {
             app.UseSwaggerExtension(env);
         }
@@ -268,11 +271,11 @@ public class Bootstrap {
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseStaticFiles();
-
         app.UseEndpoints(endpoints => {
             // endpoints.MapGroup("/auth").MapIdentityApi<ApplicationUser>();
             endpoints.MapControllers().RequireCors("AllowAll");
         });
+        app.UseGraphQL();
         Log.Information("End Perp Setup Starting Server");
     }
 }

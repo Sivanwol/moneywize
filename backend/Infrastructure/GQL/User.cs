@@ -1,15 +1,33 @@
+using System.ComponentModel;
 namespace Infrastructure.GQL;
 
+[Description("User entity")]
 public class User {
+
+    [Description("entity Id (it guid format)")]
     public string Id { get; set; }
+
+    [Description("User email")]
     public string Email { get; set; }
+
+    [Description("User first name")]
     public string FirstName { get; set; }
+
+    [Description("User last name")]
     public string LastName { get; set; }
+
+    [Description("User phone number (may not verify so wont be entered)")]
     public string? PhoneNumber { get; set; }
+
+    [Description("User address (if no phone this field empty string)")]
     public string Address { get; set; }
+
+    [Description("User country (may not enter as this tied to phone number)")]
     public Country? Country { get; set; }
-    public Language DisplayLanguage { get; set; }
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
+
+    [Description("User display language on the ui (may not verify so wont be entered)")]
+    public Language? DisplayLanguage { get; set; }
+
+    [Description("what roles user have")]
     public ICollection<string> Roles { get; set; } = new List<string>();
 }

@@ -15,8 +15,6 @@ public class ApplicationUser : IdentityUser, ISoftDeletable {
     [PersonalData] public string FirstName { get; set; }
     [PersonalData] public string LastName { get; set; }
     [ProtectedPersonalData] public string Address { get; set; }
-    [PersonalData] public double Latitude { get; set; }
-    [PersonalData] public double Longitude { get; set; }
     public bool TermsApproved { get; set; } = true;
     public ICollection<Clients> Clients { get; set; }
     public ICollection<ActivityLog> ActivityLogs { get; set; }
@@ -31,10 +29,8 @@ public class ApplicationUser : IdentityUser, ISoftDeletable {
             LastName = LastName,
             PhoneNumber = PhoneNumber,
             Address = Address,
-            Country = Country.ToGql(),
-            DisplayLanguage = DisplayLanguage.ToGql(),
-            Latitude = Latitude,
-            Longitude = Longitude,
+            Country = Country?.ToGql(),
+            DisplayLanguage = DisplayLanguage?.ToGql(),
             Roles = roles
         };
     }
