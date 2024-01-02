@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using Swashbuckle.AspNetCore.Annotations;
 using ConfirmEmailRequest = Infrastructure.Requests.Controllers.Auth.ConfirmEmailRequest;
 using ResetPasswordRequest = Infrastructure.Requests.Controllers.Auth.ResetPasswordRequest;
@@ -34,7 +35,6 @@ public class AuthController : BaseApiController {
     private readonly FrontEndPaths _frontConfig;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IJwtAuthManager _jwtAuthManager;
-    private readonly ILogger _logger;
     private readonly IValidator<LoginRequest> _loginValidator;
     private readonly IValidator<RefreshTokenRequest> _refreshTokenValidator;
     private readonly IValidator<RegisterNewUserRequest> _registerNewUserValidator;
@@ -57,7 +57,6 @@ public class AuthController : BaseApiController {
         IValidator<RefreshTokenRequest> refreshTokenValidator,
         IValidator<MobileRequestOTPUserRequest> requestOTPValidator,
         IValidator<RegisterNewUserRequest> registerNewUserValidator) : base(mediator, configuration) {
-        _logger = loggerFactory.CreateLogger<AuthController>();
         _jwtAuthManager = jwtAuthManager;
         _frontConfig = frontEndPathsConfig.Value;
         _registerNewUserValidator = registerNewUserValidator;
@@ -105,7 +104,7 @@ public class AuthController : BaseApiController {
             return ResponseHelper.CreateEmptyResponse(["User account locked out"], HttpStatusCode.Unauthorized);
         }
         catch (UserNotCompletedRegistrationException e) {
-            _logger.LogError(e, "User not completed registration");
+            Log.Error(e, "User not completed registration");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "User not completed registration"
             }, HttpStatusCode.Unauthorized);
@@ -114,7 +113,7 @@ public class AuthController : BaseApiController {
             return ResponseHelper.CreateEmptyResponse(["User not found or password is not correct"], HttpStatusCode.Unauthorized);
         }
         catch (Exception e) {
-            _logger.LogError(e, "Error while logging out user");
+            Log.Error(e, "Error while logging out user");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "Error while logging out user"
             }, HttpStatusCode.InternalServerError);
@@ -150,13 +149,13 @@ public class AuthController : BaseApiController {
             }));
         }
         catch (EntityNotFoundException e) {
-            _logger.LogError(e, "One of the entities was not found");
+            Log.Error(e, "One of the entities was not found");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
         catch (Exception e) {
-            _logger.LogError(e, "Error in RequestOTPCode");
+            Log.Error(e, "Error in RequestOTPCode");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 e.Message
             }, HttpStatusCode.InternalServerError);
@@ -182,7 +181,7 @@ public class AuthController : BaseApiController {
             return ResponseHelper.CreateEmptyResponse();
         }
         catch (Exception e) {
-            _logger.LogError(e, "Error while logging out user");
+            Log.Error(e, "Error while logging out user");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "Error while logging out user"
             }, HttpStatusCode.InternalServerError);
@@ -213,31 +212,31 @@ public class AuthController : BaseApiController {
             return ResponseHelper.CreateResponse(result);
         }
         catch (EntityNotFoundException e) {
-            _logger.LogError(e, "One of the entities was not found");
+            Log.Error(e, "One of the entities was not found");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
         catch (MFAProviderNotImplementedException e) {
-            _logger.LogError(e, "MFA Provider is not implemented");
+            Log.Error(e, "MFA Provider is not implemented");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "MFA Provider is not implemented"
             }, HttpStatusCode.BadRequest);
         }
         catch (OTPNotFoundException e) {
-            _logger.LogError(e, "OTP not found");
+            Log.Error(e, "OTP not found");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "OTP not found"
             }, HttpStatusCode.Forbidden);
         }
         catch (UserNotCompletedRegistrationException e) {
-            _logger.LogError(e, "User not completed registration");
+            Log.Error(e, "User not completed registration");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "User not completed registration"
             }, HttpStatusCode.Unauthorized);
         }
         catch (Exception e) {
-            _logger.LogError(e, "Error in RequestOTPCode");
+            Log.Error(e, "Error in RequestOTPCode");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 e.Message
             }, HttpStatusCode.InternalServerError);
@@ -258,7 +257,7 @@ public class AuthController : BaseApiController {
     public async Task ForgotPasswordConfirm([SwaggerRequestBody("OTP Verify payload", Required = true)] VerifyOTPUserRequest request) {
         var validator = await _verifyOtpUserValidator.ValidateAsync(request);
         if (!validator.IsValid) {
-            _logger.LogError($"unable to confirm OTP for user [{request.UserToken} , {request.OTPToken}] with error [{HandlerErrorResponse(validator)}]");
+            Log.Error($"unable to confirm OTP for user [{request.UserToken} , {request.OTPToken}] with error [{HandlerErrorResponse(validator)}]");
         }
         try {
             var result = await Mediator.Send(new VerifyOtpUserRequest {
@@ -271,17 +270,17 @@ public class AuthController : BaseApiController {
             });
             ResponseHelper.CreateResponse(result);
             if (result.UserId == null) {
-                _logger.LogError($"unable to confirm OTP for user [{request.UserToken} , {request.OTPToken}]");
+                Log.Error($"unable to confirm OTP for user [{request.UserToken} , {request.OTPToken}]");
             }
         }
         catch (EntityNotFoundException e) {
-            _logger.LogError(e, "One of the entities was not found");
+            Log.Error(e, "One of the entities was not found");
             ResponseHelper.CreateEmptyResponse(new List<string> {
                 "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
         catch (Exception e) {
-            _logger.LogError(e, "Error in RequestOTPCode");
+            Log.Error(e, "Error in RequestOTPCode");
             ResponseHelper.CreateEmptyResponse(new List<string> {
                 e.Message
             }, HttpStatusCode.InternalServerError);
@@ -311,25 +310,25 @@ public class AuthController : BaseApiController {
             return ResponseHelper.CreateResponse(await Mediator.Send(request.ToProcessorEntity(Guid.Parse(loginUserId))));
         }
         catch (EntityNotFoundException e) {
-            _logger.LogError(e, "One of the entities was not found");
+            Log.Error(e, "One of the entities was not found");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
         catch (AuthenticationException e) {
-            _logger.LogError(e, e.Message);
+            Log.Error(e, e.Message);
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 e.Message
             }, HttpStatusCode.Unauthorized);
         }
         catch (UserNotCompletedRegistrationException e) {
-            _logger.LogError(e, "User not completed registration");
+            Log.Error(e, "User not completed registration");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "User not completed registration"
             }, HttpStatusCode.Unauthorized);
         }
         catch (Exception e) {
-            _logger.LogError(e, "Error in ResetPassword");
+            Log.Error(e, "Error in ResetPassword");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 e.Message
             }, HttpStatusCode.InternalServerError);
@@ -356,31 +355,31 @@ public class AuthController : BaseApiController {
             return ResponseHelper.CreateResponse(result);
         }
         catch (EntityNotFoundException e) {
-            _logger.LogError(e, "One of the entities was not found");
+            Log.Error(e, "One of the entities was not found");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
         catch (MFAProviderNotImplementedException e) {
-            _logger.LogError(e, "MFA Provider is not implemented");
+            Log.Error(e, "MFA Provider is not implemented");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "MFA Provider is not implemented"
             }, HttpStatusCode.BadRequest);
         }
         catch (OTPNotFoundException e) {
-            _logger.LogError(e, "OTP not found");
+            Log.Error(e, "OTP not found");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "OTP not found"
             }, HttpStatusCode.Forbidden);
         }
         catch (UserNotCompletedRegistrationException e) {
-            _logger.LogError(e, "User not completed registration");
+            Log.Error(e, "User not completed registration");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "User not completed registration"
             }, HttpStatusCode.Unauthorized);
         }
         catch (Exception e) {
-            _logger.LogError(e, "Error in RequestOTPCode");
+            Log.Error(e, "Error in RequestOTPCode");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 e.Message
             }, HttpStatusCode.InternalServerError);
@@ -404,7 +403,7 @@ public class AuthController : BaseApiController {
 
         try {
             var userToken = User.Identity?.Name!;
-            _logger.LogInformation($"User [{userToken}] is trying to refresh JWT token.");
+            Log.Information($"User [{userToken}] is trying to refresh JWT token.");
             if (string.IsNullOrWhiteSpace(request.RefreshToken)) {
                 return ResponseHelper.CreateEmptyResponse(new List<string> {
                     "Invalid client request"
@@ -413,19 +412,19 @@ public class AuthController : BaseApiController {
 
             var accessToken = (await HttpContext.GetTokenAsync("Bearer", "access_token"))!;
             var jwtResult = _jwtAuthManager.Refresh(request.RefreshToken, accessToken, DateTime.Now);
-            _logger.LogInformation($"User [{userToken}] has refreshed JWT token.");
+            Log.Information($"User [{userToken}] has refreshed JWT token.");
             return ResponseHelper.CreateResponse(new MobileAuthResponse {
                 Tokens = jwtResult
             });
         }
         catch (SecurityTokenException e) {
-            _logger.LogError("Invalid JWT token: {EMessage}", e.Message);
+            Log.Error("Invalid JWT token: {EMessage}", e.Message);
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "Invalid JWT token"
             }, HttpStatusCode.BadRequest); // return 401 so that the client side can redirect the user to login page
         }
         catch (Exception e) {
-            _logger.LogError(e, "Error in RefreshToken");
+            Log.Error(e, "Error in RefreshToken");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 e.Message
             }, HttpStatusCode.InternalServerError);
@@ -456,25 +455,25 @@ public class AuthController : BaseApiController {
             return ResponseHelper.CreateResponse(result);
         }
         catch (EntityNotFoundException e) {
-            _logger.LogError(e, "One of the entities was not found");
+            Log.Error(e, "One of the entities was not found");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
         catch (InvalidRequestException e) {
-            _logger.LogError(e, "Invalid request");
+            Log.Error(e, "Invalid request");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 $"Invalid request - {e.Message}"
             }, HttpStatusCode.BadRequest);
         }
         catch (AuthenticationException e) {
-            _logger.LogError(e, e.Message);
+            Log.Error(e, e.Message);
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 e.Message
             }, HttpStatusCode.Unauthorized);
         }
         catch (Exception e) {
-            _logger.LogError(e, "Error in RequestOTPCode");
+            Log.Error(e, "Error in RequestOTPCode");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 e.Message
             }, HttpStatusCode.InternalServerError);
@@ -507,25 +506,25 @@ public class AuthController : BaseApiController {
                 HttpContext.Request.Headers["User-Agent"].ToString())));
         }
         catch (InvalidRequestException e) {
-            _logger.LogError(e, "Invalid request");
+            Log.Error(e, "Invalid request");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 $"Invalid request one or more the params not match"
             }, HttpStatusCode.BadRequest);
         }
         catch (AuthenticationException e) {
-            _logger.LogError(e, e.Message);
+            Log.Error(e, e.Message);
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 e.Message
             }, HttpStatusCode.Unauthorized);
         }
         catch (EntityNotFoundException e) {
-            _logger.LogError(e, "One of the entities was not found");
+            Log.Error(e, "One of the entities was not found");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
         catch (Exception e) {
-            _logger.LogError(e, "Error in Register");
+            Log.Error(e, "Error in Register");
             return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "error while creating user account"
             }, HttpStatusCode.InternalServerError);

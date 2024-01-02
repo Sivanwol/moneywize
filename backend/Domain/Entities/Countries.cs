@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Domain.Entities.Common;
 using Infrastructure.Enums;
+using Infrastructure.GQL;
 namespace Domain.Entities;
 
 [Table("Countries")]
@@ -16,4 +17,13 @@ public class Countries : BaseEntity {
 
     public DateTime? SupportedAt { get; set; }
     public SMSProviders? Provider { get; set; }
+
+    public Country ToGql() {
+        return new() {
+            Id = Id,
+            CountryName = CountryName,
+            CountryCode = CountryCode,
+            CountryNumber = CountryNumber
+        };
+    }
 }

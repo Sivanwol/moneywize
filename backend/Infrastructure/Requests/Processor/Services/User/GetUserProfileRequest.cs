@@ -1,7 +1,6 @@
-using Infrastructure.Responses.Controllers.User;
 using MediatR;
 namespace Infrastructure.Requests.Processor.Services.User;
 
-public class GetUserProfileRequest : IRequest<ProfileResponse> {
+public class GetUserProfileRequest : IRequest<Infrastructure.GQL.User> {
     public Guid UserId { get; set; }
 }

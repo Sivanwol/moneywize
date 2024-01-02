@@ -1,36 +1,39 @@
+using Application.Exceptions;
+using Domain.Entities;
 using Domain.Persistence.Repositories.Interfaces;
 using Infrastructure.Requests.Processor.Services.User;
-using Infrastructure.Responses.Controllers.User;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Serilog;
 namespace Processor.Services.User;
 
-public class GetUserProfileHandler : IRequestHandler<GetUserProfileRequest, ProfileResponse> {
+public class GetUserProfileHandler : IRequestHandler<GetUserProfileRequest, Infrastructure.GQL.User> {
     private readonly IApplicationUserRepository _applicationUserRepository;
+    private readonly ICountriesRepository _countriesRepository;
+    private readonly ILanguagesRepository _languagesRepository;
     private readonly IMediator _mediator;
+    private readonly UserManager<ApplicationUser> _userManager;
 
     public GetUserProfileHandler(IMediator mediator,
-        IApplicationUserRepository applicationUserRepository) {
+        IApplicationUserRepository applicationUserRepository,
+        UserManager<ApplicationUser> userManager,
+        ICountriesRepository _countriesRepository,
+        ILanguagesRepository _languagesRepository) {
         _applicationUserRepository = applicationUserRepository;
         _mediator = mediator;
+        this._userManager = userManager;
+        this._countriesRepository = _countriesRepository;
+        this._languagesRepository = _languagesRepository;
     }
 
-    public async Task<ProfileResponse> Handle(GetUserProfileRequest request, CancellationToken cancellationToken) {
+    public async Task<Infrastructure.GQL.User> Handle(GetUserProfileRequest request, CancellationToken cancellationToken) {
         Log.Logger.Information($"GetUserProfileHandler: {request.UserId}");
-        //     var result = await _applicationUserRepository.GetUserProfile(request.UserId);
-        //     return await Task.FromResult(new ProfileResponse {
-        //         ID = result.User.Id,
-        //         FirstName = result.User.FirstName,
-        //         LastName = result.User.LastName,
-        //         Email = result.User.Email!,
-        //         PhoneNumber = result.User.PhoneNumber!,
-        //         CountryId = result.User.CountryId,
-        //         Latitude = result.User.Latitude,
-        //         Longitude = result.User.Longitude,
-        //         TermsApproved = result.User.TermsApproved,
-        //         DisplayLanguageId = result.User.DisplayLanguageId,
-        //     });
-        // }
-        return null;
+        var user = await _applicationUserRepository.GetById(request.UserId);
+        if (user == null) {
+            Log.Logger.Error($"GetUserProfileHandler: User not found");
+            throw new EntityNotFoundException(nameof(ApplicationUser), request.UserId.ToString());
+        }
+        var roles = await _userManager.GetRolesAsync(user);
+        return user.ToGql(roles);
     }
 }

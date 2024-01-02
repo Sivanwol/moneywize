@@ -33,4 +33,6 @@ public interface IDomainContext : IDisposable {
     DbSet<ClientEmployeesHasAssets> ClientEmployeesHasAssets { get; set; }
     DbSet<ClientEmployeeHasTags> ClientEmployeeTags { get; set; }
     DbSet<Assets> Assets { get; set; }
+    DbSet<ConfigurableCategories> ConfigurableCategories { get; set; }
+    DbSet<ConfigurableEntityColumnDefinition> ConfigurableEntityColumnDefinitions { get; set; }
 }

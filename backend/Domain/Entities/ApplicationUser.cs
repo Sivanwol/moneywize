@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Application.Queries;
+using Infrastructure.GQL;
 using Microsoft.AspNetCore.Identity;
 namespace Domain.Entities;
 
@@ -21,4 +22,20 @@ public class ApplicationUser : IdentityUser, ISoftDeletable {
     public ICollection<ActivityLog> ActivityLogs { get; set; }
     public DateTime? RegisterCompletedAt { get; set; }
     public DateTime? DeletedAt { get; }
+
+    public User ToGql(ICollection<string> roles) {
+        return new() {
+            Id = Id,
+            Email = Email,
+            FirstName = FirstName,
+            LastName = LastName,
+            PhoneNumber = PhoneNumber,
+            Address = Address,
+            Country = Country.ToGql(),
+            DisplayLanguage = DisplayLanguage.ToGql(),
+            Latitude = Latitude,
+            Longitude = Longitude,
+            Roles = roles
+        };
+    }
 }

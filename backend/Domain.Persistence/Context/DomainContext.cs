@@ -51,6 +51,8 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
     public virtual DbSet<ClientServersHasAssets> ClientServersHasAssets { get; set; }
     public virtual DbSet<ClientNetworksHasAssets> ClientNetworksHasAssets { get; set; }
     public virtual DbSet<ClientEmployeesHasAssets> ClientEmployeesHasAssets { get; set; }
+    public virtual DbSet<ConfigurableCategories> ConfigurableCategories { get; set; }
+    public virtual DbSet<ConfigurableEntityColumnDefinition> ConfigurableEntityColumnDefinitions { get; set; }
 
 
     public new void Dispose() {
@@ -89,14 +91,18 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
         _logger?.LogInformation("Configuring DomainContext model.");
         builder.SetDefaultValuesTableName();
         builder.SetDefaultForIdsAndDates();
-        builder.Entity<ActivityLog>();
         builder.Entity<ActivityLog>()
             .HasOne(x => x.User)
             .WithMany(x => x.ActivityLogs)
             .HasForeignKey(x => x.UserId);
-        builder.Entity<Countries>();
-        builder.Entity<Languages>();
-        builder.Entity<Tags>();
+
+        builder.Entity<ConfigurableEntityColumnDefinition>().Property(e => e.MetaData).HasColumnType("json");
+        builder.Entity<ConfigurableEntityColumnDefinition>().Property(e => e.Permissions).HasColumnType("json");
+        builder.Entity<ConfigurableEntityColumnDefinition>().HasIndex(x => new {
+            x.EntityName,
+            x.ColumnName,
+            x.DisplayName
+        }).IsUnique();
         builder.Entity<ApplicationUserOtpCodes>()
             .HasIndex(x => x.Token).IsUnique();
 
@@ -157,21 +163,14 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
                 x.VendorId,
                 x.ContactId
             });
-        builder.Entity<Clients>();
-        builder.Entity<Contacts>();
         builder.Entity<Contacts>().HasIndex(x => x.Email).IsUnique();
         builder.Entity<Contacts>().HasIndex(x => new {
             x.CountryId,
             x.FirstName,
             x.LastName
         }).IsUnique();
-        builder.Entity<Vendors>();
         builder.Entity<Vendors>().HasIndex(x => x.Name).IsUnique();
-        builder.Entity<VendorsMetaData>();
-        builder.Entity<Categories>();
-        builder.Entity<Providers>();
         builder.Entity<Providers>().HasIndex(x => x.Name).IsUnique();
-        builder.Entity<Clients>();
         builder.Entity<Clients>().HasIndex(x => new {
             x.OwnerUserId,
             x.ParentId,
@@ -190,10 +189,6 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
             x.FirstName,
             x.LastName
         }).IsUnique();
-        builder.Entity<Assets>();
-        builder.Entity<ClientServers>();
-        builder.Entity<ClientNetworks>();
-        builder.Entity<ClientEmployees>();
 
         #region Foreign Keys
 

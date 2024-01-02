@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Domain.Entities.Common;
+using Infrastructure.GQL;
 namespace Domain.Entities;
 
 [Table("Languages")]
@@ -13,4 +14,13 @@ public class Languages : BaseEntity {
     public string Flag { get; set; }
 
     public DateTime? SupportedAt { get; set; }
+
+    public Language ToGql() {
+        return new() {
+            Id = Id,
+            Name = Name,
+            Code = Code,
+            Flag = Flag
+        };
+    }
 }

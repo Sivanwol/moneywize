@@ -99,6 +99,7 @@ public class Bootstrap {
             services.AddDbContext<DomainContext>(options => {
                 options.UseMySql(ActiveConnectionString, serverVersion,
                         mySqlOptions => {
+                            mySqlOptions.UseNewtonsoftJson();
                             mySqlOptions.EnableRetryOnFailure(
                                 3,
                                 TimeSpan.FromSeconds(30),

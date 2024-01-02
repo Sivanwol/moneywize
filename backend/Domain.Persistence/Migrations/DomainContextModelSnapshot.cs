@@ -841,6 +841,127 @@ namespace Domain.Persistence.Migrations
                     b.ToTable("ClientHasClientContacts");
                 });
 
+            modelBuilder.Entity("Domain.Entities.ConfigurableCategories", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ParentCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ConfigurableCategories");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ConfigurableEntityColumnDefinition", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("AffectedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ColumnName")
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<int>("DataType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DisabledAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("FilterOperationType")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsFilterable")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsSortable")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsVirtualColumn")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsWritable")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("MetaData")
+                        .IsRequired()
+                        .HasColumnType("json");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Permissions")
+                        .IsRequired()
+                        .HasColumnType("json");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("EntityName", "ColumnName", "DisplayName")
+                        .IsUnique();
+
+                    b.ToTable("ConfigurableEntityColumnDefinitions");
+                });
+
             modelBuilder.Entity("Domain.Entities.Contacts", b =>
                 {
                     b.Property<int>("Id")
@@ -973,6 +1094,10 @@ namespace Domain.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<string>("Flag")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1749,6 +1874,17 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("Contact");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ConfigurableEntityColumnDefinition", b =>
+                {
+                    b.HasOne("Domain.Entities.ConfigurableCategories", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Domain.Entities.Contacts", b =>
