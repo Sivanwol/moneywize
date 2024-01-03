@@ -1,3 +1,4 @@
+using Application.Configs;
 using Application.Constraints;
 using Application.Exceptions;
 using Application.Utils;
@@ -6,44 +7,66 @@ using Domain.DTO.Filters;
 using Domain.DTO.Filters.Fields;
 using Domain.Entities;
 using Domain.Persistence.Repositories.Interfaces;
+using EasyCaching.Core;
 using Infrastructure.Enums;
 using Infrastructure.GQL;
 using Infrastructure.GQL.Common;
 using Infrastructure.Requests.Processor.Services.User;
+using Infrastructure.Services.Cache;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 using Serilog;
 namespace Processor.Services.User;
 
 public class UserActivityHandler : IRequestHandler<UserActivityRequest, EntityPage<Activities>> {
     private readonly IActivityLogRepository _activityRepository;
     private readonly IApplicationUserRepository _applicationUserRepository;
+    private readonly ICacheService _cacheService;
+    private readonly BackendApplicationConfig _config;
     private readonly IConfigurableUserViewRepository _configurableUserViewRepository;
     private readonly UserManager<ApplicationUser> _userManager;
     public UserActivityHandler(
         IApplicationUserRepository userRepository,
         IConfigurableUserViewRepository configurableUserViewRepository,
+        ICacheService cacheService,
         IActivityLogRepository activityRepository,
+        IEasyCachingProviderFactory factory,
+        BackendApplicationConfig config,
         UserManager<ApplicationUser> userManager) {
         _activityRepository = activityRepository;
         _applicationUserRepository = userRepository;
         _userManager = userManager;
         _configurableUserViewRepository = configurableUserViewRepository;
+        _cacheService = cacheService;
+        _config = config;
     }
     public async Task<EntityPage<Activities>> Handle(UserActivityRequest request, CancellationToken cancellationToken) {
         await ValidateRequest(request);
+        var cacheKey = Cache.GetKey($"Activities.{StringExtensions.CreateMD5Hash(JsonConvert.SerializeObject(request))}");
+        var cacheExist = await _cacheService.IsExistAsync(cacheKey);
+        if (cacheExist) {
+            var cacheValue = await _cacheService.GetAsync<EntityPage<Activities>>(cacheKey);
+            if (cacheValue != null) {
+                return cacheValue;
+            }
+        }
+
         var pageFilter = await BuildPageFilter(request);
         var activities = await _activityRepository.GetActivities(pageFilter);
         var totalPages = await _activityRepository.GetActivitiesTotalPages(pageFilter);
         var totalRecords = await _activityRepository.GetActivitiesCount(pageFilter);
-        return new EntityPage<Activities>() {
+        var records = new EntityPage<Activities>() {
             TotalPages = totalPages,
             TotalRecords = totalRecords,
             HasPreviousPage = (totalPages > 1 && pageFilter.Page > 1),
             HasNextPage = (totalPages > pageFilter.Page),
             Records = activities.Select(x => x.ToGql())
         };
+        await _cacheService.RegisterAsync(cacheKey, records);
+        return records;
     }
+
     private async Task ValidateRequest(UserActivityRequest request) {
         if (Guid.Empty == request.UserId) {
             Log.Logger.Error($"GetUserProfileHandler: User Id is Invalid");

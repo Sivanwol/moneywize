@@ -17,6 +17,7 @@ using HealthChecks.UI.Client;
 using Infrastructure.Enums;
 using Infrastructure.Services.Auth;
 using Infrastructure.Services.Auth.Models;
+using Infrastructure.Services.Cache;
 using Infrastructure.Services.Email;
 using Infrastructure.Validators;
 using MassTransit;
@@ -123,6 +124,7 @@ public class Bootstrap {
             services.AddTransient<ITemplateService, TemplateService>();
             services.AddTransient<IMailService, MailService>();
             services.AddSingleton<IJwtAuthManager, JwtAuthManager>();
+            services.AddTransient<ICacheService, CacheService>();
             services.AddValidatorsExtension();
             services.AddRazorPages();
             services.AddGraphQL(schemaOptions => {
@@ -147,7 +149,7 @@ public class Bootstrap {
         if (!Environment.IsDevelopment() || applicationConfig.EnableGraphQLCache) {
             services.AddGraphQLLocalQueryCache();
         }
-        services.AddLZ4Compressor("lz4");
+        // services.AddLZ4Compressor("lz4");
         // More info: https://easycaching.readthedocs.io/en/latest/Redis/
         services.AddEasyCaching(option => {
             option.UseRedis(config => {
@@ -168,8 +170,8 @@ public class Bootstrap {
                     config.SerializerName = Cache.SerializerName;
                 }, Cache.ProviderName)
                 .WithJson()
-                .WithMessagePack(Cache.SerializerName)
-                .WithCompressor(Cache.SerializerName, "lz4");
+                .WithMessagePack(Cache.SerializerName);
+            // .WithCompressor(Cache.SerializerName, "lz4");
         });
 
         // add repositories
