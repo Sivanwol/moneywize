@@ -43,7 +43,7 @@ public class UserActivityHandler : IRequestHandler<UserActivityRequest, EntityPa
     }
     public async Task<EntityPage<Activities>> Handle(UserActivityRequest request, CancellationToken cancellationToken) {
         await ValidateRequest(request);
-        var cacheKey = Cache.GetKey($"Activities.{StringExtensions.CreateMD5Hash(JsonConvert.SerializeObject(request))}");
+        var cacheKey = Cache.GetKey($"UserActivities.{StringExtensions.CreateMD5Hash(JsonConvert.SerializeObject(request))}");
         var cacheExist = await _cacheService.IsExistAsync(cacheKey);
         if (cacheExist) {
             var cacheValue = await _cacheService.GetAsync<EntityPage<Activities>>(cacheKey);
@@ -221,6 +221,7 @@ public class UserActivityHandler : IRequestHandler<UserActivityRequest, EntityPa
         }
         return pageFilter;
     }
+
     private bool IsMultiValueFilter(FilterOperations filterOperation) {
         return filterOperation is FilterOperations.In or FilterOperations.NotIn or FilterOperations.Between or FilterOperations.NotBetween;
     }

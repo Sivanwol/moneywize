@@ -10,6 +10,11 @@ public class EntityPageValidator : AbstractValidator<EntityPage> {
         RuleFor(x => x.PageSize)
             .IsInEnum()
             .WithMessage("PageSize is not valid");
+        RuleFor(x => x.ViewId)
+            .NotEmpty()
+            .WithMessage("ViewId is required")
+            .GreaterThan(0)
+            .WithMessage("ViewId must be greater than 0");
         RuleFor(x => x.SortByField)
             .NotEmpty()
             .WithMessage("SortByField is required")
