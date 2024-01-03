@@ -55,18 +55,17 @@ namespace Domain.Persistence.Migrations
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     DataType = table.Column<int>(type: "int", nullable: false),
                     FilterOperationType = table.Column<int>(type: "int", nullable: false),
-                    IsWritable = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsHidden = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
                     IsSortable = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsFilterable = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsPublic = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     DisabledAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     Permissions = table.Column<string>(type: "json", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    IsVirtualColumn = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsVirtualColumn = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
                     MetaData = table.Column<string>(type: "json", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Order = table.Column<int>(type: "int", nullable: false),
-                    AffectedBy = table.Column<string>(type: "nvarchar(100)", nullable: false),
+                    AffectedBy = table.Column<string>(type: "nvarchar(100)", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)")
                 },

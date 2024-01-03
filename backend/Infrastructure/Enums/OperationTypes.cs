@@ -1,4 +1,4 @@
-namespace Domain.DTO.Filters.Fields;
+namespace Infrastructure.Enums;
 
 public enum FilterGuidOperation {
     Equal,

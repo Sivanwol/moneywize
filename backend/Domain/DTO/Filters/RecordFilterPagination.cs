@@ -1,33 +1,26 @@
 using System.Linq.Expressions;
+using Domain.DTO.ConfigurableEntities;
 using Domain.DTO.Filters.Common;
+using Infrastructure.Enums;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 namespace Domain.DTO.Filters;
 
-public enum SortDirection {
-    Ascending,
-    Descending
-}
-
-public enum FilterCollectionOperation {
-    Or,
-    And
-}
-
 public class RecordFilterPagination<TFilter> where TFilter : IFilter {
 
     public RecordFilterPagination() {
-        Filter = (TFilter)Activator.CreateInstance(typeof(TFilter));
+        Filters = (TFilter)Activator.CreateInstance(typeof(TFilter));
     }
     public int Page { get; set; } = 1;
+    public IEnumerable<ConfigurableUserViewColumn> SelectedColumns { get; set; }
     public int PageSize { get; set; } = 10;
-    public TFilter Filter { get; set; }
+    public TFilter Filters { get; set; }
     public FilterCollectionOperation FilterCollectionOperation { get; set; } = FilterCollectionOperation.Or;
-    public SortDirection SortDirection { get; set; } = SortDirection.Descending;
+    public SortDirection SortDirection { get; set; }
     public string SortByField { get; set; } = "CreatedAt";
 
     public IQueryable<T> ApplyQueryWithoutPagination<T>(IQueryable<T> query) where T : class {
-        query = Filter.ApplyFilters(query, FilterCollectionOperation);
+        query = Filters.ApplyFilters(query, FilterCollectionOperation, SelectedColumns);
         var type = typeof(T);
         var property = type.GetProperty(SortByField);
         var parameter = Expression.Parameter(type, "p");
@@ -57,13 +50,13 @@ public class RecordFilterPagination<TFilter> where TFilter : IFilter {
             query = query.Provider.CreateQuery<T>(orderByDescendingCall);
         }
         Log.Information("Query without pagination");
-        Log.Information("Filter: {@Filter}", Filter);
+        Log.Information("Filters: {@Filters}", Filters);
         Log.Verbose(query.ToQueryString());
         return query;
     }
 
     public IQueryable<T> ApplyQuery<T>(IQueryable<T> query) where T : class {
-        query = Filter.ApplyFilters(query, FilterCollectionOperation);
+        query = Filters.ApplyFilters(query, FilterCollectionOperation, SelectedColumns);
         var type = typeof(T);
         var property = type.GetProperty(SortByField);
         var parameter = Expression.Parameter(type, "p");
@@ -73,6 +66,9 @@ public class RecordFilterPagination<TFilter> where TFilter : IFilter {
             type, property.PropertyType
         };
 
+        if (SelectedColumns.Any(c => c.ColumnName == SortByField && !c.IsSortable)) {
+            SortByField = "CreatedAt"; // default sort
+        }
         if (SortDirection == SortDirection.Ascending) {
             var orderByCall = Expression.Call(
                 typeof(Queryable),
@@ -92,12 +88,11 @@ public class RecordFilterPagination<TFilter> where TFilter : IFilter {
 
             query = query.Provider.CreateQuery<T>(orderByDescendingCall);
         }
-
         query = query.Skip((Page - 1) * PageSize).Take(PageSize);
         Log.Information("Query with pagination");
         Log.Information("Page: {Page}, PageSize: {PageSize}", Page, PageSize);
         Log.Information("SortDirection: {SortDirection}, SortByField: {SortByField}", SortDirection, SortByField);
-        Log.Information("Filter: {@Filter}", Filter);
+        Log.Information("Filters: {@Filters}", Filters);
         return query;
     }
 }

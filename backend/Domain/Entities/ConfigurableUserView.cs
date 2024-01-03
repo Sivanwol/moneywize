@@ -1,0 +1,35 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Domain.DTO.ConfigurableEntities;
+using Domain.Entities.Common;
+namespace Domain.Entities;
+
+public class ConfigurableUserView : BaseEntity {
+    [ForeignKey("User")]
+    [StringLength(100)]
+    public string UserId { get; set; }
+
+    public ApplicationUser User { get; set; }
+
+    [StringLength(100)]
+    public string Name { get; set; }
+
+    [StringLength(200)]
+    public string Description { get; set; }
+
+    public bool IsShareAble { get; set; }
+    public bool IsDefault { get; set; }
+
+    [StringLength(8)]
+    public string Color { get; set; }
+
+    [Column(TypeName = "json")]
+    public ICollection<ConfigurableEntityMetaData> Settings { get; set; }
+
+    public bool IsPredefined { get; set; } // Indicates if column is predefined
+    public DateTime? LastUsed { get; set; }
+    public DateTime? DeletedAt { get; set; }
+
+    public IEnumerable<ConfigurableUserViewHasConfigurableUserViewTags>? Tags { get; set; }
+    public IEnumerable<ConfigurableUserViewHasConfigurableEntityColumnDefinition>? Columns { get; set; }
+}

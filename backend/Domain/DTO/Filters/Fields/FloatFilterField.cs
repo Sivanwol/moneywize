@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using Infrastructure.Enums;
 namespace Domain.DTO.Filters.Fields;
 
 public class FloatFilterField : BaseFilterField<FilterNumberOperation, float> {

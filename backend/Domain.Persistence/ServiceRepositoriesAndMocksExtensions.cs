@@ -16,6 +16,7 @@ public static class ServiceRepositoriesAndMocksExtensions {
         services.AddTransient<IApplicationUserRepository, ApplicationUserRepository>();
         services.AddTransient<IOTPRepository, OTPRepository>();
         services.AddTransient<IActivityLogRepository, ActivityLogRepository>();
+        services.AddTransient<IConfigurableUserViewRepository, ConfigurableUserViewRepository>();
 
         #endregion
 

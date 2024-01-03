@@ -2,6 +2,7 @@
 using Application.Queries;
 using Application.Utils;
 using Domain.Entities;
+using Domain.Entities.Common;
 using Domain.Utils;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -53,6 +54,10 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
     public virtual DbSet<ClientEmployeesHasAssets> ClientEmployeesHasAssets { get; set; }
     public virtual DbSet<ConfigurableCategories> ConfigurableCategories { get; set; }
     public virtual DbSet<ConfigurableEntityColumnDefinition> ConfigurableEntityColumnDefinitions { get; set; }
+    public virtual DbSet<ConfigurableUserView> ConfigurableUserViews { get; set; }
+    public virtual DbSet<ConfigurableUserViewHasConfigurableEntityColumnDefinition> ConfigurableUserViewHasConfigurableEntityColumnDefinitions { get; set; }
+    public virtual DbSet<ConfigurableUserViewTags> ConfigurableUserViewTags { get; set; }
+    public virtual DbSet<ConfigurableUserViewHasConfigurableUserViewTags> ConfigurableUserViewHasConfigurableUserViewTags { get; set; }
 
 
     public new void Dispose() {
@@ -96,6 +101,17 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
             .WithMany(x => x.ActivityLogs)
             .HasForeignKey(x => x.UserId);
 
+        builder.Entity<ConfigurableUserView>().Property(x => x.Settings).HasColumnType("json");
+        builder.Entity<ConfigurableUserView>().HasIndex(x => new {
+            x.UserId,
+            x.Name
+        }).IsUnique();
+
+        builder.Entity<ConfigurableUserViewTags>().HasIndex(x => new {
+            x.UserId,
+            x.Name
+        }).IsUnique();
+
         builder.Entity<ConfigurableEntityColumnDefinition>().Property(e => e.MetaData).HasColumnType("json");
         builder.Entity<ConfigurableEntityColumnDefinition>().Property(e => e.Permissions).HasColumnType("json");
         builder.Entity<ConfigurableEntityColumnDefinition>().HasIndex(x => new {
@@ -107,6 +123,16 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
             .HasIndex(x => x.Token).IsUnique();
 
         builder.Entity<ApplicationUserOtpCodes>().Property(x => x.ProviderType).HasConversion<byte>();
+
+        builder.Entity<ConfigurableUserViewHasConfigurableEntityColumnDefinition>().HasKey(vc => new {
+            vc.ConfigurableUserViewId,
+            vc.ConfigurableEntityColumnDefinitionId
+        });
+
+        builder.Entity<ConfigurableUserViewHasConfigurableUserViewTags>().HasKey(vc => new {
+            vc.ConfigurableUserViewId,
+            vc.ConfigurableUserViewTagsId
+        });
 
         builder.Entity<VendorHasContact>()
             .HasKey(vc => new {
@@ -191,6 +217,24 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
         }).IsUnique();
 
         #region Foreign Keys
+
+        builder.Entity<ConfigurableUserViewHasConfigurableEntityColumnDefinition>()
+            .HasOne(vc => vc.ConfigurableUserView)
+            .WithMany(v => v.Columns)
+            .HasForeignKey(vc => vc.ConfigurableUserViewId);
+        builder.Entity<ConfigurableUserViewHasConfigurableEntityColumnDefinition>()
+            .HasOne(vc => vc.ConfigurableEntityColumnDefinition)
+            .WithMany(c => c.Views)
+            .HasForeignKey(vc => vc.ConfigurableEntityColumnDefinitionId);
+
+        builder.Entity<ConfigurableUserViewHasConfigurableUserViewTags>()
+            .HasOne(vc => vc.ConfigurableUserView)
+            .WithMany(v => v.Tags)
+            .HasForeignKey(vc => vc.ConfigurableUserViewId);
+        builder.Entity<ConfigurableUserViewHasConfigurableUserViewTags>()
+            .HasOne(vc => vc.ConfigurableUserViewTags)
+            .WithMany(c => c.Views)
+            .HasForeignKey(vc => vc.ConfigurableUserViewTagsId);
 
         builder.Entity<ClientNetworkHasTags>()
             .HasOne(vc => vc.Tag)
@@ -300,17 +344,54 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
             );
         }
     }
-    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default) {
-        foreach (var entry in ChangeTracker.Entries<ISoftDeletable>()) {
-            switch (entry.State) {
-                case EntityState.Deleted:
-                    // Override removal. Unchanged is better than Modified, because the latter flags ALL properties for update.
-                    // With Unchanged, the change tracker will pick up on the freshly changed properties and save them.
-                    entry.State = EntityState.Unchanged;
-                    entry.Property(nameof(ISoftDeletable.DeletedAt)).CurrentValue = SystemClock.Now();
+    public override int SaveChanges() {
+        OnBeforeSaving();
+        return base.SaveChanges();
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken)) {
+        OnBeforeSaving();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    private void OnBeforeSaving() {
+        var entries = ChangeTracker.Entries();
+        var utcNow = SystemClock.Now().DateTime;
+
+        foreach (var entry in entries) {
+            switch (entry.Entity) {
+                case BaseEntity trackable:
+                    UpdateTimestamps(entry, trackable, utcNow);
+                    break;
+
+                case BaseEntityWithoutId trackableWithoutId:
+                    UpdateTimestamps(entry, trackableWithoutId, utcNow);
                     break;
             }
         }
-        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    private void UpdateTimestamps(EntityEntry entry, object trackable, DateTime utcNow) {
+        switch (entry.State) {
+            case EntityState.Modified:
+                // Assuming BaseEntityWithoutId has an UpdatedAt property
+                ((dynamic)trackable).UpdatedAt = utcNow;
+
+                // Check if the property "CreatedAt" exists before trying to set its modification status
+                if (entry.Properties.Any(p => p.Metadata.Name == "CreatedAt")) {
+                    entry.Property("CreatedAt").IsModified = false;
+                }
+                break;
+
+            case EntityState.Added:
+                // Assuming BaseEntityWithoutId does not have a CreatedAt property
+                if (entry.Properties.Any(p => p.Metadata.Name == "CreatedAt")) {
+                    ((dynamic)trackable).CreatedAt = utcNow;
+                }
+
+                // Assuming BaseEntityWithoutId has an UpdatedAt property
+                ((dynamic)trackable).UpdatedAt = utcNow;
+                break;
+        }
     }
 }

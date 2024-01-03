@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Infrastructure.Enums;
+using Infrastructure.GQL;
 namespace Domain.Entities;
 
 public enum ActivityOperationType {
@@ -17,6 +19,8 @@ public class ActivityLog {
 
     [StringLength(36)]
     public string? OwnerUserId { get; set; }
+
+    public ApplicationUser? OwnerUser { get; set; }
 
     [StringLength(36)]
     public string? UserId { get; set; }
@@ -52,4 +56,21 @@ public class ActivityLog {
 
     [DataType(DataType.DateTime)]
     public DateTime CreatedAt { get; set; }
+
+    public Activities ToGql() {
+        return new() {
+            Id = Id,
+            OwnerUser = OwnerUser?.ToGql(),
+            User = User?.ToGql(),
+            EntityId = EntityId,
+            EntityType = EntityType,
+            OperationType = OperationType,
+            Activity = Activity,
+            Details = Details,
+            Status = Enum.Parse<ActivityStatus>(Status),
+            IpAddress = IpAddress,
+            UserAgent = UserAgent,
+            CreatedAt = CreatedAt
+        };
+    }
 }

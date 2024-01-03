@@ -14,8 +14,10 @@ using GraphQL.AspNet.Configuration;
 using GraphQL.AspNet.Security;
 using HealthChecks.ApplicationStatus.DependencyInjection;
 using HealthChecks.UI.Client;
+using Infrastructure.Enums;
 using Infrastructure.Services.Auth;
 using Infrastructure.Services.Auth.Models;
+using Infrastructure.Services.Cache;
 using Infrastructure.Services.Email;
 using Infrastructure.Validators;
 using MassTransit;
@@ -122,13 +124,19 @@ public class Bootstrap {
             services.AddTransient<ITemplateService, TemplateService>();
             services.AddTransient<IMailService, MailService>();
             services.AddSingleton<IJwtAuthManager, JwtAuthManager>();
+            services.AddTransient<ICacheService, CacheService>();
             services.AddValidatorsExtension();
             services.AddRazorPages();
             services.AddGraphQL(schemaOptions => {
-
+                schemaOptions.QueryHandler.Route = "/api/gql";
                 schemaOptions.AuthorizationOptions.Method = AuthorizationMethod.PerField;
                 schemaOptions.ResponseOptions.ExposeExceptions = true;
                 schemaOptions.ResponseOptions.ExposeMetrics = true;
+                schemaOptions.ExecutionOptions.MaxQueryDepth = 15;
+                schemaOptions.AddType<SortDirection>();
+                schemaOptions.AddType<FilterOperations>();
+                schemaOptions.AddType<PageSize>();
+                schemaOptions.AddType<EntityColumnOperationType>();
             });
             if (Environment.IsProduction()) {
                 services.AddGraphQLLocalQueryCache();
@@ -138,7 +146,10 @@ public class Bootstrap {
         if (Environment.IsDevelopment() || applicationConfig.EnableSwagger) {
             services.AddSwaggerExtension(applicationConfig, "Application Backend Api Docs");
         }
-        services.AddLZ4Compressor("lz4");
+        if (!Environment.IsDevelopment() || applicationConfig.EnableGraphQLCache) {
+            services.AddGraphQLLocalQueryCache();
+        }
+        // services.AddLZ4Compressor("lz4");
         // More info: https://easycaching.readthedocs.io/en/latest/Redis/
         services.AddEasyCaching(option => {
             option.UseRedis(config => {
@@ -158,9 +169,9 @@ public class Bootstrap {
                     config.DBConfig.ConnectionTimeout = 10000;
                     config.SerializerName = Cache.SerializerName;
                 }, Cache.ProviderName)
-                .WithJson("json")
-                .WithMessagePack(Cache.SerializerName)
-                .WithCompressor(Cache.SerializerName, "lz4");
+                .WithJson()
+                .WithMessagePack(Cache.SerializerName);
+            // .WithCompressor(Cache.SerializerName, "lz4");
         });
 
         // add repositories

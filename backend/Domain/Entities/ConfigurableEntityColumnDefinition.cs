@@ -23,10 +23,9 @@ public class ConfigurableEntityColumnDefinition : BaseEntity {
     public ConfigurableCategories Category { get; set; }
     public EntityColumnDataType DataType { get; set; } = EntityColumnDataType.String;
     public EntityColumnOperationType FilterOperationType { get; set; } = EntityColumnOperationType.StringFilterField;
-    public bool IsWritable { get; set; } = false; // is this column can be updated
+    public bool IsHidden { get; set; } = false; // is this column can be updated
     public bool IsSortable { get; set; }
     public bool IsFilterable { get; set; }
-    public bool IsPublic { get; set; }
     public DateTime? DisabledAt { get; set; }
 
     [Column(TypeName = "json")]
@@ -41,4 +40,6 @@ public class ConfigurableEntityColumnDefinition : BaseEntity {
 
     [Column(TypeName = "nvarchar(100)")]
     public string AffectedBy { get; set; }
+
+    public IEnumerable<ConfigurableUserViewHasConfigurableEntityColumnDefinition>? Views { get; set; }
 }

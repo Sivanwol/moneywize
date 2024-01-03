@@ -8,7 +8,6 @@ using Application.Utils;
 using Application.Utils.Service;
 using Domain.Requests.Processor.Services.User;
 using FluentValidation;
-using FluentValidation.Results;
 using Infrastructure.Requests.Controllers.Auth;
 using Infrastructure.Requests.Controllers.Common;
 using Infrastructure.Requests.Processor.Services.User;
@@ -86,7 +85,7 @@ public class AuthController : BaseApiController {
     public async Task<IActionResult> Login(LoginRequest request) {
         var validator = await _loginValidator.ValidateAsync(request);
         if (!validator.IsValid) {
-            return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
+            return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
         }
 
         try {
@@ -136,7 +135,7 @@ public class AuthController : BaseApiController {
     public async Task<IActionResult> LoginConfirm([SwaggerRequestBody("OTP Verify payload", Required = true)] VerifyOTPUserRequest request) {
         var validator = await _verifyOtpUserValidator.ValidateAsync(request);
         if (!validator.IsValid) {
-            return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
+            return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
         }
         try {
             return ResponseHelper.CreateResponse(await Mediator.Send(new VerifyOtpUserRequest {
@@ -205,7 +204,7 @@ public class AuthController : BaseApiController {
     public async Task<IActionResult> ForgotPassword(ForgetPasswordRequest request) {
         var validator = await _forgetPasswordValidator.ValidateAsync(request);
         if (!validator.IsValid) {
-            return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
+            return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
         }
         try {
             var result = await Mediator.Send(request.ToProcessorEntity());
@@ -257,7 +256,7 @@ public class AuthController : BaseApiController {
     public async Task ForgotPasswordConfirm([SwaggerRequestBody("OTP Verify payload", Required = true)] VerifyOTPUserRequest request) {
         var validator = await _verifyOtpUserValidator.ValidateAsync(request);
         if (!validator.IsValid) {
-            Log.Error($"unable to confirm OTP for user [{request.UserToken} , {request.OTPToken}] with error [{HandlerErrorResponse(validator)}]");
+            ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
         }
         try {
             var result = await Mediator.Send(new VerifyOtpUserRequest {
@@ -303,7 +302,7 @@ public class AuthController : BaseApiController {
     public async Task<IActionResult> ResetPassword(ResetPasswordRequest request) {
         var validator = await _resetPasswordValidator.ValidateAsync(request);
         if (!validator.IsValid) {
-            return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
+            return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
         }
         try {
             var loginUserId = _httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -445,7 +444,7 @@ public class AuthController : BaseApiController {
     public async Task<IActionResult> ConfirmEmail(ConfirmEmailRequest request) {
         var validator = await _confirmEmailValidator.ValidateAsync(request);
         if (!validator.IsValid) {
-            return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
+            return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
         }
         try {
             var loginUserId = _httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -498,7 +497,7 @@ public class AuthController : BaseApiController {
         RegisterNewUserRequest request) {
         var validator = await _registerNewUserValidator.ValidateAsync(request);
         if (!validator.IsValid) {
-            return ResponseHelper.CreateEmptyResponse(HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
+            return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
         }
 
         try {
@@ -602,7 +601,4 @@ public class AuthController : BaseApiController {
     //         RefreshToken = jwtResult.RefreshToken.TokenString
     //     });
     // }
-    private List<string> HandlerErrorResponse(ValidationResult result) {
-        return result.Errors.Select(error => error.ErrorMessage).ToList();
-    }
 }
