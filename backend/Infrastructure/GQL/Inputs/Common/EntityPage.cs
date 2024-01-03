@@ -9,6 +9,9 @@ public class EntityPage {
     [Description("Page number")]
     public int Page { get; set; } = 1;
 
+    [Description("Part of custom view u can define this ur view id or default view id")]
+    public int ViewId { get; set; }
+
     [Description("Page size")]
     public PageSize PageSize { get; set; } = PageSize.Twenty;
 

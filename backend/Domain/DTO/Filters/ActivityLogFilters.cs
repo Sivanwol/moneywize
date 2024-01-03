@@ -1,6 +1,8 @@
 using System.Linq.Expressions;
+using Domain.DTO.ConfigurableEntities;
 using Domain.DTO.Filters.Common;
 using Domain.DTO.Filters.Fields;
+using Domain.Entities;
 using Infrastructure.Enums;
 using LinqKit;
 namespace Domain.DTO.Filters;
@@ -41,7 +43,8 @@ public class ActivityLogFilters : BaseFilters {
                StatusFilters.Any() ||
                CreatedAtFilters.Any();
     }
-    public override IQueryable<T> ApplyFilters<T>(IQueryable<T> query, FilterCollectionOperation filterCollectionOperation) {
+    public override IQueryable<T> ApplyFilters<T>(IQueryable<T> query, FilterCollectionOperation filterCollectionOperation,
+        IEnumerable<ConfigurableUserViewColumn> SelectedColumns) {
 
         if (!HasAnyFilter()) {
             return query;
@@ -56,20 +59,39 @@ public class ActivityLogFilters : BaseFilters {
                 return p1.And(p2);
             };
 
-        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(IpAddressFilters, predicate, operatorFunc);
-        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(UserAgentFilters, predicate, operatorFunc);
-        predicate = ApplyFiltersPredicate<T, int, IdFilterField>(IdFilters, predicate, operatorFunc);
-        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(UserIdFilters, predicate, operatorFunc);
-        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(EntityIdFilters, predicate, operatorFunc);
-        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(OperationTypeFilters, predicate, operatorFunc);
-        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(ActivityFilters, predicate, operatorFunc);
-        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(EntityTypeFilters, predicate, operatorFunc);
-        predicate = ApplyFiltersPredicate<T, string, StringFilterField>(StatusFilters, predicate, operatorFunc);
-        predicate = ApplyFiltersPredicate<T, DateTime, DateFilterField>(CreatedAtFilters, predicate, operatorFunc);
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ActivityLog.IpAddress))) {
+            predicate = ApplyFiltersPredicate<T, string, StringFilterField>(IpAddressFilters, predicate, operatorFunc);
+        }
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ActivityLog.UserAgent))) {
+            predicate = ApplyFiltersPredicate<T, string, StringFilterField>(UserAgentFilters, predicate, operatorFunc);
+        }
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ActivityLog.Id))) {
+            predicate = ApplyFiltersPredicate<T, int, IdFilterField>(IdFilters, predicate, operatorFunc);
+        }
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ActivityLog.UserId))) {
+            predicate = ApplyFiltersPredicate<T, string, StringFilterField>(UserIdFilters, predicate, operatorFunc);
+        }
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ActivityLog.EntityId))) {
+            predicate = ApplyFiltersPredicate<T, string, StringFilterField>(EntityIdFilters, predicate, operatorFunc);
+        }
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ActivityLog.OperationType))) {
+            predicate = ApplyFiltersPredicate<T, string, StringFilterField>(OperationTypeFilters, predicate, operatorFunc);
+        }
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ActivityLog.Activity))) {
+            predicate = ApplyFiltersPredicate<T, string, StringFilterField>(ActivityFilters, predicate, operatorFunc);
+        }
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ActivityLog.EntityType))) {
+            predicate = ApplyFiltersPredicate<T, string, StringFilterField>(EntityTypeFilters, predicate, operatorFunc);
+        }
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ActivityLog.Status))) {
+            predicate = ApplyFiltersPredicate<T, string, StringFilterField>(StatusFilters, predicate, operatorFunc);
+        }
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ActivityLog.CreatedAt))) {
+            predicate = ApplyFiltersPredicate<T, DateTime, DateFilterField>(CreatedAtFilters, predicate, operatorFunc);
+        }
 
         return query.Where(predicate);
     }
-
     public override void ResetFilters() {
         IpAddressFilters.Clear();
         UserAgentFilters.Clear();

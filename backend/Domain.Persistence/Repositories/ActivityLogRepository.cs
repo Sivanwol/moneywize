@@ -64,7 +64,10 @@ public class ActivityLogRepository : BaseRepository, IActivityLogRepository {
 
     public async Task<ICollection<ActivityLog>> GetActivities(RecordFilterPagination<ActivityLogFilters> filter) {
         Log.Logger.Information($"Fetching activity log with filter {filter}");
+
+
         var query = Context.ActivityLogs.AsQueryable();
+
         return filter.ApplyQuery(query).ToList();
     }
     public async Task<int> GetActivitiesTotalPages(RecordFilterPagination<ActivityLogFilters> filter) {
