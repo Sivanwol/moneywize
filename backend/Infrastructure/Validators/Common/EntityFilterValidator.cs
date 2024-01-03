@@ -3,27 +3,6 @@ using Infrastructure.Enums;
 using Infrastructure.GQL.Inputs.Common;
 namespace Infrastructure.Validators.Common;
 
-public class EntityPageValidator : AbstractValidator<EntityPage> {
-    public EntityPageValidator() {
-        RuleFor(x => x.Page)
-            .GreaterThan(0)
-            .WithMessage("Page must be greater than 0");
-        RuleFor(x => x.PageSize)
-            .IsInEnum()
-            .WithMessage("PageSize is not valid");
-        RuleFor(x => x.SortByField)
-            .NotEmpty()
-            .WithMessage("SortByField is required")
-            .MaximumLength(500)
-            .WithMessage("SortByField must not exceed 500 characters");
-        RuleFor(x => x.SortDirection)
-            .IsInEnum()
-            .WithMessage("SortDirection is not valid");
-        RuleForEach(x => x.Filters)
-            .SetValidator(new EntityFilterItemValidator());
-    }
-}
-
 public class EntityFilterItemValidator : AbstractValidator<EntityFilterItem> {
 
     public EntityFilterItemValidator() {
@@ -49,8 +28,8 @@ public class EntityFilterItemValidator : AbstractValidator<EntityFilterItem> {
             RuleFor(x => x.Values)
                 .NotEmpty()
                 .WithMessage("Values is required")
-                .Must(x => x?.Count == 1)
-                .WithMessage("Values must contain 1 item");
+                .Must(x => x?.Count >= 1)
+                .WithMessage("Values must contain at least 1 item");
         });
 
         // the single value filter not need be check as null can be happened in some case

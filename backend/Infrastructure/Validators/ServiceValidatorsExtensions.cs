@@ -1,5 +1,6 @@
 using FluentValidation;
 using Infrastructure.Validators.Account;
+using Infrastructure.Validators.Common;
 using Microsoft.Extensions.DependencyInjection;
 namespace Infrastructure.Validators;
 
@@ -16,6 +17,8 @@ public static class ServiceValidatorsExtensions {
         services.AddValidatorsFromAssemblyContaining<RequestOtpValidator>();
         services.AddValidatorsFromAssemblyContaining<VerifyOTPValidator>();
         services.AddValidatorsFromAssemblyContaining<ConfirmEmailValidator>();
+        services.AddValidatorsFromAssemblyContaining<EntityPageValidator>();
+        services.AddValidatorsFromAssemblyContaining<EntityFilterItemValidator>();
 
         #endregion
 

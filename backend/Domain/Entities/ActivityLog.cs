@@ -57,7 +57,7 @@ public class ActivityLog {
     [DataType(DataType.DateTime)]
     public DateTime CreatedAt { get; set; }
 
-    public Activity ToGql() {
+    public Activities ToGql() {
         return new() {
             Id = Id,
             OwnerUser = OwnerUser?.ToGql(),
@@ -65,7 +65,7 @@ public class ActivityLog {
             EntityId = EntityId,
             EntityType = EntityType,
             OperationType = OperationType,
-            Title = Activity,
+            Activity = Activity,
             Details = Details,
             Status = Enum.Parse<ActivityStatus>(Status),
             IpAddress = IpAddress,

@@ -81,7 +81,7 @@ public class UserController : BaseGraphController {
         }
     }
 
-    [Query("getUserActivities", typeof(EntityPage<Activity>))]
+    [Query("getUserActivities", typeof(EntityPage<Activities>))]
     [Description("Will return the user activities")]
     public async Task<IGraphActionResult> GetUserActivities(
         [FromGraphQL("userId")] [Description("User Id")]
@@ -103,6 +103,7 @@ public class UserController : BaseGraphController {
             try {
                 var activities = await Mediator.Send(new UserActivityRequest {
                     UserId = userId,
+                    LoggedInUserId = Guid.Parse(loggedUserId!),
                     PageControl = page
                 });
                 return Ok(activities);

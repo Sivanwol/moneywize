@@ -1,4 +1,3 @@
-using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using Domain.DTO.ConfigurableEntities;
 using Domain.DTO.Filters.Common;
@@ -89,8 +88,6 @@ public class RecordFilterPagination<TFilter> where TFilter : IFilter {
 
             query = query.Provider.CreateQuery<T>(orderByDescendingCall);
         }
-        string selectString = string.Join(", ", SelectedColumns.Select(c => $"{c.ColumnName} as {c.ColumnName}"));
-        query = query.Select<T>(selectString);
         query = query.Skip((Page - 1) * PageSize).Take(PageSize);
         Log.Information("Query with pagination");
         Log.Information("Page: {Page}, PageSize: {PageSize}", Page, PageSize);

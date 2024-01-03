@@ -10,7 +10,7 @@ using Test.Shared.Common;
 namespace Domain.Persistence.Test.Repositories;
 
 [TestFixture] [Description("Test the ApplicationUserRepository")]
-[Category("Activitys")]
+[Category("Activities")]
 public class ActivityLogRepositoryTest : BaseTest {
 
     [SetUp]
