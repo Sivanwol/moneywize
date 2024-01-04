@@ -2,5 +2,5 @@ using Microsoft.AspNetCore.Identity;
 namespace Domain.Entities;
 
 public class AspNetRoles : IdentityRole {
-    public virtual ICollection<IdentityUserRole<string>> UserRoles { get; set; }
+    public virtual ICollection<ApplicationUserRole> UserRoles { get; set; }
 }

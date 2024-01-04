@@ -4,6 +4,7 @@ using Application.Utils;
 using Domain.Entities;
 using Domain.Entities.Common;
 using Domain.Utils;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -11,7 +12,10 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 namespace Domain.Persistence.Context;
 
-public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, string>, IDomainContext {
+public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, string,
+    IdentityUserClaim<string>, ApplicationUserRole,
+    IdentityUserLogin<string>, IdentityRoleClaim<string>,
+    IdentityUserToken<string>>, IDomainContext {
     private readonly ILogger<DomainContext> _logger;
 
     public DomainContext(DbContextOptions<DomainContext> options, ILogger<DomainContext> logger)

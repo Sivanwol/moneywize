@@ -183,8 +183,9 @@ public class ApplicationUserRepository : BaseRepository, IApplicationUserReposit
 
     public async Task<IEnumerable<ApplicationUser>> GetUsers(RecordFilterPagination<ApplicationUserFilters> filter) {
         Log.Logger.Information($"Fetching users with filter {filter}");
-        var query = Context.Users.AsQueryable();
-        query = query.Where(u => u.RegisterCompletedAt != null).Include(u => u.UserRoles);
+        var query = (Context.Users.AsQueryable());
+        query = query.Where(u => u.RegisterCompletedAt != null);
+        query = query.Include(u => u.UserRoles).ThenInclude(ur => ur.Role);
         return filter.ApplyQuery(query).ToList();
     }
 
