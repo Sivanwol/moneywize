@@ -58,7 +58,7 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
     public virtual DbSet<ConfigurableUserViewHasConfigurableEntityColumnDefinition> ConfigurableUserViewHasConfigurableEntityColumnDefinitions { get; set; }
     public virtual DbSet<ConfigurableUserViewTags> ConfigurableUserViewTags { get; set; }
     public virtual DbSet<ConfigurableUserViewHasConfigurableUserViewTags> ConfigurableUserViewHasConfigurableUserViewTags { get; set; }
-
+    public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
 
     public new void Dispose() {
         _logger?.LogInformation("Disposing DomainContext instance.");
@@ -96,6 +96,7 @@ public class DomainContext : IdentityDbContext<ApplicationUser>, IDomainContext 
         _logger?.LogInformation("Configuring DomainContext model.");
         builder.SetDefaultValuesTableName();
         builder.SetDefaultForIdsAndDates();
+        builder.Entity<AspNetRole>().ToTable("AspNetRoles");
         builder.Entity<ActivityLog>()
             .HasOne(x => x.User)
             .WithMany(x => x.ActivityLogs)

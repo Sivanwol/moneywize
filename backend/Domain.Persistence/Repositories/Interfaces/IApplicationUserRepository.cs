@@ -1,3 +1,4 @@
+using Domain.DTO.Filters;
 using Domain.Entities;
 using Domain.Persistence.Repositories.Common.Interfaces;
 using Infrastructure.Enums;
@@ -10,6 +11,9 @@ public interface IApplicationUserRepository : IGenericRepository<ApplicationUser
     Task<ApplicationUser?> GetUserByToken(string userToken);
     Task<ApplicationUser?> LocateUserByPhone(int CountryId, string PhoneNumber);
     Task<ApplicationUser?> LocateUserByEmail(string email);
+    Task<IEnumerable<ApplicationUser>> GetUsers(RecordFilterPagination<ApplicationUserFilters> filter, bool includeRolesOnRecords = false, bool includeDeleted = false);
+    Task<int> GetUsersTotalPages(RecordFilterPagination<ApplicationUserFilters> filter, bool includeDeleted = false);
+    Task<int> GetUsersTotalRecords(RecordFilterPagination<ApplicationUserFilters> filter, bool includeDeleted = false);
     Task<ApplicationUserOtpCodes?> GenerateOtpCode(ApplicationUser user, int expiredCodeInMinutes, bool forceSent, MFAProvider provider);
     Task<ApplicationUserOtpCodes> GenerateRegistrationOtpCode(ApplicationUser user);
     Task<int> GetTotalOtpCodesWithinExpirationDate(Guid userId, int expiredCodeInMinutes);

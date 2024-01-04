@@ -920,13 +920,13 @@ namespace Domain.Persistence.Migrations
                     b.Property<bool>("IsFilterable")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<bool>("IsSortable")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsVirtualColumn")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("IsWritable")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("MetaData")

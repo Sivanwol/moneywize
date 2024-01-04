@@ -19,8 +19,8 @@ public class ApplicationUser : IdentityUser, ISoftDeletable {
     public ICollection<Clients> Clients { get; set; }
     public ICollection<ActivityLog> ActivityLogs { get; set; }
     public DateTime? RegisterCompletedAt { get; set; }
+    public virtual ICollection<AspNetRole> Roles { get; set; }
     public DateTime? DeletedAt { get; }
-
     public User ToGql(ICollection<string> roles) {
         return new() {
             Id = Id,
