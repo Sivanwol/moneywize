@@ -13,16 +13,22 @@ public class ApplicationUserFilters : BaseFilters {
         LastNameFilters = new List<StringFilterField>();
         IdFilters = new List<UserIdFilterField>();
         Addressilters = new List<StringFilterField>();
+        EmailFilters = new List<StringFilterField>();
+        RegisterCompletedAtFilters = new List<DateFilterField>();
     }
     public ICollection<UserIdFilterField> IdFilters { get; }
     public ICollection<StringFilterField> FirstNameFilters { get; }
     public ICollection<StringFilterField> LastNameFilters { get; }
     public ICollection<StringFilterField> Addressilters { get; }
+    public ICollection<StringFilterField> EmailFilters { get; }
+    public ICollection<DateFilterField> RegisterCompletedAtFilters { get; }
 
     private bool HasAnyFilter() {
         return FirstNameFilters.Any() ||
                LastNameFilters.Any() ||
                IdFilters.Any() ||
+               EmailFilters.Any() ||
+               RegisterCompletedAtFilters.Any() ||
                Addressilters.Any();
     }
     public override IQueryable<T> ApplyFilters<T>(IQueryable<T> query, FilterCollectionOperation filterCollectionOperation,
@@ -41,17 +47,23 @@ public class ApplicationUserFilters : BaseFilters {
                 return p1.And(p2);
             };
 
-        if (HasAllowedColumnFilter(SelectedColumns, nameof(ActivityLog.IpAddress))) {
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ApplicationUser.FirstName))) {
             predicate = ApplyFiltersPredicate<T, string, StringFilterField>(FirstNameFilters, predicate, operatorFunc);
         }
-        if (HasAllowedColumnFilter(SelectedColumns, nameof(ActivityLog.UserAgent))) {
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ApplicationUser.LastName))) {
             predicate = ApplyFiltersPredicate<T, string, StringFilterField>(LastNameFilters, predicate, operatorFunc);
         }
-        if (HasAllowedColumnFilter(SelectedColumns, nameof(ActivityLog.Id))) {
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ApplicationUser.Id))) {
             predicate = ApplyFiltersPredicate<T, string, UserIdFilterField>(IdFilters, predicate, operatorFunc);
         }
-        if (HasAllowedColumnFilter(SelectedColumns, nameof(ActivityLog.UserId))) {
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ApplicationUser.Address))) {
             predicate = ApplyFiltersPredicate<T, string, StringFilterField>(Addressilters, predicate, operatorFunc);
+        }
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ApplicationUser.Email))) {
+            predicate = ApplyFiltersPredicate<T, string, StringFilterField>(EmailFilters, predicate, operatorFunc);
+        }
+        if (HasAllowedColumnFilter(SelectedColumns, nameof(ApplicationUser.RegisterCompletedAt))) {
+            predicate = ApplyFiltersPredicate<T, DateTime, DateFilterField>(RegisterCompletedAtFilters, predicate, operatorFunc);
         }
 
         return query.Where(predicate);
@@ -61,5 +73,7 @@ public class ApplicationUserFilters : BaseFilters {
         LastNameFilters.Clear();
         IdFilters.Clear();
         FirstNameFilters.Clear();
+        EmailFilters.Clear();
+        RegisterCompletedAtFilters.Clear();
     }
 }

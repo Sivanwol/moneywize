@@ -226,7 +226,7 @@ public class Bootstrap {
         }
         // auth registration
 
-        services.AddIdentity<ApplicationUser, IdentityRole>()
+        services.AddIdentity<ApplicationUser, AspNetRoles>()
             .AddEntityFrameworkStores<DomainContext>()
             .AddSignInManager()
             .AddDefaultTokenProviders();

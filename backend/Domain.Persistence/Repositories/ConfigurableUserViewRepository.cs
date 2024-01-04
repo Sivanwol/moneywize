@@ -79,4 +79,20 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
             }).ToList();
         return selectedColumns;
     }
+
+    public async Task<IEnumerable<ConfigurableUserViewColumn>> GetViewColumns(string userId, int viewId) {
+        IEnumerable<ConfigurableUserViewColumn> columns;
+        var isDefaultView = await HasViewDefault(viewId);
+        if (isDefaultView) {
+            columns = await GetConfigurableViewColumns(viewId);
+        } else {
+            var hasView = await HasViewExist(userId, viewId);
+            if (!hasView) {
+                Log.Logger.Error($"ConfigurableUserViewRepository: View not found");
+                throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{userId}-{viewId}]");
+            }
+            columns = await GetConfigurableViewColumns(userId, viewId);
+        }
+        return columns;
+    }
 }

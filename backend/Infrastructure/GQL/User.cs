@@ -30,4 +30,7 @@ public class User {
 
     [Description("what roles user have")]
     public ICollection<string> Roles { get; set; } = new List<string>();
+
+    [Description("User Registration Date")]
+    public DateTime RegisterCompletedAt { get; set; }
 }

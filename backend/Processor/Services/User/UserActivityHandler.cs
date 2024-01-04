@@ -2,7 +2,6 @@ using Application.Configs;
 using Application.Constraints;
 using Application.Exceptions;
 using Application.Utils;
-using Domain.DTO.ConfigurableEntities;
 using Domain.DTO.Filters;
 using Domain.DTO.Filters.Fields;
 using Domain.Entities;
@@ -43,7 +42,7 @@ public class UserActivityHandler : IRequestHandler<UserActivityRequest, EntityPa
     }
     public async Task<EntityPage<Activities>> Handle(UserActivityRequest request, CancellationToken cancellationToken) {
         await ValidateRequest(request);
-        var cacheKey = Cache.GetKey($"UserActivities.{StringExtensions.CreateMD5Hash(JsonConvert.SerializeObject(request))}");
+        var cacheKey = Cache.GetKey($"UserActivities:{StringExtensions.CreateMD5Hash(JsonConvert.SerializeObject(request))}");
         var cacheExist = await _cacheService.IsExistAsync(cacheKey);
         if (cacheExist) {
             var cacheValue = await _cacheService.GetAsync<EntityPage<Activities>>(cacheKey);
@@ -99,23 +98,8 @@ public class UserActivityHandler : IRequestHandler<UserActivityRequest, EntityPa
         }
     }
 
-    private async Task<IEnumerable<ConfigurableUserViewColumn>> GetConfigurableViewColumns(string userId, int viewId) {
-        IEnumerable<ConfigurableUserViewColumn> columns;
-        var isDefaultView = await _configurableUserViewRepository.HasViewDefault(viewId);
-        if (isDefaultView) {
-            columns = await _configurableUserViewRepository.GetConfigurableViewColumns(viewId);
-        } else {
-            var hasView = await _configurableUserViewRepository.HasViewExist(userId, viewId);
-            if (!hasView) {
-                Log.Logger.Error($"GetUserProfileHandler: View not found");
-                throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{userId}-{viewId}]");
-            }
-            columns = await _configurableUserViewRepository.GetConfigurableViewColumns(userId, viewId);
-        }
-        return columns;
-    }
     private async Task<RecordFilterPagination<ActivityLogFilters>> BuildPageFilter(UserActivityRequest request) {
-        var columns = await GetConfigurableViewColumns(request.UserId.ToString(), request.PageControl.ViewId);
+        var columns = await _configurableUserViewRepository.GetViewColumns(request.LoggedInUserId.ToString(), request.PageControl.ViewId);
         var pageFilter = new RecordFilterPagination<ActivityLogFilters>() {
             Page = request.PageControl.Page,
             PageSize = (int)request.PageControl.PageSize,
