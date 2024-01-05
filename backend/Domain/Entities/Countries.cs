@@ -18,6 +18,9 @@ public class Countries : BaseEntity {
     public DateTime? SupportedAt { get; set; }
     public SMSProviders? Provider { get; set; }
 
+    public ICollection<Clients> Clients { get; set; }
+    public ICollection<ClientContacts> ClientContacts { get; set; }
+    public ICollection<Contacts> Contacts { get; set; }
     public Country ToGql() {
         return new() {
             Id = Id,

@@ -15,16 +15,28 @@ public class Clients : BaseEntity, ISoftDeletable {
     public int? ParentId { get; set; }
 
     public Clients? Parent { get; set; }
+
+    [Column(TypeName = "varchar(100)")]
     public string Name { get; set; }
+
     public string Description { get; set; }
+
+    [Column(TypeName = "varchar(500)")]
     public string Website { get; set; }
+
     public DateTime? DisabledAt { get; set; }
 
     [ForeignKey("Countries")]
     public int CountryId { get; set; }
 
     public Countries Country { get; set; }
+
+    [Column(TypeName = "varchar(100)")]
     public string Address { get; set; }
+
+    [Column(TypeName = "varchar(100)")]
     public string City { get; set; }
+
+    public ICollection<Clients> Children { get; set; }
     public DateTime? DeletedAt { get; }
 }

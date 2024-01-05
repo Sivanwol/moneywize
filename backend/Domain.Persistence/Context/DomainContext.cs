@@ -52,7 +52,6 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
     public virtual DbSet<ClientEmployeeHasTags> ClientEmployeeTags { get; set; }
     public virtual DbSet<Assets> Assets { get; set; }
     public virtual DbSet<ClientContacts> ClientContacts { get; set; }
-    public virtual DbSet<ClientsHasClientContacts> ClientHasClientContacts { get; set; }
     public virtual DbSet<ClientServersHasAssets> ClientServersHasAssets { get; set; }
     public virtual DbSet<ClientNetworksHasAssets> ClientNetworksHasAssets { get; set; }
     public virtual DbSet<ClientEmployeesHasAssets> ClientEmployeesHasAssets { get; set; }
@@ -105,6 +104,10 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
             .WithMany(x => x.ActivityLogs)
             .HasForeignKey(x => x.UserId);
 
+        builder.Entity<Clients>().HasIndex(x => new {
+            x.Name,
+            x.OwnerUserId
+        }).IsUnique();
         builder.Entity<ConfigurableUserView>().Property(x => x.Settings).HasColumnType("json");
         builder.Entity<ConfigurableUserView>().HasIndex(x => new {
             x.UserId,
@@ -183,11 +186,6 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
                 x.ClientEmployeeId,
                 x.AssetId
             });
-        builder.Entity<ClientsHasClientContacts>()
-            .HasKey(x => new {
-                x.ClientId,
-                x.ContactId
-            });
         builder.Entity<VendorHasContact>()
             .HasKey(x => new {
                 x.VendorId,
@@ -221,6 +219,16 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
         }).IsUnique();
 
         #region Foreign Keys
+
+        builder.Entity<Clients>().HasOne(x => x.Country)
+            .WithMany(x => x.Clients)
+            .HasForeignKey(x => x.CountryId);
+        builder.Entity<Clients>().HasOne(x => x.Parent)
+            .WithMany(x => x.Children)
+            .HasForeignKey(x => x.ParentId);
+        builder.Entity<Clients>().HasOne(x => x.OwnerUser)
+            .WithMany(x => x.Clients)
+            .HasForeignKey(x => x.OwnerUserId);
 
         builder.Entity<ConfigurableUserViewHasConfigurableEntityColumnDefinition>()
             .HasOne(vc => vc.ConfigurableUserView)
