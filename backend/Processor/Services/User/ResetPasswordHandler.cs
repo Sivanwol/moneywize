@@ -15,13 +15,13 @@ public class ResetPasswordHandler : IRequestHandler<ResetPasswordRequest, EmptyR
     private readonly IApplicationUserRepository _applicationUserRepository;
     private readonly IJwtAuthManager _jwtAuthManager;
     private readonly IMediator _mediator;
-    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly RoleManager<AspNetRoles> _roleManager;
     private readonly UserManager<ApplicationUser> _userManager;
 
     public ResetPasswordHandler(IMediator mediator,
         IJwtAuthManager jwtAuthManager,
         IApplicationUserRepository applicationUserRepository,
-        RoleManager<IdentityRole> roleManager,
+        RoleManager<AspNetRoles> roleManager,
         UserManager<ApplicationUser> userManager) {
         _jwtAuthManager = jwtAuthManager;
         _mediator = mediator;

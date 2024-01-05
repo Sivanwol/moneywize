@@ -9,4 +9,5 @@ public interface IConfigurableUserViewRepository {
     public Task<bool> HasViewDefault(int viewId);
     public Task<IEnumerable<ConfigurableUserViewColumn>> GetConfigurableViewColumns(string userId, int viewId);
     public Task<IEnumerable<ConfigurableUserViewColumn>> GetConfigurableViewColumns(int viewId);
+    public Task<IEnumerable<ConfigurableUserViewColumn>> GetViewColumns(string userId, int viewId);
 }

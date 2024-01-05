@@ -7,8 +7,9 @@ public class ClientEmployeeHasTags : BaseEntityWithoutId {
     public int EmployeeId { get; set; }
 
     public ClientEmployees Employee { get; set; }
-    public int TagId { get; set; }
 
     [Key]
+    public int TagId { get; set; }
+
     public Tags Tag { get; set; }
 }

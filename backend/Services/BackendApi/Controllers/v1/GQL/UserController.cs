@@ -81,6 +81,47 @@ public class UserController : BaseGraphController {
         }
     }
 
+    [Query("getUsers", typeof(EntityPage<User>))]
+    [Description("Will return the user activities")]
+    public async Task<IGraphActionResult> GetUsers(
+        [FromGraphQL("page")] [Description("Entity Page Data( paging , sorting , filtering )")]
+        EntityPage page) {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (Guid.Parse(loggedUserId!) == Guid.Empty) {
+                Log.Logger.Error("GetUsers: User not found");
+                return BadRequest("User not found");
+            }
+            var validator = await _pageValidator.ValidateAsync(page);
+            if (!validator.IsValid) {
+                return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
+            }
+            try {
+                var activities = await Mediator.Send(new GetUsersRequest {
+                    LoggedInUserId = Guid.Parse(loggedUserId!),
+                    PageControl = page,
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                    UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
+                });
+                return Ok(activities);
+            }
+            catch (EntityNotFoundException e) {
+                Log.Logger.Error(e, e.Message);
+                return Error("Failed to find user");
+            }
+            catch (Exception e) {
+                Log.Logger.Error(e, e.Message);
+                return Error("Something went wrong");
+            }
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error("Something went wrong");
+        }
+    }
+
     [Query("getUserActivities", typeof(EntityPage<Activities>))]
     [Description("Will return the user activities")]
     public async Task<IGraphActionResult> GetUserActivities(

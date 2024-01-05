@@ -7,6 +7,6 @@ public static class Cache {
     public static int EFCachingTimeInMinutes = 60;
 
     public static string GetKey(string key) {
-        return $"{CachePrefix}.{key}";
+        return $"{CachePrefix}:{key}";
     }
 }

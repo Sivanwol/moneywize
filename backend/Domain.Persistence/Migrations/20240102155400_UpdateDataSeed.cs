@@ -94,6 +94,47 @@ namespace Domain.Persistence.Migrations
             
             #endregion
             
+            #region User View
+            
+            sql = $"SET @categoryId = (SELECT Id FROM ConfigurableCategories WHERE Name = 'Baseic');";
+            sql += $"INSERT INTO ConfigurableEntityColumnDefinitions (EntityName, ColumnName, DisplayName, Description, CategoryId, Permissions, MetaData, DataType, FilterOperationType, IsHidden, IsSortable, IsFilterable) VALUES ";
+            sql += $"('ApplicationUser', 'Id', 'User Id', 'Entity Id', @categoryId, '[]', '[]', {(int)EntityColumnDataType.String}, {(int)EntityColumnOperationType.GuidFilterField},0 , 1, 1),";
+            sql += $"('ApplicationUser', 'Email', 'User Email', 'User Email', @categoryId, '[]', '[]', {(int)EntityColumnDataType.String}, {(int)EntityColumnOperationType.StringFilterField},0 , 1, 1),";
+            sql += $"('ApplicationUser', 'FirstName', 'User First Name', 'User First Name', @categoryId, '[]', '[]', {(int)EntityColumnDataType.String}, {(int)EntityColumnOperationType.StringFilterField},0 , 1, 1),";
+            sql += $"('ApplicationUser', 'LastName', 'User Last Name', 'User Last Name', @categoryId, '[]', '[]', {(int)EntityColumnDataType.String}, {(int)EntityColumnOperationType.StringFilterField},0 , 1, 1),";
+            sql += $"('ApplicationUser', 'PhoneNumber', 'User Phone Number', 'User Phone Number', @categoryId, '[]', '[]', {(int)EntityColumnDataType.String}, {(int)EntityColumnOperationType.StringFilterField},1 , 1, 1),";
+            sql += $"('ApplicationUser', 'Address', 'User Address', 'User Address', @categoryId, '[]', '[]', {(int)EntityColumnDataType.String}, {(int)EntityColumnOperationType.StringFilterField},1 , 1, 1),";
+            sql += $"('ApplicationUser', 'Country', 'User Country', 'User Country', @categoryId, '[]', '[]', {(int)EntityColumnDataType.String}, {(int)EntityColumnOperationType.StringFilterField},1 , 1, 1),";
+            sql += $"('ApplicationUser', 'DisplayLanguage', 'User Display Language', 'User Display Language', @categoryId, '[]', '[]', {(int)EntityColumnDataType.String}, {(int)EntityColumnOperationType.StringFilterField},1 , 1, 1),";
+            sql += $"('ApplicationUser', 'Roles', 'User Roles', 'User Roles', @categoryId, '[]', '[]', {(int)EntityColumnDataType.String}, {(int)EntityColumnOperationType.StringFilterField},1 , 1, 1);";
+            
+            migrationBuilder.Sql(sql);
+            
+            
+            sql = $"SET @userId = (SELECT Id FROM AspNetUsers WHERE UserName='adminWolbergPro' limit 1);";
+            sql += $"Insert into ConfigurableUserViews (UserId, Name, Description, IsShareAble, IsDefault, Color, Settings, IsPredefined) VALUES ";
+            sql += $"(@userId, 'Base View Of Users', '', 1, 1, '#000000', '[]', 1);";
+
+            migrationBuilder.Sql(sql);
+            
+            sql = $"SET @viewId = (SELECT Id FROM ConfigurableUserViews WHERE Name = 'Base View Of Users');";
+            sql += $"INSERT INTO ConfigurableUserViewHasConfigurableEntityColumnDefinitions (ConfigurableUserViewId, ConfigurableEntityColumnDefinitionId, `Order`) VALUES ";
+            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ApplicationUser' and ColumnName = 'Id'), 1),";
+            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ApplicationUser' and ColumnName = 'Email'), 2),";
+            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ApplicationUser' and ColumnName = 'FirstName'), 3),";
+            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ApplicationUser' and ColumnName = 'LastName'), 4),";
+            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ApplicationUser' and ColumnName = 'PhoneNumber'), 5),";
+            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ApplicationUser' and ColumnName = 'Address'), 6),";
+            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ApplicationUser' and ColumnName = 'Country'), 7),";
+            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ApplicationUser' and ColumnName = 'DisplayLanguage'), 8),";
+            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ApplicationUser' and ColumnName = 'Roles'), 9);";
+            
+            migrationBuilder.Sql(sql);
+            
+
+            
+            #endregion
+            
         }
 
         /// <inheritdoc />
@@ -104,10 +145,11 @@ namespace Domain.Persistence.Migrations
                 "Name",
                 "Baseic");
             
-            string sql = $"DECLARE @categoryId INT; SET @categoryId = (SELECT Id FROM ConfigurableCategories WHERE Name = 'Baseic');";
+            string sql = $"SET @categoryId = (SELECT Id FROM ConfigurableCategories WHERE Name = 'Baseic');";
             sql += $"DELETE FROM ConfigurableEntityColumnDefinitions WHERE CategoryId = @categoryId;";
             sql += $"DELETE FROM ConfigurableUserViews WHERE Name = 'Base View Of Activity Logs';";
             sql += $"DELETE FROM ConfigurableUserViews WHERE Name = 'Base View Of Clients';";
+            sql += $"DELETE FROM ConfigurableUserViews WHERE Name = 'Base View Of Users';";
             migrationBuilder.Sql(sql);
             
         }

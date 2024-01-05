@@ -39,4 +39,5 @@ public interface IDomainContext : IDisposable {
     DbSet<ConfigurableUserViewHasConfigurableEntityColumnDefinition> ConfigurableUserViewHasConfigurableEntityColumnDefinitions { get; set; }
     DbSet<ConfigurableUserViewTags> ConfigurableUserViewTags { get; set; }
     DbSet<ConfigurableUserViewHasConfigurableUserViewTags> ConfigurableUserViewHasConfigurableUserViewTags { get; set; }
+    DbSet<AspNetRoles> AspNetRoles { get; set; }
 }

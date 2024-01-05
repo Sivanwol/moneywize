@@ -27,6 +27,13 @@ public enum FilterIDOperation {
     NotIn
 }
 
+public enum FilterUserIDOperation {
+    Equal,
+    NotEqual,
+    In,
+    NotIn
+}
+
 public enum FilterStringOperation {
     Equal,
     NotEqual,

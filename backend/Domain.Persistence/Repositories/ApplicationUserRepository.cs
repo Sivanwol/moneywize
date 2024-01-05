@@ -1,6 +1,7 @@
 using Application.Configs;
 using Application.Exceptions;
 using Application.Utils;
+using Domain.DTO.Filters;
 using Domain.Entities;
 using Domain.Persistence.Context;
 using Domain.Persistence.Repositories.Common;
@@ -177,5 +178,28 @@ public class ApplicationUserRepository : BaseRepository, IApplicationUserReposit
             where w.UserId.Equals(Guid.Parse(user.Id)) && w.ExpirationDate >= SystemClock.Now().DateTime && !w.ComplateAt.HasValue
             orderby w.ExpirationDate descending
             select w).FirstOrDefault();
+    }
+
+    public async Task<IEnumerable<ApplicationUser>> GetUsers(RecordFilterPagination<ApplicationUserFilters> filter) {
+        Log.Logger.Information($"Fetching users with filter {filter}");
+        var query = (Context.Users.AsQueryable());
+        query = query.Where(u => u.RegisterCompletedAt != null);
+        query = filter.ApplyQuery(query);
+        return query.ToList();
+    }
+
+    public async Task<int> GetUsersTotalRecords(RecordFilterPagination<ApplicationUserFilters> filter) {
+        Log.Logger.Information($"Fetching users total records with filter {filter}");
+        var query = Context.Users.AsQueryable();
+        query = query.Where(u => u.RegisterCompletedAt != null);
+        query = filter.ApplyQuery(query);
+        return (int)Math.Ceiling(query.Count() / (double)filter.PageSize);
+    }
+
+    public async Task<int> GetUsersTotalPages(RecordFilterPagination<ApplicationUserFilters> filter) {
+        Log.Logger.Information($"Fetching users total pages with filter {filter}");
+        var query = Context.Users.AsQueryable();
+        query = query.Where(u => u.RegisterCompletedAt != null);
+        return filter.ApplyQuery(query).Count();
     }
 }
