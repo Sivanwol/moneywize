@@ -7,7 +7,7 @@ public class CreateClientContact {
     public string Phone1 { get; set; }
     public string? Phone2 { get; set; }
     public string? Fax { get; set; }
-    public string? Whatsup { get; set; }
+    public string? Whatsapp { get; set; }
     public int CountryId { get; set; }
     public string? PostalCode { get; set; }
     public string? Address { get; set; }

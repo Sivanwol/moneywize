@@ -108,6 +108,13 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
             x.Name,
             x.OwnerUserId
         }).IsUnique();
+
+        builder.Entity<ClientContacts>().HasIndex(x => new {
+            x.FirstName,
+            x.LastName,
+            x.CountryId
+        }).IsUnique();
+
         builder.Entity<ConfigurableUserView>().Property(x => x.Settings).HasColumnType("json");
         builder.Entity<ConfigurableUserView>().HasIndex(x => new {
             x.UserId,
@@ -229,6 +236,13 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
         builder.Entity<Clients>().HasOne(x => x.OwnerUser)
             .WithMany(x => x.Clients)
             .HasForeignKey(x => x.OwnerUserId);
+
+        builder.Entity<ClientContacts>().HasOne(x => x.Country)
+            .WithMany(x => x.ClientContacts)
+            .HasForeignKey(x => x.CountryId);
+        builder.Entity<ClientContacts>().HasOne(x => x.Client)
+            .WithMany(x => x.Contacts)
+            .HasForeignKey(x => x.ClientId);
 
         builder.Entity<ConfigurableUserViewHasConfigurableEntityColumnDefinition>()
             .HasOne(vc => vc.ConfigurableUserView)

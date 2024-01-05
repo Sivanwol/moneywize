@@ -38,5 +38,7 @@ public class Clients : BaseEntity, ISoftDeletable {
     public string City { get; set; }
 
     public ICollection<Clients> Children { get; set; }
+
+    public ICollection<ClientContacts> Contacts { get; set; }
     public DateTime? DeletedAt { get; }
 }

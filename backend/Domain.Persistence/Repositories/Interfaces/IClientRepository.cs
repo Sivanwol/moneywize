@@ -14,12 +14,15 @@ public interface IClientRepository : IGenericRepository<Clients, int> {
     Task<ICollection<Clients>> GetAll(RecordFilterPagination<ClientFilters> filter);
     Task<int> GetAllTotalPages(RecordFilterPagination<ClientFilters> filter);
     Task<int> GetAllCount(RecordFilterPagination<ClientFilters> filter);
+    Task<Clients?> GetByIdWithChildren(int id);
 
     Task AddContact(int clientId, CreateClientContact clientContact);
-    Task UpdateContact(int clientId, CreateClientContact clientContact);
-    Task DeleteContact(int clientId);
+    Task UpdateContact(int clientId, int clientContactId, CreateClientContact clientContact);
+    Task DeleteContact(int clientId, int clientContactId);
+    Task<bool> IsClientContactExists(int clientId, string firstName, string lastName);
 
-    Task<ICollection<Clients>> GetClientContactsAll(RecordFilterPagination<ClientFilters> filter);
-    Task<int> GetClientContactsAllTotalPages(RecordFilterPagination<ClientFilters> filter);
-    Task<int> GetClientContactsAllCount(RecordFilterPagination<ClientFilters> filter);
+    Task<ICollection<ClientContacts>> GetClientContactsAll(int clientId, RecordFilterPagination<ClientContactsFilters> filter);
+    Task<int> GetClientContactsAllTotalPages(int clientId, RecordFilterPagination<ClientContactsFilters> filter);
+    Task<int> GetClientContactsAllCount(int clientId, RecordFilterPagination<ClientContactsFilters> filter);
+    Task<ClientContacts?> GetClientContactById(int clientId, int clientContactId);
 }

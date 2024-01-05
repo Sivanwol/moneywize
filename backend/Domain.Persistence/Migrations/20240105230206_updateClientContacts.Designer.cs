@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Domain.Persistence.Migrations
 {
     [DbContext(typeof(DomainContext))]
-    [Migration("20240105211127_updateClientContacts")]
+    [Migration("20240105230206_updateClientContacts")]
     partial class updateClientContacts
     {
         /// <inheritdoc />
@@ -509,7 +509,7 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-                    b.Property<string>("whatsapp")
+                    b.Property<string>("Whatsapp")
                         .HasColumnType("varchar(20)");
 
                     b.HasKey("Id");
@@ -520,6 +520,9 @@ namespace Domain.Persistence.Migrations
                         .IsUnique();
 
                     b.HasIndex("CountryId", "FirstName", "LastName")
+                        .IsUnique();
+
+                    b.HasIndex("FirstName", "LastName", "CountryId")
                         .IsUnique();
 
                     b.ToTable("ClientContacts");
@@ -1153,14 +1156,14 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Address")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("City")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("Company")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<int>("CountryId")
                         .HasColumnType("int");
@@ -1170,49 +1173,52 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
+                    b.Property<string>("Department")
+                        .HasColumnType("varchar(100)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
                     b.Property<string>("Fax")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("varchar(95)");
+                        .HasColumnType("varchar(75)");
 
                     b.Property<string>("JobTitle")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("varchar(95)");
+                        .HasColumnType("varchar(75)");
 
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Phone1")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("Phone2")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("PostalCode")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(10)");
 
                     b.Property<string>("State")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-                    b.Property<string>("whatsapp")
-                        .HasColumnType("longtext");
+                    b.Property<string>("Whatsapp")
+                        .HasColumnType("varchar(20)");
 
                     b.HasKey("Id");
 
@@ -1783,7 +1789,7 @@ namespace Domain.Persistence.Migrations
             modelBuilder.Entity("Domain.Entities.ClientContacts", b =>
                 {
                     b.HasOne("Domain.Entities.Clients", "Client")
-                        .WithMany()
+                        .WithMany("Contacts")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2293,6 +2299,8 @@ namespace Domain.Persistence.Migrations
             modelBuilder.Entity("Domain.Entities.Clients", b =>
                 {
                     b.Navigation("Children");
+
+                    b.Navigation("Contacts");
                 });
 
             modelBuilder.Entity("Domain.Entities.ConfigurableEntityColumnDefinition", b =>

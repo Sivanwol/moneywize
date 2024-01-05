@@ -28,7 +28,7 @@ public class ClientContacts : BaseEntity, ISoftDeletable {
     public string? Fax { get; set; }
 
     [Column(TypeName = "varchar(20)")]
-    public string? whatsapp { get; set; }
+    public string? Whatsapp { get; set; }
 
     [ForeignKey("Countries")]
     public int CountryId { get; set; }
