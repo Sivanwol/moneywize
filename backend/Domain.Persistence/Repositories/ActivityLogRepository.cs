@@ -1,6 +1,6 @@
 using Application.Utils;
-using Domain.DTO.Filters;
 using Domain.Entities;
+using Domain.Filters;
 using Domain.Persistence.Context;
 using Domain.Persistence.Repositories.Common;
 using Domain.Persistence.Repositories.Interfaces;

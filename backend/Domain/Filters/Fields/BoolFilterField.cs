@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 using Infrastructure.Enums;
-namespace Domain.DTO.Filters.Fields;
+namespace Domain.Filters.Fields;
 
 public class BoolFilterField : BaseFilterField<FilterBooleanOperation, bool> {
 

@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-namespace Domain.DTO.Filters.Fields;
+namespace Domain.Filters.Fields;
 
 public abstract class BaseFilterField<TFilterOperation, TFilterValue> : IFilterField<TFilterValue>
     where TFilterOperation : Enum {

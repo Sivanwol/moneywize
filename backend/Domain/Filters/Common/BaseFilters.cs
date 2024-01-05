@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
 using Domain.DTO.ConfigurableEntities;
-using Domain.DTO.Filters.Fields;
+using Domain.Filters.Fields;
 using Infrastructure.Enums;
 using LinqKit;
-namespace Domain.DTO.Filters.Common;
+namespace Domain.Filters.Common;
 
 public abstract class BaseFilters : IFilter {
     public abstract IQueryable<T> ApplyFilters<T>(IQueryable<T> query, FilterCollectionOperation filterCollectionOperation,

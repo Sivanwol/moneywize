@@ -1,14 +1,15 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using Infrastructure.Enums;
-namespace Domain.DTO.Filters.Fields;
+namespace Domain.Filters.Fields;
 
-public class StringFilterField : BaseFilterField<FilterStringOperation, string> {
+public class DateFilterField : BaseFilterField<FilterDateOperation, DateTime> {
 
-    public StringFilterField(string filterField, FilterStringOperation operation) : base(filterField, operation) { }
-    public StringFilterField(string filterField, FilterStringOperation operation, bool isDisabled) : base(filterField, operation) {
+    public DateFilterField(string filterField, FilterDateOperation operation) : base(filterField, operation) { }
+    public DateFilterField(string filterField, FilterDateOperation operation, bool isDisabled) : base(filterField, operation) {
         IsFilterDisabled = isDisabled;
     }
+
 
     public override Expression<Func<T, bool>> ApplyFilter<T>() {
         if (IsFilterDisabled) {
@@ -20,25 +21,21 @@ public class StringFilterField : BaseFilterField<FilterStringOperation, string> 
         // Accessing the property with provided field name
         var parameter = Expression.Parameter(typeof(T), "t");
         var property = Expression.Property(parameter, FilterField); // Creating filter expression based on operation and type of TFilterValue
-        if (FilterOperation is FilterStringOperation.In or FilterStringOperation.NotIn) {
-            if (FilterValues == null || FilterValues.Count == 0) {
+        if (FilterOperation is FilterDateOperation.Between or FilterDateOperation.NotBetween or FilterDateOperation.In or FilterDateOperation.NotIn) {
+            if (FilterValues == null) {
                 throw new InvalidOperationException("Filter values are not provided.");
             }
-            valuesExpression = Expression.Constant(FilterValues, typeof(ICollection<string>));
+            valuesExpression = Expression.Constant(FilterValues, typeof(ICollection<DateTime>));
         } else {
             if (FilterValue == null) {
                 throw new InvalidOperationException("Filter value is not provided.");
             }
-            valueExpression = Expression.Constant(FilterValue, typeof(string));
+            valueExpression = Expression.Constant(FilterValue, typeof(DateTime));
         }
-
-        MethodInfo compareInfo = typeof(string).GetMethod("IndexOf", new[] {
-            typeof(string), typeof(StringComparison)
-        })!;
         MethodCallExpression? compareWithOrdinal;
         MethodInfo? methodInfo;
         switch (FilterOperation) {
-            case FilterStringOperation.In:
+            case FilterDateOperation.In:
                 methodInfo = typeof(Enumerable).GetMethods()
                     .Where(m => m.Name == nameof(Enumerable.Contains))
                     .Select(m => new {
@@ -52,11 +49,11 @@ public class StringFilterField : BaseFilterField<FilterStringOperation, string> 
                                 && x.P[1].ParameterType == x.G[0])
                     .Select(x => x.M)
                     .First()
-                    .MakeGenericMethod(typeof(string));
+                    .MakeGenericMethod(typeof(DateTime));
 
                 filterExpression = Expression.Call(methodInfo, valuesExpression, property);
                 break;
-            case FilterStringOperation.NotIn:
+            case FilterDateOperation.NotIn:
                 methodInfo = typeof(Enumerable).GetMethods()
                     .Where(m => m.Name == nameof(Enumerable.Contains))
                     .Select(m => new {
@@ -70,49 +67,52 @@ public class StringFilterField : BaseFilterField<FilterStringOperation, string> 
                                 && x.P[1].ParameterType == x.G[0])
                     .Select(x => x.M)
                     .First()
-                    .MakeGenericMethod(typeof(string));
+                    .MakeGenericMethod(typeof(DateTime));
 
                 filterExpression = Expression.Call(methodInfo, valuesExpression, property);
                 filterExpression = Expression.Not(filterExpression);
                 break;
-            case FilterStringOperation.Equal:
+            case FilterDateOperation.Equal:
                 filterExpression = Expression.Equal(property, valueExpression!);
                 break;
-            case FilterStringOperation.NotEqual:
+            case FilterDateOperation.NotEqual:
                 filterExpression = Expression.NotEqual(property, valueExpression!);
                 break;
-            case FilterStringOperation.Contains:
-                compareWithOrdinal = Expression.Call(property, compareInfo, valueExpression, Expression.Constant(StringComparison.OrdinalIgnoreCase));
-                filterExpression = Expression.GreaterThanOrEqual(compareWithOrdinal, Expression.Constant(0));
+            case FilterDateOperation.GreaterThan:
+                filterExpression = Expression.GreaterThan(property, valueExpression!);
                 break;
-            case FilterStringOperation.NotContains:
-                compareWithOrdinal = Expression.Call(property, compareInfo, valueExpression, Expression.Constant(StringComparison.OrdinalIgnoreCase));
-                filterExpression = Expression.Not(Expression.GreaterThanOrEqual(compareWithOrdinal, Expression.Constant(0)));
+            case FilterDateOperation.GreaterThanOrEqual:
+                filterExpression = Expression.GreaterThanOrEqual(property, valueExpression!);
                 break;
-            case FilterStringOperation.StartsWith:
-                filterExpression = Expression.Call(property, typeof(string).GetMethod(nameof(string.StartsWith), new[] {
-                    typeof(string)
-                })!, valueExpression!);
+            case FilterDateOperation.LessThan:
+                filterExpression = Expression.LessThan(property, valueExpression!);
                 break;
-            case FilterStringOperation.NotStartsWith:
-                filterExpression = Expression.Not(Expression.Call(property, typeof(string).GetMethod(nameof(string.StartsWith), new[] {
-                    typeof(string)
-                })!, valueExpression!));
+            case FilterDateOperation.LessThanOrEqual:
+                filterExpression = Expression.LessThanOrEqual(property, valueExpression!);
                 break;
-            case FilterStringOperation.EndsWith:
-                filterExpression = Expression.Call(property, typeof(string).GetMethod(nameof(string.EndsWith), new[] {
-                    typeof(string)
-                })!, valueExpression!);
+            case FilterDateOperation.Between:
+                if (FilterValues!.Count != 2) {
+                    throw new InvalidOperationException("Filter values count must be 2.");
+                }
+                filterExpression = Expression.And(
+                    Expression.GreaterThanOrEqual(property, Expression.Constant(FilterValues!.First(), typeof(DateTime))),
+                    Expression.LessThanOrEqual(property, Expression.Constant(FilterValues!.Last(), typeof(DateTime)))
+                );
                 break;
-            case FilterStringOperation.NotEndsWith:
-                filterExpression = Expression.Not(Expression.Call(property, typeof(string).GetMethod(nameof(string.EndsWith), new[] {
-                    typeof(string)
-                })!, valueExpression!));
+            case FilterDateOperation.NotBetween:
+                if (FilterValues!.Count != 2) {
+                    throw new InvalidOperationException("Filter values count must be 2.");
+                }
+                filterExpression = Expression.Not(Expression.And(
+                    Expression.LessThan(property, Expression.Constant(FilterValues!.First(), typeof(DateTime))),
+                    Expression.GreaterThan(property, Expression.Constant(FilterValues!.Last(), typeof(DateTime)))
+                ));
                 break;
-
             default:
                 throw new InvalidOperationException("Filter operation is not supported.");
         }
+
+
         return Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
     }
 }

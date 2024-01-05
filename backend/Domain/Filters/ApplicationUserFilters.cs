@@ -1,11 +1,11 @@
 using System.Linq.Expressions;
 using Domain.DTO.ConfigurableEntities;
-using Domain.DTO.Filters.Common;
-using Domain.DTO.Filters.Fields;
 using Domain.Entities;
+using Domain.Filters.Common;
+using Domain.Filters.Fields;
 using Infrastructure.Enums;
 using LinqKit;
-namespace Domain.DTO.Filters;
+namespace Domain.Filters;
 
 public class ApplicationUserFilters : BaseFilters {
     public ApplicationUserFilters() {

@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-namespace Domain.DTO.Filters.Fields;
+namespace Domain.Filters.Fields;
 
 public interface IFilterField<T> {
     public bool IsFilterDisabled { get; set; }
