@@ -29,7 +29,7 @@ public class User {
     public Language? DisplayLanguage { get; set; }
 
     [Description("what roles user have")]
-    public List<string?> Roles { get; set; } = new List<string>();
+    public IList<string> Roles { get; set; } = new List<string>();
 
     [Description("User Registration Date")]
     public DateTime RegisterCompletedAt { get; set; }

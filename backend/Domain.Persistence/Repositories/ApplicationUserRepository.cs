@@ -7,7 +7,6 @@ using Domain.Persistence.Context;
 using Domain.Persistence.Repositories.Common;
 using Domain.Persistence.Repositories.Interfaces;
 using Infrastructure.Enums;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
 namespace Domain.Persistence.Repositories;
 
@@ -185,8 +184,8 @@ public class ApplicationUserRepository : BaseRepository, IApplicationUserReposit
         Log.Logger.Information($"Fetching users with filter {filter}");
         var query = (Context.Users.AsQueryable());
         query = query.Where(u => u.RegisterCompletedAt != null);
-        query = query.Include(u => u.UserRoles).ThenInclude(ur => ur.Role);
-        return filter.ApplyQuery(query).ToList();
+        query = filter.ApplyQuery(query);
+        return query.ToList();
     }
 
     public async Task<int> GetUsersTotalRecords(RecordFilterPagination<ApplicationUserFilters> filter) {

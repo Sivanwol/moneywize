@@ -55,6 +55,14 @@ public class GetUsersHandler : IRequestHandler<GetUsersRequest, EntityPage<Infra
 
         var pageFilter = await BuildPageFilter(request);
         var entities = await _applicationUserRepository.GetUsers(pageFilter);
+        // we enrich the entities (that are user records with roles if it has any
+        var users = new List<Infrastructure.GQL.User>();
+
+        foreach (var entity in entities.ToList()) {
+            var roles = await _userManager.GetRolesAsync(entity);
+            users.Add(entity.ToGql(roles));
+        }
+
         var totalPages = await _applicationUserRepository.GetUsersTotalPages(pageFilter);
         var totalRecords = await _applicationUserRepository.GetUsersTotalRecords(pageFilter);
         var records = new EntityPage<Infrastructure.GQL.User>() {
@@ -62,7 +70,7 @@ public class GetUsersHandler : IRequestHandler<GetUsersRequest, EntityPage<Infra
             TotalRecords = totalRecords,
             HasPreviousPage = (totalPages > 1 && pageFilter.Page > 1),
             HasNextPage = (totalPages > pageFilter.Page),
-            Records = entities.Select(x => x.ToGql())
+            Records = users
         };
         await _cacheService.RegisterAsync(cacheKey, records);
         return records;
