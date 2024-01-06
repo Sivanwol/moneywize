@@ -5,8 +5,8 @@ using Domain.Persistence.Repositories.Common.Interfaces;
 namespace Domain.Persistence.Repositories.Interfaces;
 
 public interface IClientRepository : IGenericRepository<Clients, int> {
-    Task Add(CreateClient client);
-    Task Add(int parantId, CreateClient client);
+    Task<int> Add(CreateClient client);
+    Task<int> Add(int parantId, CreateClient client);
     Task Update(int clientId, CreateClient client);
     Task Delete(int clientId);
     Task<bool> IsClientExists(int clientId);
@@ -16,7 +16,7 @@ public interface IClientRepository : IGenericRepository<Clients, int> {
     Task<int> GetAllCount(RecordFilterPagination<ClientFilters> filter);
     Task<Clients?> GetByIdWithChildren(int id);
 
-    Task AddContact(int clientId, CreateClientContact clientContact);
+    Task<int> AddContact(int clientId, CreateClientContact clientContact);
     Task UpdateContact(int clientId, int clientContactId, CreateClientContact clientContact);
     Task DeleteContact(int clientId, int clientContactId);
     Task<bool> IsClientContactExists(int clientId, string firstName, string lastName);

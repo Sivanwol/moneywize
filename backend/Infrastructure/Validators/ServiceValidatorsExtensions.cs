@@ -1,5 +1,6 @@
 using FluentValidation;
 using Infrastructure.Validators.Account;
+using Infrastructure.Validators.Client;
 using Infrastructure.Validators.Common;
 using Microsoft.Extensions.DependencyInjection;
 namespace Infrastructure.Validators;
@@ -22,6 +23,11 @@ public static class ServiceValidatorsExtensions {
 
         #endregion
 
+        #region Client
+
+        services.AddValidatorsFromAssemblyContaining<CreateClientValidator>();
+
+        #endregion
 
     }
 }

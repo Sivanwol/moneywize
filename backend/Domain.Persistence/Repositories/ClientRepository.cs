@@ -11,7 +11,13 @@ public class ClientRepository : BaseRepository, IClientRepository {
     public ClientRepository(
         IDomainContext context
     ) : base(context) { }
-    public async Task Add(CreateClient client) {
+    public async Task<Clients?> GetByIdWithChildren(int id) {
+        var client = await Context.Clients
+            .Include(i => i.Children)
+            .FirstOrDefaultAsync(w => w.Id == id);
+        return client;
+    }
+    public async Task<int> Add(CreateClient client) {
         var clientRecord = new Clients {
             OwnerUserId = client.OwnerUserId,
             Parent = null,
@@ -25,14 +31,9 @@ public class ClientRepository : BaseRepository, IClientRepository {
         };
         Context.Clients.Add(clientRecord);
         await Context.Instance.SaveChangesAsync();
+        return clientRecord.Id;
     }
-    public async Task<Clients?> GetByIdWithChildren(int id) {
-        var client = await Context.Clients
-            .Include(i => i.Children)
-            .FirstOrDefaultAsync(w => w.Id == id);
-        return client;
-    }
-    public async Task Add(int parantId, CreateClient client) {
+    public async Task<int> Add(int parantId, CreateClient client) {
         var clientRecord = new Clients {
             OwnerUserId = client.OwnerUserId,
             ParentId = parantId,
@@ -46,6 +47,7 @@ public class ClientRepository : BaseRepository, IClientRepository {
         };
         Context.Clients.Add(clientRecord);
         await Context.Instance.SaveChangesAsync();
+        return clientRecord.Id;
     }
 
     public async Task Update(int clientId, CreateClient client) {
@@ -89,7 +91,7 @@ public class ClientRepository : BaseRepository, IClientRepository {
         var entitiesCount = await filter.ApplyQueryWithoutPagination(query).CountAsync();
         return entitiesCount;
     }
-    public async Task AddContact(int clientId, CreateClientContact clientContact) {
+    public async Task<int> AddContact(int clientId, CreateClientContact clientContact) {
         var clientContactRecord = new ClientContacts {
             ClientId = clientId,
             FirstName = clientContact.FirstName,
@@ -111,6 +113,7 @@ public class ClientRepository : BaseRepository, IClientRepository {
         };
         Context.ClientContacts.Add(clientContactRecord);
         await Context.Instance.SaveChangesAsync();
+        return clientContactRecord.Id;
     }
     public async Task UpdateContact(int clientId, int clientContactId, CreateClientContact clientContact) {
         var clientContactRecord = await Context.ClientContacts.FirstOrDefaultAsync(w => w.Id == clientContactId && w.ClientId == clientId);
