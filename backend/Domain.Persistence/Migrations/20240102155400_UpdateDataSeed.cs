@@ -86,10 +86,9 @@ namespace Domain.Persistence.Migrations
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'Clients' and ColumnName = 'Name'), 4),";
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'Clients' and ColumnName = 'Description'), 5),";
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'Clients' and ColumnName = 'Website'), 6),";
-            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'Clients' and ColumnName = 'DisabledAt'), 7),";
-            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'Clients' and ColumnName = 'Address'), 8),";
-            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'Clients' and ColumnName = 'City'), 9),";
-            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'Clients' and ColumnName = 'CreatedAt'), 10);";
+            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'Clients' and ColumnName = 'Address'), 7),";
+            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'Clients' and ColumnName = 'City'), 8),";
+            sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'Clients' and ColumnName = 'CreatedAt'), 9);";
             migrationBuilder.Sql(sql);
             
             #endregion
@@ -205,6 +204,7 @@ namespace Domain.Persistence.Migrations
             sql += $"DELETE FROM ConfigurableEntityColumnDefinitions WHERE CategoryId = @categoryId;";
             sql += $"DELETE FROM ConfigurableUserViews WHERE Name = 'Base View Of Activity Logs';";
             sql += $"DELETE FROM ConfigurableUserViews WHERE Name = 'Base View Of Clients';";
+            sql += $"DELETE FROM ConfigurableUserViews WHERE Name = 'Base View Of Client Contacts';";
             sql += $"DELETE FROM ConfigurableUserViews WHERE Name = 'Base View Of Users';";
             migrationBuilder.Sql(sql);
             

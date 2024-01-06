@@ -33,7 +33,7 @@ public class ClientController : BaseGraphController {
         _pageValidator = pageValidator;
     }
 
-    [Mutation("createClient", typeof(ClientInput))]
+    [Mutation("createClient", typeof(string))]
     [Description("Will create a new client")]
     public async Task<IGraphActionResult> CreateClient(
         [FromGraphQL("client")] [Description("Client Create Object input")]
@@ -51,7 +51,7 @@ public class ClientController : BaseGraphController {
                 await Mediator.Send(clientInput.ToProcessEntity(Guid.Parse(loggedUserId!),
                     HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
                     HttpContext.Request.Headers["User-Agent"].ToString()));
-                return Ok();
+                return Ok("ok");
             }
             catch (Exception e) {
                 Log.Logger.Error(e, e.Message);
@@ -64,7 +64,7 @@ public class ClientController : BaseGraphController {
         }
     }
 
-    [Mutation("updateClient", typeof(ClientInput))]
+    [Mutation("updateClient", typeof(string))]
     [Description("Will update a new client")]
     public async Task<IGraphActionResult> UpdateClient(
         [FromGraphQL("clientId")] [Description("Client Id")]
@@ -84,7 +84,7 @@ public class ClientController : BaseGraphController {
                 await Mediator.Send(clientInput.ToProcessEntity(Guid.Parse(loggedUserId!),
                     HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
                     HttpContext.Request.Headers["User-Agent"].ToString()));
-                return Ok();
+                return Ok("ok");
             }
             catch (Exception e) {
                 Log.Logger.Error(e, e.Message);
@@ -97,7 +97,7 @@ public class ClientController : BaseGraphController {
         }
     }
 
-    [Mutation("deleteClient")]
+    [Mutation("deleteClient", typeof(string))]
     [Description("Will delete a new client")]
     public async Task<IGraphActionResult> DeleteClient(
         [FromGraphQL("clientId")] [Description("Client Id")]
@@ -114,7 +114,7 @@ public class ClientController : BaseGraphController {
                     IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
                     UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
                 });
-                return Ok();
+                return Ok("ok");
             }
             catch (Exception e) {
                 Log.Logger.Error(e, e.Message);
