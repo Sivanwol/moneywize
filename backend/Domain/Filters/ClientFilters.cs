@@ -15,7 +15,7 @@ public class ClientFilters : BaseFilters {
         CountryFilters = new List<IdFilterField>();
         CityFilters = new List<StringFilterField>();
         AddressFilters = new List<StringFilterField>();
-        CreateAtFilters = new List<DateFilterField>();
+        CreatedAtFilters = new List<DateFilterField>();
     }
     public ICollection<IdFilterField> IdFilters { get; }
     public ICollection<UserIdFilterField> OwnerUserFilters { get; }
@@ -23,10 +23,10 @@ public class ClientFilters : BaseFilters {
     public ICollection<IdFilterField> CountryFilters { get; }
     public ICollection<StringFilterField> CityFilters { get; }
     public ICollection<StringFilterField> AddressFilters { get; }
-    public ICollection<DateFilterField> CreateAtFilters { get; }
+    public ICollection<DateFilterField> CreatedAtFilters { get; }
 
     private bool HasAnyFilter() {
-        return IdFilters.Any() || OwnerUserFilters.Any() || NameFilters.Any() || CountryFilters.Any() || CityFilters.Any() || AddressFilters.Any() || CreateAtFilters.Any();
+        return IdFilters.Any() || OwnerUserFilters.Any() || NameFilters.Any() || CountryFilters.Any() || CityFilters.Any() || AddressFilters.Any() || CreatedAtFilters.Any();
     }
     public override IQueryable<T> ApplyFilters<T>(IQueryable<T> query, FilterCollectionOperation filterCollectionOperation,
         IEnumerable<ConfigurableUserViewColumn> SelectedColumns) {
@@ -63,7 +63,7 @@ public class ClientFilters : BaseFilters {
             predicate = ApplyFiltersPredicate<T, string, StringFilterField>(AddressFilters, predicate, operatorFunc);
         }
         if (HasAllowedColumnFilter(SelectedColumns, nameof(Clients.CreatedAt))) {
-            predicate = ApplyFiltersPredicate<T, DateTime, DateFilterField>(CreateAtFilters, predicate, operatorFunc);
+            predicate = ApplyFiltersPredicate<T, DateTime, DateFilterField>(CreatedAtFilters, predicate, operatorFunc);
         }
 
         return query.Where(predicate);
@@ -75,6 +75,6 @@ public class ClientFilters : BaseFilters {
         CountryFilters.Clear();
         CityFilters.Clear();
         AddressFilters.Clear();
-        CreateAtFilters.Clear();
+        CreatedAtFilters.Clear();
     }
 }

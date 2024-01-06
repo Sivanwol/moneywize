@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Application.Queries;
 using Domain.Entities.Common;
 using Elastic.Apm.Api.Constraints;
+using Infrastructure.GQL;
 namespace Domain.Entities;
 
 public class Clients : BaseEntity, ISoftDeletable {
@@ -41,4 +42,19 @@ public class Clients : BaseEntity, ISoftDeletable {
 
     public ICollection<ClientContacts> Contacts { get; set; }
     public DateTime? DeletedAt { get; }
+
+    public Client ToGql() {
+        return new() {
+            Id = Id,
+            Parent = Parent?.ToGql(),
+            Name = Name,
+            Description = Description,
+            Country = Country.ToGql(),
+            Website = Website,
+            Address = Address,
+            City = City,
+            OwnerUserId = OwnerUserId,
+            CreatedAt = CreatedAt,
+        };
+    }
 }

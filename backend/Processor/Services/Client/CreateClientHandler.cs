@@ -1,4 +1,3 @@
-using Application.Configs;
 using Application.Constraints;
 using Application.Exceptions;
 using Application.Utils;
@@ -18,7 +17,6 @@ public class CreateClientHandler : IRequestHandler<CreateClientRequest> {
     private readonly IApplicationUserRepository _applicationUserRepository;
     private readonly ICacheService _cacheService;
     private readonly IClientRepository _clientRepository;
-    private readonly BackendApplicationConfig _config;
     private readonly ICountriesRepository _countriesRepository;
     private readonly UserManager<ApplicationUser> _userManager;
     public CreateClientHandler(
@@ -27,20 +25,18 @@ public class CreateClientHandler : IRequestHandler<CreateClientRequest> {
         IActivityLogRepository activityRepository,
         ICountriesRepository countriesRepository,
         IClientRepository clientRepository,
-        BackendApplicationConfig config,
         UserManager<ApplicationUser> userManager) {
         _applicationUserRepository = userRepository;
         _activityLogRepository = activityRepository;
         _userManager = userManager;
         _clientRepository = clientRepository;
         _cacheService = cacheService;
-        _config = config;
         _countriesRepository = countriesRepository;
     }
     public async Task Handle(CreateClientRequest request, CancellationToken cancellationToken) {
         await ValidateRequest(request);
         Log.Logger.Information($"CreateClientHandler: Clear Cache");
-        var cacheKey = Cache.GetKey($"Clients");
+        var cacheKey = Cache.GetKey("Clients:List");
         await _cacheService.RemovePatternAsync(cacheKey);
         Log.Logger.Information($"CreateClientHandler: Register new client");
         var client = new CreateClient {
@@ -52,7 +48,7 @@ public class CreateClientHandler : IRequestHandler<CreateClientRequest> {
             Address = request.Address,
             City = request.City
         };
-        var clientId = 0;
+        int clientId;
         if (request.OwnClientId.HasValue) {
             clientId = await _clientRepository.Add(request.OwnClientId.Value, client);
         } else {
