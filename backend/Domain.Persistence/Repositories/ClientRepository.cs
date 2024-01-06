@@ -33,10 +33,10 @@ public class ClientRepository : BaseRepository, IClientRepository {
         await Context.Instance.SaveChangesAsync();
         return clientRecord.Id;
     }
-    public async Task<int> Add(int parantId, CreateClient client) {
+    public async Task<int> Add(int parentId, CreateClient client) {
         var clientRecord = new Clients {
             OwnerUserId = client.OwnerUserId,
-            ParentId = parantId,
+            ParentId = parentId,
             Name = client.Name,
             Description = client.Description,
             Website = client.Website,
@@ -56,6 +56,22 @@ public class ClientRepository : BaseRepository, IClientRepository {
             throw new Exception("Client not found");
         }
         clientRecord.OwnerUserId = client.OwnerUserId;
+        clientRecord.Name = client.Name;
+        clientRecord.Description = client.Description;
+        clientRecord.Website = client.Website;
+        clientRecord.CountryId = client.CountryId;
+        clientRecord.Address = client.Address;
+        clientRecord.City = client.City;
+        await Context.Instance.SaveChangesAsync();
+    }
+
+    public async Task Update(int clientId, int parentId, CreateClient client) {
+        var clientRecord = await Context.Clients.FirstOrDefaultAsync(w => w.Id == clientId);
+        if (clientRecord == null) {
+            throw new Exception("Client not found");
+        }
+        clientRecord.OwnerUserId = client.OwnerUserId;
+        clientRecord.ParentId = parentId;
         clientRecord.Name = client.Name;
         clientRecord.Description = client.Description;
         clientRecord.Website = client.Website;

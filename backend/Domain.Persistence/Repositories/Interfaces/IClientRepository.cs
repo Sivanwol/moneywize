@@ -6,8 +6,9 @@ namespace Domain.Persistence.Repositories.Interfaces;
 
 public interface IClientRepository : IGenericRepository<Clients, int> {
     Task<int> Add(CreateClient client);
-    Task<int> Add(int parantId, CreateClient client);
+    Task<int> Add(int parentId, CreateClient client);
     Task Update(int clientId, CreateClient client);
+    Task Update(int clientId, int parentId, CreateClient client);
     Task Delete(int clientId);
     Task<bool> IsClientExists(int clientId);
 

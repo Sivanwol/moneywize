@@ -15,8 +15,8 @@ public class CreateClientValidator : AbstractValidator<ClientInput> {
         RuleFor(x => x.Address).NotEmpty().WithMessage("Address is required");
         RuleFor(x => x.City).NotEmpty().WithMessage("City is required");
 
-        When(x => x.OwnClientId != null, () => {
-            RuleFor(x => x.OwnClientId)
+        When(x => x.ParentId != null, () => {
+            RuleFor(x => x.ParentId)
                 .NotEmpty()
                 .WithMessage("OwnClientId is required")
                 .GreaterThan(0)

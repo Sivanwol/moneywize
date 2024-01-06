@@ -5,7 +5,7 @@ namespace Infrastructure.GQL.Inputs.Client;
 [Description("Client Create Object input")]
 public class ClientInput {
     [Description("if this client is a child of another client")]
-    public int? OwnClientId { get; set; }
+    public int? ParentId { get; set; }
 
     [Description("client name")]
     public string Name { get; set; }
@@ -29,7 +29,7 @@ public class ClientInput {
     public CreateClientRequest ToProcessEntity(Guid loggedInUserId, string userAgent, string ipAddress) {
         return new CreateClientRequest {
             LoggedInUserId = loggedInUserId,
-            OwnClientId = OwnClientId,
+            ParentId = ParentId,
             Name = Name,
             Description = Description,
             Website = Website,

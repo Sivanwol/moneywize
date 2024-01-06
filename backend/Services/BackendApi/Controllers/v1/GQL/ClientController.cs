@@ -64,6 +64,70 @@ public class ClientController : BaseGraphController {
         }
     }
 
+    [Mutation("updateClient", typeof(ClientInput))]
+    [Description("Will update a new client")]
+    public async Task<IGraphActionResult> UpdateClient(
+        [FromGraphQL("clientId")] [Description("Client Id")]
+        int clientId,
+        [FromGraphQL("client")] [Description("Client Create Object input")]
+        ClientInput clientInput
+    ) {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var validator = await _createClientValidator.ValidateAsync(clientInput);
+            if (!validator.IsValid) {
+                return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
+            }
+            try {
+                await Mediator.Send(clientInput.ToProcessEntity(Guid.Parse(loggedUserId!),
+                    HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                    HttpContext.Request.Headers["User-Agent"].ToString()));
+                return Ok();
+            }
+            catch (Exception e) {
+                Log.Logger.Error(e, e.Message);
+                return Error("Something went wrong");
+            }
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error("Something went wrong");
+        }
+    }
+
+    [Mutation("deleteClient")]
+    [Description("Will delete a new client")]
+    public async Task<IGraphActionResult> DeleteClient(
+        [FromGraphQL("clientId")] [Description("Client Id")]
+        int clientId
+    ) {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            try {
+                await Mediator.Send(new DeleteClientRequest() {
+                    LoggedInUserId = Guid.Parse(loggedUserId!),
+                    ClientId = clientId,
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                    UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
+                });
+                return Ok();
+            }
+            catch (Exception e) {
+                Log.Logger.Error(e, e.Message);
+                return Error("Something went wrong");
+            }
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error("Something went wrong");
+        }
+    }
+
+
     [Query("getAll", typeof(EntityPage<Client>))]
     [Description("Will return the clients")]
     public async Task<IGraphActionResult> GetClients(

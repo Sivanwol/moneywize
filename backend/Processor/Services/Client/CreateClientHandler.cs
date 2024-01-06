@@ -49,8 +49,8 @@ public class CreateClientHandler : IRequestHandler<CreateClientRequest> {
             City = request.City
         };
         int clientId;
-        if (request.OwnClientId.HasValue) {
-            clientId = await _clientRepository.Add(request.OwnClientId.Value, client);
+        if (request.ParentId.HasValue) {
+            clientId = await _clientRepository.Add(request.ParentId.Value, client);
         } else {
             clientId = await _clientRepository.Add(client);
         }
@@ -88,6 +88,13 @@ public class CreateClientHandler : IRequestHandler<CreateClientRequest> {
         if (country == null) {
             Log.Logger.Error($"GetUserProfileHandler: Country not found");
             throw new EntityNotFoundException(nameof(Countries), request.CountryId.ToString());
+        }
+        if (request.ParentId.HasValue) {
+            var parent = await _clientRepository.GetById(request.ParentId.Value);
+            if (parent == null) {
+                Log.Logger.Error($"GetUserProfileHandler: Parent not found");
+                throw new EntityNotFoundException(nameof(Clients), request.ParentId.Value.ToString());
+            }
         }
     }
 }
