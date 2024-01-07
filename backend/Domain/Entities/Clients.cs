@@ -49,11 +49,11 @@ public class Clients : BaseEntity, ISoftDeletable {
             Parent = Parent?.ToGql(),
             Name = Name,
             Description = Description,
-            Country = Country.ToGql(),
+            Country = Country?.ToGql(),
             Website = Website,
             Address = Address,
             City = City,
-            OwnerUser = OwnerUser.ToGql(),
+            OwnerUser = OwnerUser?.ToGql(),
             CreatedAt = CreatedAt,
         };
     }

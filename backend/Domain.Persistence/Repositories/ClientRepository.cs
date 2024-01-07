@@ -91,20 +91,21 @@ public class ClientRepository : BaseRepository, IClientRepository {
     }
     public async Task<ICollection<Clients>> GetAll(RecordFilterPagination<ClientFilters> filter) {
         var query = Context.Clients.AsQueryable();
-        query = query.Where(w => w.DeletedAt == null);
-        query = filter.ApplyQuery(query);
+        query = filter.ApplyQuery(query).Where(w => w.DeletedAt == null);
+        query = query.Include(i => i.Country);
+        query = query.Include(i => i.OwnerUser);
+
         return await query.ToListAsync();
     }
     public async Task<int> GetAllTotalPages(RecordFilterPagination<ClientFilters> filter) {
         var query = Context.Clients.AsQueryable();
-        query = query.Where(w => w.DeletedAt == null);
-        var entitiesCount = await filter.ApplyQueryWithoutPagination(query).CountAsync();
+        var entitiesCount = await filter.ApplyQueryWithoutPagination(query).Where(w => w.DeletedAt == null).CountAsync();
         return (int)Math.Ceiling((double)entitiesCount / filter.PageSize);
     }
     public async Task<int> GetAllCount(RecordFilterPagination<ClientFilters> filter) {
         var query = Context.Clients.AsQueryable();
         query = query.Where(w => w.DeletedAt == null);
-        var entitiesCount = await filter.ApplyQueryWithoutPagination(query).CountAsync();
+        var entitiesCount = await filter.ApplyQueryWithoutPagination(query).Where(w => w.DeletedAt == null).CountAsync();
         return entitiesCount;
     }
     public async Task<int> AddContact(int clientId, CreateClientContact clientContact) {
