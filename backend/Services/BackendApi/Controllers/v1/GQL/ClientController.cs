@@ -235,7 +235,7 @@ public class ClientController : BaseGraphController {
         }
     }
 
-    [Query("getAllContracts", typeof(EntityPage<Client>))]
+    [Query("getAllContracts", typeof(EntityPage<ClientContact>))]
     [Description("Will return the clients")]
     public async Task<IGraphActionResult> GetClientContracts(
         [FromGraphQL("clientId")] [Description("Client Id")]

@@ -5,7 +5,7 @@ using Infrastructure.GQL;
 namespace Domain.Entities;
 
 public class ClientContacts : BaseEntity, ISoftDeletable {
-    [ForeignKey("Clients")]
+    [ForeignKey("Client")]
     public int ClientId { get; set; }
 
     public Clients Client { get; set; }
@@ -73,7 +73,7 @@ public class ClientContacts : BaseEntity, ISoftDeletable {
             Phone2 = Phone2,
             Fax = Fax,
             Whatsapp = Whatsapp,
-            Country = Country.ToGql(),
+            Country = Country?.ToGql(),
             PostalCode = PostalCode,
             Address = Address,
             City = City,

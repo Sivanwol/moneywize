@@ -245,8 +245,9 @@ public class ClientRepository : BaseRepository, IClientRepository {
 
     public async Task<ICollection<ClientContacts>> GetClientContactsAll(int clientId, RecordFilterPagination<ClientContactsFilters> filter) {
         var query = Context.ClientContacts.AsQueryable();
-        query = query.Where(w => w.DeletedAt == null && w.ClientId == clientId);
         query = filter.ApplyQuery(query);
+        query = query.Where(w => w.DeletedAt == null && w.ClientId == clientId);
+        query = query.Include(i => i.Country);
         return await query.ToListAsync();
     }
     public async Task<ICollection<ClientContacts>> GetClientContactsAll(int clientId, RecordFilterPagination<ClientContactsFilters> filter, bool onlyDeleted) {

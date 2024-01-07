@@ -112,6 +112,7 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
         builder.Entity<ClientContacts>().HasIndex(x => new {
             x.FirstName,
             x.LastName,
+            x.ClientId,
             x.CountryId
         }).IsUnique();
 
@@ -240,6 +241,7 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
         builder.Entity<ClientContacts>().HasOne(x => x.Country)
             .WithMany(x => x.ClientContacts)
             .HasForeignKey(x => x.CountryId);
+
         builder.Entity<ClientContacts>().HasOne(x => x.Client)
             .WithMany(x => x.Contacts)
             .HasForeignKey(x => x.ClientId);

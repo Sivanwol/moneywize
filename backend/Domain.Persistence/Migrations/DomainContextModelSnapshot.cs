@@ -531,7 +531,7 @@ namespace Domain.Persistence.Migrations
                     b.HasIndex("CountryId", "FirstName", "LastName")
                         .IsUnique();
 
-                    b.HasIndex("FirstName", "LastName", "CountryId")
+                    b.HasIndex("FirstName", "LastName", "ClientId", "CountryId")
                         .IsUnique();
 
                     b.ToTable("ClientContacts");
