@@ -57,5 +57,5 @@ public class Contacts : BaseEntity, ISoftDeletable {
 
     public ICollection<VendorHasContact> Vendors { get; set; }
     public ICollection<ProviderHasContact> Providers { get; set; }
-    public DateTime? DeletedAt { get; }
+    public DateTime? DeletedAt { get; set; }
 }

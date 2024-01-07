@@ -26,5 +26,5 @@ public class Vendors : BaseEntity, ISoftDeletable {
     public VendorSupportResponseType SupportResponseType { get; set; }
     public ICollection<VendorHasContact> Contacts { get; set; }
     public DateTime? DisabledAt { get; set; }
-    public DateTime? DeletedAt { get; }
+    public DateTime? DeletedAt { get; set; }
 }

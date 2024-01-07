@@ -8,5 +8,5 @@ public class Categories : BaseEntity, ISoftDeletable {
     public string Description { get; set; }
 
     public ICollection<ProviderHasCategories> Providers { get; set; }
-    public DateTime? DeletedAt { get; }
+    public DateTime? DeletedAt { get; set; }
 }

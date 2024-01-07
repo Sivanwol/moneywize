@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using GraphQL.AspNet.Attributes;
 using Infrastructure.Requests.Processor.Services.Client;
 namespace Infrastructure.GQL.Inputs.Client;
 
@@ -8,21 +10,31 @@ public class ClientInput {
     public int? ParentId { get; set; }
 
     [Description("client name")]
+    [GraphField(TypeExpression = "String!")]
+    [Required]
     public string Name { get; set; }
 
     [Description("client description")]
     public string Description { get; set; }
 
     [Description("client website")]
+    [GraphField(TypeExpression = "String!")]
+    [Required]
     public string Website { get; set; }
 
     [Description("client Country Id")]
+    [GraphField(TypeExpression = "Int!")]
+    [Required]
     public int CountryId { get; set; }
 
     [Description("client address")]
+    [GraphField(TypeExpression = "String!")]
+    [Required]
     public string? Address { get; set; }
 
     [Description("client city")]
+    [GraphField(TypeExpression = "String!")]
+    [Required]
     public string? City { get; set; }
 
 

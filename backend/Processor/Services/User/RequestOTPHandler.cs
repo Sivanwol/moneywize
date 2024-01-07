@@ -59,12 +59,12 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
         _logger.LogInformation($"RequestOtpHandler: [{request.Provider},{request.CountryId}, {request.PhoneNumber}]");
         _logger.LogInformation("Start Prep for Sending SMS OTP");
         _logger.LogInformation($"Locating User By Phone: {request.CountryId}-{request.PhoneNumber}");
-        Countries? country = null;
+        Domain.Entities.Countries? country = null;
         if (IsIdentifyByPhoneNumber(request)) {
             var cacheKey = await _cache.KeyExistsAsync(Cache.GetKey($"COUNTRY_{request.CountryId}"));
             if (cacheKey) {
                 var payload = await _cache.StringGetAsync(Cache.GetKey($"COUNTRY_{request.CountryId}"));
-                country = JsonConvert.DeserializeObject<Countries>(payload);
+                country = JsonConvert.DeserializeObject<Domain.Entities.Countries>(payload);
             }
             if (country == null) {
                 country = await _countriesRepository.GetById(request.CountryId!.Value);
@@ -101,7 +101,7 @@ public class RequestOtpHandler : IRequestHandler<SendOTPRequest, RequestOTPRespo
         return !string.IsNullOrEmpty(request.PhoneNumber) && request.CountryId != null && string.IsNullOrEmpty(request.Email);
     }
 
-    private void LoadProvider(Countries country, SMSProviders provider) {
+    private void LoadProvider(Domain.Entities.Countries country, SMSProviders provider) {
         _logger.LogInformation($"Loading Sms Provider: {provider}");
         switch (provider) {
             case SMSProviders.INFOU:

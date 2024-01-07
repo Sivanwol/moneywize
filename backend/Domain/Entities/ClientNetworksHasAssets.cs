@@ -23,5 +23,5 @@ public class ClientNetworksHasAssets : BaseEntityWithoutId, ISoftDeletable {
     public string Notes { get; set; }
 
     public DateTime? DisabledAt { get; set; }
-    public DateTime? DeletedAt { get; }
+    public DateTime? DeletedAt { get; set; }
 }

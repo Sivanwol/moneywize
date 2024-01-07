@@ -22,7 +22,6 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
         : base(options) {
         _logger = logger;
         _logger.LogInformation("Pre Initializing DomainContext.");
-        ChangeTracker.CascadeDeleteTiming = CascadeTiming.OnSaveChanges;
         Initialize();
     }
     public DbContext Instance => this;
@@ -97,6 +96,7 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
         _logger?.LogInformation("Configuring DomainContext model.");
+        ConfigureSoftDeleteFilter(builder);
         builder.SetDefaultValuesTableName();
         builder.SetDefaultForIdsAndDates();
         builder.Entity<ActivityLog>()

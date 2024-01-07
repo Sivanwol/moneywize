@@ -6,8 +6,8 @@ public class Client {
     [Description("Client Id")]
     public int Id { get; set; }
 
-    [Description("Client Owner User Id")]
-    public string OwnerUserId { get; set; }
+    [Description("Client Owner User")]
+    public User OwnerUser { get; set; }
 
     [Description("Client Parent Id")]
     public Client? Parent { get; set; }

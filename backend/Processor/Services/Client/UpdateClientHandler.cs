@@ -84,7 +84,7 @@ public class UpdateClientHandler : IRequestHandler<UpdateClientRequest> {
         }
 
         var country = await _countriesRepository.GetById(request.CountryId);
-        if (country == null) {
+        if (country?.SupportedAt == null) {
             Log.Logger.Error($"GetUserProfileHandler: Country not found");
             throw new EntityNotFoundException(nameof(Countries), request.CountryId.ToString());
         }

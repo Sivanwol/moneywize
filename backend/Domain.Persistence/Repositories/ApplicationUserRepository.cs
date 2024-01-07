@@ -57,17 +57,17 @@ public class ApplicationUserRepository : BaseRepository, IApplicationUserReposit
     }
     public async Task<ApplicationUser?> GetById(Guid id) {
         Log.Logger.Information($"Fetching user with id {id}");
-        return Context.Users.FirstOrDefault(w => w.Id == id.ToString());
+        return Context.Users.FirstOrDefault(w => w.DeletedAt == null && w.Id == id.ToString());
     }
 
     public async Task<ApplicationUser?> GetUserByToken(string userToken) {
         Log.Logger.Information($"Fetching user with token {userToken}");
-        return Context.Users.FirstOrDefault(w => w.Token == userToken);
+        return Context.Users.FirstOrDefault(w => w.DeletedAt == null && w.Token == userToken);
     }
 
     public async Task<ApplicationUser?> LocateUserByPhone(int countryId, string phoneNumber) {
         Log.Logger.Information($"Locating user with phone number {countryId}-{phoneNumber}");
-        var user = Context.Users.First(w => w.Country.Id == countryId && w.PhoneNumber == phoneNumber);
+        var user = Context.Users.First(w => w.DeletedAt == null && w.Country.Id == countryId && w.PhoneNumber == phoneNumber);
         if (user == null) {
             throw new EntityNotFoundException("User", $"{countryId}-{phoneNumber}");
         }

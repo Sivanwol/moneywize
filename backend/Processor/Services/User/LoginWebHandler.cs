@@ -49,7 +49,7 @@ public class LoginWebHandler : IRequestHandler<LoginWebUserRequest, RequestOTPRe
         Log.Logger.Information($"LogoutUserHandler: [{request.Email}]");
         var user = await _userManager.FindByEmailAsync(request.Email);
         // user not found
-        if (user == null) {
+        if (user?.DeletedAt == null) {
             Log.Logger.Warning("User account not found");
             throw new UserNotFoundException(request.Email);
         }

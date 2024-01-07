@@ -109,5 +109,5 @@ public class Assets : BaseEntity, ISoftDeletable {
     public ICollection<ClientServersHasAssets> Servers { get; set; }
     public ICollection<ClientNetworksHasAssets> Networks { get; set; }
 
-    public DateTime? DeletedAt { get; }
+    public DateTime? DeletedAt { get; set; }
 }

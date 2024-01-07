@@ -42,7 +42,7 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
         Log.Logger.Information($"RequestOtpHandler: [{request.Provider},{request.CountryId}, {request.PhoneNumber}]");
         Log.Logger.Information("Start Prep for Sending SMS OTP");
         Log.Logger.Information($"Locating User By Phone: {request.CountryId}-{request.PhoneNumber}");
-        Countries? country = null;
+        Domain.Entities.Countries? country = null;
         if (IsIdentifyByPhoneNumber(request)) {
             country = await _countriesRepository.GetById(request.CountryId!.Value);
             if (country == null)
@@ -72,7 +72,7 @@ public class ForgetPasswordHandler : IRequestHandler<ForgotPasswordRequest, Requ
         return !string.IsNullOrEmpty(request.PhoneNumber) && request.CountryId != null && string.IsNullOrEmpty(request.Email);
     }
 
-    private void LoadProvider(Countries country, SMSProviders provider) {
+    private void LoadProvider(Domain.Entities.Countries country, SMSProviders provider) {
         Log.Logger.Information($"Loading Sms Provider: {provider}");
         switch (provider) {
             case SMSProviders.INFOU:

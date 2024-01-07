@@ -41,7 +41,7 @@ public class Clients : BaseEntity, ISoftDeletable {
     public ICollection<Clients> Children { get; set; }
 
     public ICollection<ClientContacts> Contacts { get; set; }
-    public DateTime? DeletedAt { get; }
+    public DateTime? DeletedAt { get; set; }
 
     public Client ToGql() {
         return new() {
@@ -53,7 +53,7 @@ public class Clients : BaseEntity, ISoftDeletable {
             Website = Website,
             Address = Address,
             City = City,
-            OwnerUserId = OwnerUserId,
+            OwnerUser = OwnerUser.ToGql(),
             CreatedAt = CreatedAt,
         };
     }

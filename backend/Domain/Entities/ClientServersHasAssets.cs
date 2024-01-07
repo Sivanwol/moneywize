@@ -15,5 +15,5 @@ public class ClientServersHasAssets : BaseEntityWithoutId, ISoftDeletable {
     public Assets Asset { get; set; }
 
     public DateTime? DisabledAt { get; set; }
-    public DateTime? DeletedAt { get; }
+    public DateTime? DeletedAt { get; set; }
 }

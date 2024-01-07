@@ -18,5 +18,5 @@ public class Providers : BaseEntity, ISoftDeletable {
     public ICollection<ProviderHasContact> Contacts { get; set; }
     public ICollection<ProviderHasCategories> Categories { get; set; }
     public DateTime? DisabledAt { get; set; }
-    public DateTime? DeletedAt { get; }
+    public DateTime? DeletedAt { get; set; }
 }

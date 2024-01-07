@@ -59,5 +59,5 @@ public class ClientContacts : BaseEntity, ISoftDeletable {
     [Column(TypeName = "text")]
     public string Notes { get; set; }
 
-    public DateTime? DeletedAt { get; }
+    public DateTime? DeletedAt { get; set; }
 }
