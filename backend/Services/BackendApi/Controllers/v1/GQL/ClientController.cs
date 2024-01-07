@@ -78,6 +78,7 @@ public class ClientController : BaseGraphController {
                 return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
             }
             await Mediator.Send(clientInput.ToProcessEntity(Guid.Parse(loggedUserId!),
+                clientId,
                 HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
                 HttpContext.Request.Headers["User-Agent"].ToString()));
             return Ok("ok");
@@ -147,7 +148,7 @@ public class ClientController : BaseGraphController {
     [Mutation("createClientContact", typeof(string))]
     [Description("Will create a new client contact")]
     public async Task<IGraphActionResult> CreateClientContact(
-        [FromGraphQL("client")] [Description("Client Contact Object input")]
+        [FromGraphQL("contact")] [Description("Client Contact Object input")]
         ClientContactInput clientContactInput
     ) {
         if (!ModelState.IsValid)
@@ -175,7 +176,7 @@ public class ClientController : BaseGraphController {
     public async Task<IGraphActionResult> UpdateClientContact(
         [FromGraphQL("clientContactId")] [Description("Client Contact Id")]
         int clientContactId,
-        [FromGraphQL("client")] [Description("Client Contact Object input")]
+        [FromGraphQL("contact")] [Description("Client Contact Object input")]
         ClientContactInput clientContactInput
     ) {
         if (!ModelState.IsValid)
@@ -223,6 +224,40 @@ public class ClientController : BaseGraphController {
                 UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
             });
             return Ok("ok");
+        }
+        catch (EntityNotFoundException e) {
+            Log.Logger.Error(e, e.Message);
+            return Error("Failed to find user");
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
+    }
+
+    [Query("getAllContracts", typeof(EntityPage<Client>))]
+    [Description("Will return the clients")]
+    public async Task<IGraphActionResult> GetClientContracts(
+        [FromGraphQL("clientId")] [Description("Client Id")]
+        int clientId,
+        [FromGraphQL("page")] [Description("Entity Page Data( paging , sorting , filtering )")]
+        EntityPage page) {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var validator = await _pageValidator.ValidateAsync(page);
+            if (!validator.IsValid) {
+                return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
+            }
+            var activities = await Mediator.Send(new GetClientsContactsRequest {
+                LoggedInUserId = Guid.Parse(loggedUserId!),
+                ClientId = clientId,
+                PageControl = page,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
+            });
+            return Ok(activities);
         }
         catch (EntityNotFoundException e) {
             Log.Logger.Error(e, e.Message);

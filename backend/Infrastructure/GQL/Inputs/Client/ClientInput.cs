@@ -52,4 +52,20 @@ public class ClientInput {
             IpAddress = ipAddress
         };
     }
+
+    public UpdateClientRequest ToProcessEntity(Guid loggedInUserId, int clientId, string userAgent, string ipAddress) {
+        return new UpdateClientRequest {
+            LoggedInUserId = loggedInUserId,
+            ClientId = clientId,
+            ParentId = ParentId,
+            Name = Name,
+            Description = Description,
+            Website = Website,
+            CountryId = CountryId,
+            Address = Address,
+            City = City,
+            UserAgent = userAgent,
+            IpAddress = ipAddress
+        };
+    }
 }

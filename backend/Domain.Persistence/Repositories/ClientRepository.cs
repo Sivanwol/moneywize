@@ -77,11 +77,21 @@ public class ClientRepository : BaseRepository, IClientRepository {
     }
     public async Task Delete(int clientId) {
         var clientRecord = await Context.Clients.FirstOrDefaultAsync(w => w.Id == clientId);
-        Context.Instance.Remove(clientRecord);
+        if (clientRecord == null) {
+            throw new EntityNotFoundException(nameof(Clients), clientId.ToString());
+        }
+        clientRecord.DeletedAt = DateTime.UtcNow;
+        Context.Instance.Update(clientRecord);
         await Context.Instance.SaveChangesAsync();
     }
-    public Task Restore(int clientId) {
-        throw new NotImplementedException();
+    public async Task Restore(int clientId) {
+        var clientRecord = Context.Clients.FirstOrDefault(w => w.Id == clientId && w.DeletedAt != null);
+        if (clientRecord == null) {
+            throw new EntityNotFoundException(nameof(Clients), clientId.ToString());
+        }
+        clientRecord.DeletedAt = null;
+        Context.Instance.Update(clientRecord);
+        await Context.Instance.SaveChangesAsync();
     }
     public async Task<bool> IsClientExists(int clientId) {
         var client = await Context.Clients.FirstOrDefaultAsync(w => w.Id == clientId);
@@ -136,8 +146,12 @@ public class ClientRepository : BaseRepository, IClientRepository {
         return entitiesCount;
     }
     public async Task<int> AddContact(int clientId, CreateClientContact clientContact) {
+        var client = await Context.Clients.FirstOrDefaultAsync(w => w.Id == clientId && w.DeletedAt == null);
+        if (client == null) {
+            throw new EntityNotFoundException(nameof(Clients), clientId.ToString());
+        }
         var clientContactRecord = new ClientContacts {
-            ClientId = clientId,
+            Client = client,
             FirstName = clientContact.FirstName,
             LastName = clientContact.LastName,
             Email = clientContact.Email,
