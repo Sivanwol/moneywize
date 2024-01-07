@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Application.Queries;
 using Domain.Entities.Common;
+using Infrastructure.GQL;
 namespace Domain.Entities;
 
 public class ClientContacts : BaseEntity, ISoftDeletable {
@@ -60,4 +61,28 @@ public class ClientContacts : BaseEntity, ISoftDeletable {
     public string Notes { get; set; }
 
     public DateTime? DeletedAt { get; set; }
+
+    public ClientContact ToGql() {
+        return new ClientContact() {
+            Id = Id,
+            Client = Client.ToGql(),
+            FirstName = FirstName,
+            LastName = LastName,
+            Email = Email,
+            Phone1 = Phone1,
+            Phone2 = Phone2,
+            Fax = Fax,
+            Whatsapp = Whatsapp,
+            Country = Country.ToGql(),
+            PostalCode = PostalCode,
+            Address = Address,
+            City = City,
+            State = State,
+            JobTitle = JobTitle,
+            Department = Department,
+            Company = Company,
+            Notes = Notes,
+            CreatedAt = CreatedAt
+        };
+    }
 }

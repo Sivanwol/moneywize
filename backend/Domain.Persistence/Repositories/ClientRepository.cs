@@ -1,3 +1,4 @@
+using Application.Exceptions;
 using Domain.DTO.Client;
 using Domain.Entities;
 using Domain.Filters;
@@ -11,12 +12,6 @@ public class ClientRepository : BaseRepository, IClientRepository {
     public ClientRepository(
         IDomainContext context
     ) : base(context) { }
-    public async Task<Clients?> GetByIdWithChildren(int id) {
-        var client = await Context.Clients
-            .Include(i => i.Children)
-            .FirstOrDefaultAsync(w => w.Id == id);
-        return client;
-    }
     public async Task<int> Add(CreateClient client) {
         var clientRecord = new Clients {
             OwnerUserId = client.OwnerUserId,
@@ -85,6 +80,9 @@ public class ClientRepository : BaseRepository, IClientRepository {
         Context.Instance.Remove(clientRecord);
         await Context.Instance.SaveChangesAsync();
     }
+    public Task Restore(int clientId) {
+        throw new NotImplementedException();
+    }
     public async Task<bool> IsClientExists(int clientId) {
         var client = await Context.Clients.FirstOrDefaultAsync(w => w.Id == clientId);
         return client != null;
@@ -97,15 +95,44 @@ public class ClientRepository : BaseRepository, IClientRepository {
 
         return await query.ToListAsync();
     }
+    public async Task<ICollection<Clients>> GetAll(RecordFilterPagination<ClientFilters> filter, bool onlyDeleted) {
+        var query = Context.Clients.AsQueryable();
+        query = filter.ApplyQuery(query);
+        if (onlyDeleted) {
+            query = query.Where(w => w.DeletedAt != null);
+        }
+        query = query.Include(i => i.Country);
+        query = query.Include(i => i.OwnerUser);
+
+        return await query.ToListAsync();
+    }
     public async Task<int> GetAllTotalPages(RecordFilterPagination<ClientFilters> filter) {
         var query = Context.Clients.AsQueryable();
         var entitiesCount = await filter.ApplyQueryWithoutPagination(query).Where(w => w.DeletedAt == null).CountAsync();
+        return (int)Math.Ceiling((double)entitiesCount / filter.PageSize);
+    }
+    public async Task<int> GetAllTotalPages(RecordFilterPagination<ClientFilters> filter, bool onlyDeleted) {
+        var query = Context.Clients.AsQueryable();
+        query = filter.ApplyQueryWithoutPagination(query);
+        if (onlyDeleted) {
+            query = query.Where(w => w.DeletedAt != null);
+        }
+        var entitiesCount = await query.CountAsync();
         return (int)Math.Ceiling((double)entitiesCount / filter.PageSize);
     }
     public async Task<int> GetAllCount(RecordFilterPagination<ClientFilters> filter) {
         var query = Context.Clients.AsQueryable();
         query = query.Where(w => w.DeletedAt == null);
         var entitiesCount = await filter.ApplyQueryWithoutPagination(query).Where(w => w.DeletedAt == null).CountAsync();
+        return entitiesCount;
+    }
+    public async Task<int> GetAllCount(RecordFilterPagination<ClientFilters> filter, bool onlyDeleted) {
+        var query = Context.Clients.AsQueryable();
+        query = filter.ApplyQueryWithoutPagination(query);
+        if (onlyDeleted) {
+            query = query.Where(w => w.DeletedAt != null);
+        }
+        var entitiesCount = await query.CountAsync();
         return entitiesCount;
     }
     public async Task<int> AddContact(int clientId, CreateClientContact clientContact) {
@@ -157,27 +184,97 @@ public class ClientRepository : BaseRepository, IClientRepository {
         await Context.Instance.SaveChangesAsync();
     }
     public async Task DeleteContact(int clientId, int clientContactId) {
-        var clientContactRecord = await Context.ClientContacts.FirstOrDefaultAsync(w => w.Id == clientContactId && w.ClientId == clientId);
+        var clientContactRecord = Context.ClientContacts.FirstOrDefault(w => w.Id == clientContactId && w.ClientId == clientId);
         Context.Instance.Remove(clientContactRecord);
         await Context.Instance.SaveChangesAsync();
     }
+    public async Task RestoreContact(int clientId, int clientContactId) {
+        var clientContactRecord = Context.ClientContacts.FirstOrDefault(w => w.Id == clientContactId && w.ClientId == clientId && w.DeletedAt != null);
+        if (clientContactRecord == null) {
+            throw new EntityNotFoundException(nameof(ClientContacts), clientContactId.ToString());
+        }
+        clientContactRecord.DeletedAt = null;
+        Context.Instance.Update(clientContactRecord);
+        await Context.Instance.SaveChangesAsync();
+    }
+
+    public Task DeleteAllContacts(int clientId) {
+        var clientContactRecord = Context.ClientContacts.Where(w => w.ClientId == clientId);
+        foreach (var clientContact in clientContactRecord) {
+            clientContact.DeletedAt = DateTime.UtcNow;
+        }
+        Context.Instance.UpdateRange(clientContactRecord);
+        return Context.Instance.SaveChangesAsync();
+    }
+
+    public async Task RestoreAllContacts(int clientId) {
+        var clientContactRecord = Context.ClientContacts.Where(w => w.ClientId == clientId && w.DeletedAt != null);
+        foreach (var clientContact in clientContactRecord) {
+            clientContact.DeletedAt = null;
+        }
+        Context.Instance.UpdateRange(clientContactRecord);
+        await Context.Instance.SaveChangesAsync();
+    }
+
+    public async Task ClearClientSoftDeleted() {
+        // fetch all soft deleted clients from two weeks  and delete them
+        var clients = Context.Clients.Where(w => w.DeletedAt != null && w.DeletedAt <= DateTime.UtcNow.AddDays(-14));
+        Context.Instance.RemoveRange(clients);
+        await Context.Instance.SaveChangesAsync();
+    }
+
+    public async Task ClearClientContactSoftDeleted() {
+        var clientContacts = Context.ClientContacts.Where(w => w.DeletedAt != null && w.DeletedAt <= DateTime.UtcNow.AddDays(-14));
+        Context.Instance.RemoveRange(clientContacts);
+        await Context.Instance.SaveChangesAsync();
+    }
+
     public async Task<ICollection<ClientContacts>> GetClientContactsAll(int clientId, RecordFilterPagination<ClientContactsFilters> filter) {
         var query = Context.ClientContacts.AsQueryable();
         query = query.Where(w => w.DeletedAt == null && w.ClientId == clientId);
         query = filter.ApplyQuery(query);
         return await query.ToListAsync();
     }
+    public async Task<ICollection<ClientContacts>> GetClientContactsAll(int clientId, RecordFilterPagination<ClientContactsFilters> filter, bool onlyDeleted) {
+        var query = Context.ClientContacts.AsQueryable();
+        query = filter.ApplyQuery(query);
+        query = query.Where(w => w.ClientId == clientId);
+        if (onlyDeleted) {
+            query = query.Where(w => w.DeletedAt != null);
+        }
+        return await query.ToListAsync();
+    }
     public async Task<int> GetClientContactsAllTotalPages(int clientId, RecordFilterPagination<ClientContactsFilters> filter) {
         var query = Context.ClientContacts.AsQueryable();
-        query = query.Where(w => w.DeletedAt == null && w.ClientId == clientId);
         query = filter.ApplyQuery(query);
+        query = query.Where(w => w.DeletedAt == null && w.ClientId == clientId);
         return (int)Math.Ceiling((double)await query.CountAsync() / filter.PageSize);
+    }
+    public async Task<int> GetClientContactsAllTotalPages(int clientId, RecordFilterPagination<ClientContactsFilters> filter, bool onlyDeleted) {
+        var query = Context.ClientContacts.AsQueryable();
+        query = filter.ApplyQuery(query);
+        query = query.Where(w => w.ClientId == clientId);
+        if (onlyDeleted) {
+            query = query.Where(w => w.DeletedAt != null);
+        }
+
+        return await query.CountAsync();
     }
     public async Task<int> GetClientContactsAllCount(int clientId, RecordFilterPagination<ClientContactsFilters> filter) {
         var query = Context.ClientContacts.AsQueryable();
         query = query.Where(w => w.DeletedAt == null && w.ClientId == clientId);
         query = filter.ApplyQuery(query);
         return await query.CountAsync();
+    }
+    public async Task<int> GetClientContactsAllCount(int clientId, RecordFilterPagination<ClientContactsFilters> filter, bool onlyDeleted) {
+        var query = Context.ClientContacts.AsQueryable();
+        query = filter.ApplyQuery(query);
+        query = query.Where(w => w.ClientId == clientId);
+        if (onlyDeleted) {
+            query = query.Where(w => w.DeletedAt != null);
+        }
+        return await query.CountAsync();
+
     }
     public async Task<Clients?> GetById(int id) {
         var client = await Context.Clients.FirstOrDefaultAsync(w => w.Id == id);
@@ -186,6 +283,12 @@ public class ClientRepository : BaseRepository, IClientRepository {
     public async Task<ClientContacts?> GetClientContactById(int clientId, int clientContactId) {
         var clientContact = await Context.ClientContacts.FirstOrDefaultAsync(w => w.Id == clientContactId && w.ClientId == clientId);
         return clientContact;
+    }
+    public async Task<Clients?> GetByIdWithChildren(int id) {
+        var client = await Context.Clients
+            .Include(i => i.Children)
+            .FirstOrDefaultAsync(w => w.Id == id);
+        return client;
     }
     public async Task<bool> IsClientContactExists(int clientId, string firstName, string lastName) {
         var clientContact =

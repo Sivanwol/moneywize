@@ -44,7 +44,7 @@ public class UserController : BaseGraphController {
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);
-            return Error("Something went wrong");
+            return Error(e.Message);
         }
     }
 
@@ -77,7 +77,7 @@ public class UserController : BaseGraphController {
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);
-            return Error("Something went wrong");
+            return Error(e.Message);
         }
     }
 
@@ -98,27 +98,21 @@ public class UserController : BaseGraphController {
             if (!validator.IsValid) {
                 return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
             }
-            try {
-                var activities = await Mediator.Send(new GetUsersRequest {
-                    LoggedInUserId = Guid.Parse(loggedUserId!),
-                    PageControl = page,
-                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
-                    UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
-                });
-                return Ok(activities);
-            }
-            catch (EntityNotFoundException e) {
-                Log.Logger.Error(e, e.Message);
-                return Error("Failed to find user");
-            }
-            catch (Exception e) {
-                Log.Logger.Error(e, e.Message);
-                return Error("Something went wrong");
-            }
+            var activities = await Mediator.Send(new GetUsersRequest {
+                LoggedInUserId = Guid.Parse(loggedUserId!),
+                PageControl = page,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
+            });
+            return Ok(activities);
+        }
+        catch (EntityNotFoundException e) {
+            Log.Logger.Error(e, e.Message);
+            return Error("Failed to find user");
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);
-            return Error("Something went wrong");
+            return Error(e.Message);
         }
     }
 
@@ -141,26 +135,20 @@ public class UserController : BaseGraphController {
             if (!validator.IsValid) {
                 return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
             }
-            try {
-                var activities = await Mediator.Send(new UserActivityRequest {
-                    UserId = userId,
-                    LoggedInUserId = Guid.Parse(loggedUserId!),
-                    PageControl = page
-                });
-                return Ok(activities);
-            }
-            catch (EntityNotFoundException e) {
-                Log.Logger.Error(e, e.Message);
-                return Error("Failed to find user");
-            }
-            catch (Exception e) {
-                Log.Logger.Error(e, e.Message);
-                return Error("Something went wrong");
-            }
+            var activities = await Mediator.Send(new UserActivityRequest {
+                UserId = userId,
+                LoggedInUserId = Guid.Parse(loggedUserId!),
+                PageControl = page
+            });
+            return Ok(activities);
+        }
+        catch (EntityNotFoundException e) {
+            Log.Logger.Error(e, e.Message);
+            return Error("Failed to find user");
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);
-            return Error("Something went wrong");
+            return Error(e.Message);
         }
     }
 }

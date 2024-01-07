@@ -35,10 +35,10 @@ public class CreateClientHandler : IRequestHandler<CreateClientRequest> {
     }
     public async Task Handle(CreateClientRequest request, CancellationToken cancellationToken) {
         await ValidateRequest(request);
-        Log.Logger.Information($"CreateClientHandler: Clear Cache");
+        Log.Logger.Information($"CreateClientHandler: been trigger");
         var cacheKey = Cache.GetKey("Clients:List");
         await _cacheService.RemovePatternAsync(cacheKey);
-        Log.Logger.Information($"CreateClientHandler: Register new client");
+        Log.Logger.Information($"Register new client");
         var client = new CreateClient {
             OwnerUserId = request.LoggedInUserId.ToString(),
             Name = request.Name,
@@ -67,12 +67,12 @@ public class CreateClientHandler : IRequestHandler<CreateClientRequest> {
 
     private async Task ValidateRequest(CreateClientRequest request) {
         if (Guid.Empty == request.LoggedInUserId) {
-            Log.Logger.Error($"GetUserProfileHandler: Logged in User Id is Invalid");
+            Log.Logger.Error($"Logged in User Id is Invalid");
             throw new EntityNotFoundException(nameof(ApplicationUser), request.LoggedInUserId.ToString());
         }
         var loggedUser = await _applicationUserRepository.GetById(request.LoggedInUserId);
         if (loggedUser == null) {
-            Log.Logger.Error($"GetUserProfileHandler: Logged user not found");
+            Log.Logger.Error($"Logged user not found");
             throw new EntityNotFoundException(nameof(ApplicationUser), request.LoggedInUserId.ToString());
         }
         var loggedRoles = await _userManager.GetRolesAsync(loggedUser);
@@ -80,19 +80,19 @@ public class CreateClientHandler : IRequestHandler<CreateClientRequest> {
             Roles.Admin
         };
         if (!matchedRoles.Any(x => loggedRoles.Contains(x))) {
-            Log.Logger.Error($"GetUserProfileHandler: User not authorized");
+            Log.Logger.Error($"User not authorized");
             throw new AuthorizationException();
         }
 
         var country = await _countriesRepository.GetById(request.CountryId);
         if (country?.SupportedAt == null) {
-            Log.Logger.Error($"GetUserProfileHandler: Country not found");
+            Log.Logger.Error($"Country not found");
             throw new EntityNotFoundException(nameof(Countries), request.CountryId.ToString());
         }
         if (request.ParentId.HasValue) {
             var parent = await _clientRepository.GetById(request.ParentId.Value);
             if (parent == null) {
-                Log.Logger.Error($"GetUserProfileHandler: Parent not found");
+                Log.Logger.Error($"Parent not found");
                 throw new EntityNotFoundException(nameof(Clients), request.ParentId.Value.ToString());
             }
         }

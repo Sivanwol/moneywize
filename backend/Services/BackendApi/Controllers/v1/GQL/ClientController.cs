@@ -21,14 +21,17 @@ namespace BackendApi.Controllers.v1.GQL;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [GraphRoute("clients")]
 public class ClientController : BaseGraphController {
+    private readonly IValidator<ClientContactInput> _createClientContactValidator;
     private readonly IValidator<ClientInput> _createClientValidator;
     private readonly IValidator<EntityPage> _pageValidator;
     public ClientController(
         IMediator _mediator,
         BackendApplicationConfig _configuration,
         IValidator<EntityPage> pageValidator,
+        IValidator<ClientContactInput> createClientContactValidator,
         IValidator<ClientInput> createClientValidator
     ) : base(_mediator, _configuration) {
+        _createClientContactValidator = createClientContactValidator;
         _createClientValidator = createClientValidator;
         _pageValidator = pageValidator;
     }
@@ -36,7 +39,7 @@ public class ClientController : BaseGraphController {
     [Mutation("createClient", typeof(string))]
     [Description("Will create a new client")]
     public async Task<IGraphActionResult> CreateClient(
-        [FromGraphQL("client")] [Description("Client Create Object input")]
+        [FromGraphQL("client")] [Description("Client object input")]
         ClientInput clientInput
     ) {
         if (!ModelState.IsValid)
@@ -47,20 +50,14 @@ public class ClientController : BaseGraphController {
             if (!validator.IsValid) {
                 return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
             }
-            try {
-                await Mediator.Send(clientInput.ToProcessEntity(Guid.Parse(loggedUserId!),
-                    HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
-                    HttpContext.Request.Headers["User-Agent"].ToString()));
-                return Ok("ok");
-            }
-            catch (Exception e) {
-                Log.Logger.Error(e, e.Message);
-                return Error("Something went wrong");
-            }
+            await Mediator.Send(clientInput.ToProcessEntity(Guid.Parse(loggedUserId!),
+                HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                HttpContext.Request.Headers["User-Agent"].ToString()));
+            return Ok("ok");
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);
-            return Error("Something went wrong");
+            return Error(e.Message);
         }
     }
 
@@ -69,7 +66,7 @@ public class ClientController : BaseGraphController {
     public async Task<IGraphActionResult> UpdateClient(
         [FromGraphQL("clientId")] [Description("Client Id")]
         int clientId,
-        [FromGraphQL("client")] [Description("Client Create Object input")]
+        [FromGraphQL("client")] [Description("Client Object input")]
         ClientInput clientInput
     ) {
         if (!ModelState.IsValid)
@@ -80,20 +77,14 @@ public class ClientController : BaseGraphController {
             if (!validator.IsValid) {
                 return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
             }
-            try {
-                await Mediator.Send(clientInput.ToProcessEntity(Guid.Parse(loggedUserId!),
-                    HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
-                    HttpContext.Request.Headers["User-Agent"].ToString()));
-                return Ok("ok");
-            }
-            catch (Exception e) {
-                Log.Logger.Error(e, e.Message);
-                return Error("Something went wrong");
-            }
+            await Mediator.Send(clientInput.ToProcessEntity(Guid.Parse(loggedUserId!),
+                HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                HttpContext.Request.Headers["User-Agent"].ToString()));
+            return Ok("ok");
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);
-            return Error("Something went wrong");
+            return Error(e.Message);
         }
     }
 
@@ -107,23 +98,17 @@ public class ClientController : BaseGraphController {
             return BadRequest(ModelState);
         try {
             var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            try {
-                await Mediator.Send(new DeleteClientRequest() {
-                    LoggedInUserId = Guid.Parse(loggedUserId!),
-                    ClientId = clientId,
-                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
-                    UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
-                });
-                return Ok("ok");
-            }
-            catch (Exception e) {
-                Log.Logger.Error(e, e.Message);
-                return Error("Something went wrong");
-            }
+            await Mediator.Send(new DeleteClientRequest() {
+                LoggedInUserId = Guid.Parse(loggedUserId!),
+                ClientId = clientId,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
+            });
+            return Ok("ok");
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);
-            return Error("Something went wrong");
+            return Error(e.Message);
         }
     }
 
@@ -141,27 +126,111 @@ public class ClientController : BaseGraphController {
             if (!validator.IsValid) {
                 return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
             }
-            try {
-                var activities = await Mediator.Send(new GetClientsRequest {
-                    LoggedInUserId = Guid.Parse(loggedUserId!),
-                    PageControl = page,
-                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
-                    UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
-                });
-                return Ok(activities);
-            }
-            catch (EntityNotFoundException e) {
-                Log.Logger.Error(e, e.Message);
-                return Error("Failed to find user");
-            }
-            catch (Exception e) {
-                Log.Logger.Error(e, e.Message);
-                return Error("Something went wrong");
-            }
+            var activities = await Mediator.Send(new GetClientsRequest {
+                LoggedInUserId = Guid.Parse(loggedUserId!),
+                PageControl = page,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
+            });
+            return Ok(activities);
+        }
+        catch (EntityNotFoundException e) {
+            Log.Logger.Error(e, e.Message);
+            return Error("Failed to find user");
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);
-            return Error("Something went wrong");
+            return Error(e.Message);
+        }
+    }
+
+    [Mutation("createClientContact", typeof(string))]
+    [Description("Will create a new client contact")]
+    public async Task<IGraphActionResult> CreateClientContact(
+        [FromGraphQL("client")] [Description("Client Contact Object input")]
+        ClientContactInput clientContactInput
+    ) {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var validator = await _createClientContactValidator.ValidateAsync(clientContactInput);
+            if (!validator.IsValid) {
+                return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
+            }
+            await Mediator.Send(clientContactInput.ToProcessEntity(Guid.Parse(loggedUserId!),
+                HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                HttpContext.Request.Headers["User-Agent"].ToString()));
+            return Ok("ok");
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
+    }
+
+    [Mutation("updateClientContact", typeof(string))]
+    [Description("Will update an existing client contact")]
+    public async Task<IGraphActionResult> UpdateClientContact(
+        [FromGraphQL("clientContactId")] [Description("Client Contact Id")]
+        int clientContactId,
+        [FromGraphQL("client")] [Description("Client Contact Object input")]
+        ClientContactInput clientContactInput
+    ) {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var validator = await _createClientContactValidator.ValidateAsync(clientContactInput);
+            if (!validator.IsValid) {
+                return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
+            }
+            await Mediator.Send(clientContactInput.ToProcessEntity(Guid.Parse(loggedUserId!),
+                clientContactId,
+                HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                HttpContext.Request.Headers["User-Agent"].ToString()));
+            return Ok("ok");
+        }
+        catch (EntityNotFoundException e) {
+            Log.Logger.Error(e, e.Message);
+            return Error("Failed to find user");
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
+    }
+
+
+    [Mutation("deleteClientContact", typeof(string))]
+    [Description("Will delete a client contact")]
+    public async Task<IGraphActionResult> DeleteClientContact(
+        [FromGraphQL("clientId")] [Description("Client Id")]
+        int clientId,
+        [FromGraphQL("clientContactId")] [Description("Client Contact Id")]
+        int clientContactId
+    ) {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await Mediator.Send(new DeleteClientContactRequest() {
+                LoggedInUserId = Guid.Parse(loggedUserId!),
+                ClientId = clientId,
+                ClientContactId = clientContactId,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
+            });
+            return Ok("ok");
+        }
+        catch (EntityNotFoundException e) {
+            Log.Logger.Error(e, e.Message);
+            return Error("Failed to find user");
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
         }
     }
 }

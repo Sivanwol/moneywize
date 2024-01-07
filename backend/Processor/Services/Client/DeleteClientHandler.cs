@@ -31,16 +31,16 @@ public class DeleteClientHandler : IRequestHandler<DeleteClientRequest> {
     }
     public async Task Handle(DeleteClientRequest request, CancellationToken cancellationToken) {
         await ValidateRequest(request);
-        Log.Logger.Information($"CreateClientHandler: Clear Cache");
+        Log.Logger.Information($"DeleteClientHandler: been trigger");
         var cacheKey = Cache.GetKey("Clients:List");
         await _cacheService.RemovePatternAsync(cacheKey);
-        Log.Logger.Information($"CreateClientHandler: Register new client");
+        Log.Logger.Information($"Register new client");
         await _clientRepository.Delete(request.ClientId);
         await _activityLogRepository.AddActivity(
             request.LoggedInUserId,
             request.ClientId.ToString(),
             nameof(Clients),
-            ActivityLogOperationType.ClientCreate,
+            ActivityLogOperationType.ClientDelete,
             $"Client {request.ClientId} deleted",
             ActivityStatus.Success,
             request.IpAddress,
@@ -49,12 +49,12 @@ public class DeleteClientHandler : IRequestHandler<DeleteClientRequest> {
 
     private async Task ValidateRequest(DeleteClientRequest request) {
         if (Guid.Empty == request.LoggedInUserId) {
-            Log.Logger.Error($"GetUserProfileHandler: Logged in User Id is Invalid");
+            Log.Logger.Error($"Logged in User Id is Invalid");
             throw new EntityNotFoundException(nameof(ApplicationUser), request.LoggedInUserId.ToString());
         }
         var loggedUser = await _applicationUserRepository.GetById(request.LoggedInUserId);
         if (loggedUser == null) {
-            Log.Logger.Error($"GetUserProfileHandler: Logged user not found");
+            Log.Logger.Error($"Logged user not found");
             throw new EntityNotFoundException(nameof(ApplicationUser), request.LoggedInUserId.ToString());
         }
         var loggedRoles = await _userManager.GetRolesAsync(loggedUser);
@@ -62,12 +62,12 @@ public class DeleteClientHandler : IRequestHandler<DeleteClientRequest> {
             Roles.Admin
         };
         if (!matchedRoles.Any(x => loggedRoles.Contains(x))) {
-            Log.Logger.Error($"GetUserProfileHandler: User not authorized");
+            Log.Logger.Error($"User not authorized");
             throw new AuthorizationException();
         }
         var client = await _clientRepository.GetById(request.ClientId);
         if (client == null) {
-            Log.Logger.Error($"GetUserProfileHandler: Client not found");
+            Log.Logger.Error($"Client not found");
             throw new EntityNotFoundException(nameof(Clients), request.ClientId.ToString());
         }
     }

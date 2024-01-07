@@ -41,6 +41,7 @@ public class GetAllHandler : IRequestHandler<GetClientsRequest, EntityPage<Infra
         _clientRepository = clientRepository;
     }
     public async Task<EntityPage<Infrastructure.GQL.Client>> Handle(GetClientsRequest request, CancellationToken cancellationToken) {
+        Log.Logger.Information($"GetAllHandler: been trigger");
         await ValidateRequest(request);
         var cacheKey = Cache.GetKey($"Clients:List:{StringExtensions.CreateMD5Hash(JsonConvert.SerializeObject(request))}");
         var cacheExist = await _cacheService.IsExistAsync(cacheKey);
@@ -78,12 +79,12 @@ public class GetAllHandler : IRequestHandler<GetClientsRequest, EntityPage<Infra
 
     private async Task ValidateRequest(GetClientsRequest request) {
         if (Guid.Empty == request.LoggedInUserId) {
-            Log.Logger.Error($"GetUserProfileHandler: Logged in User Id is Invalid");
+            Log.Logger.Error($"Logged in User Id is Invalid");
             throw new EntityNotFoundException(nameof(ApplicationUser), request.LoggedInUserId.ToString());
         }
         var loggedUser = await _applicationUserRepository.GetById(request.LoggedInUserId);
         if (loggedUser == null) {
-            Log.Logger.Error($"GetUserProfileHandler: Logged user not found");
+            Log.Logger.Error($"Logged user not found");
             throw new EntityNotFoundException(nameof(ApplicationUser), request.LoggedInUserId.ToString());
         }
         var loggedRoles = await _userManager.GetRolesAsync(loggedUser);
@@ -92,7 +93,7 @@ public class GetAllHandler : IRequestHandler<GetClientsRequest, EntityPage<Infra
             Roles.IT
         };
         if (!matchedRoles.Any(x => loggedRoles.Contains(x))) {
-            Log.Logger.Error($"GetUserProfileHandler: User not authorized");
+            Log.Logger.Error($"User not authorized");
             throw new AuthorizationException();
         }
     }
