@@ -32,12 +32,12 @@
 					loaded = false;
 					return;
 				}
-				const { otpToken, userToken, otpExpire } = response.data;
+				const { OTPToken, UserToken, OTPExpired } = response.data;
 				dispatch('login', {
 					error: null,
-					otpToken: otpToken,
-					userToken: userToken,
-					otpExpire: otpExpire
+					otpToken: OTPToken,
+					userToken: UserToken,
+					otpExpire: OTPExpired
 				});
 
 			} catch (e) {

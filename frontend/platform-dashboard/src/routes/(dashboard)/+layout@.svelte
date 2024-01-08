@@ -100,9 +100,7 @@
 			<div class=" mx-[30px] -z-[1] min-h-[calc(100vh-195px)] mb-[30px] ssm:mt-[30px] mt-[15px]">
 				<div class="grid grid-cols-12 gap-5">
 					<div class="col-span-12">
-						<div class="p-[25px] bg-dark rounded-10 dark:bg-box-dark ">
-							<slot />
-						</div>
+						<slot />
 					</div>
 				</div>
 			</div>

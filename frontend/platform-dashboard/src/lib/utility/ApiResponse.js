@@ -1,9 +1,9 @@
 export class ApiResponse {
 	constructor(response) {
 		this.statusCode = response.status;
-		this.errors = response.data.errors;
-		this.status = response.data.status;
-		this.data = response.data.data;
+		this.errors = response.data.Errors;
+		this.status = response.data.Status;
+		this.data = response.data.Data;
 	}
 
 	/** @returns {boolean} */

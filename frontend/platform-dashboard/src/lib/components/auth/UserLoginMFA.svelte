@@ -33,11 +33,11 @@
 					});
 					return;
 				}
-				const { tokens, userId } = response.data;
+				const { Tokens, UserId } = response.data;
 				dispatch('loginMfa', {
 					error: null,
-					tokens,
-					userId
+					tokens: Tokens,
+					userId: UserId
 				});
 
 			} catch (e) {

@@ -1,6 +1,6 @@
 <script>
 	import { InfoCircleSolid } from 'flowbite-svelte-icons';
-	import { Button, Card } from 'flowbite-svelte';
+	import { Breadcrumb, BreadcrumbItem, Button, Card } from 'flowbite-svelte';
 	import PropDrawer from '@components/common/PropDrawer.svelte';
 	import { createEventDispatcher } from 'svelte';
 
@@ -14,13 +14,21 @@
 		}
 	}
 </script>
-
-<!-- Content -->
-<div class="ml-4 mr-4 w-full bg-gray-700 p-4">
-	<div class="flex flex-col bg-gray-800 text-white">
-		<div>Hello world</div>
-		<div class="flex-grow">
-			<Button color="dark" on:click={handlePropDrawerToggle} outline>Toggle Prop Draw</Button>
+<div
+	class="px-[25px] text-dark dark:text-title-dark font-medium text-[17px] flex flex-wrap items-center justify-between max-sm:flex-col max-sm:h-auto border-b border-regular dark:border-white/10 mb-10">
+	<Breadcrumb aria-label="Default breadcrumb example">
+		<BreadcrumbItem home href="/platform/main">Home</BreadcrumbItem>
+		<BreadcrumbItem>Dashboard</BreadcrumbItem>
+	</Breadcrumb>
+</div>
+<div class="p-[25px] bg-dark rounded-10 dark:bg-box-dark ">
+	<!-- Content -->
+	<div class="ml-4 mr-4 w-full bg-gray-700 p-4">
+		<div class="flex flex-col text-white">
+			<div>Hello world</div>
+			<div class="flex-grow">
+				<Button color="dark" on:click={handlePropDrawerToggle} outline>Toggle Prop Draw</Button>
+			</div>
 		</div>
 	</div>
 </div>
