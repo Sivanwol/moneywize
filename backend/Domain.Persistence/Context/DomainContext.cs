@@ -117,6 +117,7 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
         }).IsUnique();
 
         builder.Entity<ConfigurableUserView>().Property(x => x.Settings).HasColumnType("json");
+        builder.Entity<ConfigurableUserView>().Property(x => x.Permissions).HasColumnType("json");
         builder.Entity<ConfigurableUserView>().HasIndex(x => new {
             x.UserId,
             x.Name

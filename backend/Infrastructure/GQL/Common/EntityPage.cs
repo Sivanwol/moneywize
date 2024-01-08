@@ -15,6 +15,9 @@ public class EntityPage<T> where T : class {
     [Description("Do we have a previous page")]
     public bool HasPreviousPage { get; set; }
 
+    [Description("View definition")]
+    public View ViewDefinition { get; set; }
+
     [Description("Records of the entity")]
     public IEnumerable<T> Records { get; set; } = new List<T>();
 }

@@ -1,3 +1,4 @@
+using Application.Utils;
 using FluentValidation;
 using Infrastructure.GQL.Inputs.Common;
 namespace Infrastructure.Validators.Common;
@@ -10,11 +11,13 @@ public class EntityPageValidator : AbstractValidator<EntityPage> {
         RuleFor(x => x.PageSize)
             .IsInEnum()
             .WithMessage("PageSize is not valid");
-        RuleFor(x => x.ViewId)
+        RuleFor(x => x.ViewClientIdId)
             .NotEmpty()
-            .WithMessage("ViewId is required")
-            .GreaterThan(0)
-            .WithMessage("ViewId must be greater than 0");
+            .WithMessage("ViewClientIdId is required")
+            .IsGuid()
+            .WithMessage("ViewClientIdId is not valid")
+            .NotEqual(Guid.Empty)
+            .WithMessage("ViewClientIdId is required");
         RuleFor(x => x.SortByField)
             .NotEmpty()
             .WithMessage("SortByField is required")

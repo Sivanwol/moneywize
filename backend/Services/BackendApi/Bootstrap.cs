@@ -137,6 +137,8 @@ public class Bootstrap {
                 schemaOptions.AddType<FilterOperations>();
                 schemaOptions.AddType<PageSize>();
                 schemaOptions.AddType<EntityColumnOperationType>();
+                schemaOptions.AddType<EntityColumnDataType>();
+
             });
             if (Environment.IsProduction()) {
                 services.AddGraphQLLocalQueryCache();

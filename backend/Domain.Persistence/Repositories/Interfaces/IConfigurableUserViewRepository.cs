@@ -1,13 +1,11 @@
-using Domain.DTO.ConfigurableEntities;
 using Domain.Entities;
+using Infrastructure.GQL;
 namespace Domain.Persistence.Repositories.Interfaces;
 
 public interface IConfigurableUserViewRepository {
-    public Task<ConfigurableUserView?> GetConfigurableUserView(string userId, int viewId);
-    public Task<ConfigurableUserView?> GetConfigurableUserView(int viewId);
-    public Task<bool> HasViewExist(string userId, int viewId);
-    public Task<bool> HasViewDefault(int viewId);
-    public Task<IEnumerable<ConfigurableUserViewColumn>> GetConfigurableViewColumns(string userId, int viewId);
-    public Task<IEnumerable<ConfigurableUserViewColumn>> GetConfigurableViewColumns(int viewId);
-    public Task<IEnumerable<ConfigurableUserViewColumn>> GetViewColumns(string userId, int viewId);
+    public Task<bool> HasViewExist(string userId, Guid viewClientId);
+    public Task<bool> HasViewDefault(Guid viewClientId);
+    public Task<ICollection<ViewColumn>> GetConfigurableViewColumns(ConfigurableUserView view, List<string>? permissions = null);
+    public Task<View> GetViewDefinition(string userId, Guid viewClientId, List<string>? permissions = null);
+    public Task<ICollection<View>> GetViews(string userId, List<string>? permissions = null);
 }

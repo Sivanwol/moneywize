@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
-using Domain.DTO.ConfigurableEntities;
 using Domain.Entities;
 using Domain.Filters.Common;
 using Domain.Filters.Fields;
 using Infrastructure.Enums;
+using Infrastructure.GQL;
 using LinqKit;
 namespace Domain.Filters;
 
@@ -32,7 +32,7 @@ public class ApplicationUserFilters : BaseFilters {
                Addressilters.Any();
     }
     public override IQueryable<T> ApplyFilters<T>(IQueryable<T> query, FilterCollectionOperation filterCollectionOperation,
-        IEnumerable<ConfigurableUserViewColumn> SelectedColumns) {
+        IEnumerable<ViewColumn> SelectedColumns) {
 
         if (!HasAnyFilter()) {
             return query;

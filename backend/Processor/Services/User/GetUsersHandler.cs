@@ -8,6 +8,7 @@ using Domain.Filters.Fields;
 using Domain.Persistence.Repositories.Interfaces;
 using EasyCaching.Core;
 using Infrastructure.Enums;
+using Infrastructure.GQL;
 using Infrastructure.GQL.Common;
 using Infrastructure.Requests.Processor.Services.User;
 using Infrastructure.Services.Cache;
@@ -53,7 +54,8 @@ public class GetUsersHandler : IRequestHandler<GetUsersRequest, EntityPage<Infra
             }
         }
 
-        var pageFilter = await BuildPageFilter(request);
+        var view = await _configurableUserViewRepository.GetViewDefinition(request.LoggedInUserId.ToString(), request.PageControl.ViewClientIdId);
+        var pageFilter = await BuildPageFilter(request, view);
         var entities = await _applicationUserRepository.GetUsers(pageFilter);
         // we enrich the entities (that are user records with roles if it has any
         var users = new List<Infrastructure.GQL.User>();
@@ -70,6 +72,7 @@ public class GetUsersHandler : IRequestHandler<GetUsersRequest, EntityPage<Infra
             TotalRecords = totalRecords,
             HasPreviousPage = (totalPages > 1 && pageFilter.Page > 1),
             HasNextPage = (totalPages > pageFilter.Page),
+            ViewDefinition = view,
             Records = users
         };
         await _cacheService.RegisterAsync(cacheKey, records);
@@ -96,15 +99,14 @@ public class GetUsersHandler : IRequestHandler<GetUsersRequest, EntityPage<Infra
         }
     }
 
-    private async Task<RecordFilterPagination<ApplicationUserFilters>> BuildPageFilter(GetUsersRequest request) {
-        var columns = await _configurableUserViewRepository.GetViewColumns(request.LoggedInUserId.ToString(), request.PageControl.ViewId);
+    private async Task<RecordFilterPagination<ApplicationUserFilters>> BuildPageFilter(GetUsersRequest request, View view) {
         var pageFilter = new RecordFilterPagination<ApplicationUserFilters>() {
             Page = request.PageControl.Page,
             PageSize = (int)request.PageControl.PageSize,
             SortByField = request.PageControl.SortByField!,
             SortDirection = request.PageControl.SortDirection,
             FilterCollectionOperation = request.PageControl.FilterCollectionOperation,
-            SelectedColumns = columns
+            SelectedColumns = view.Columns
         };
 
         foreach (var filter in request.PageControl.Filters) {
