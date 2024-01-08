@@ -3,7 +3,6 @@ namespace Infrastructure.GQL;
 public class View {
     public Guid ClientKey { get; set; }
     public User User { get; set; }
-    public Guid ClientId { get; set; }
     public string Name { get; set; }
     public string? Description { get; set; }
     public bool IsShareAble { get; set; }

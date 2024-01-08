@@ -1,12 +1,16 @@
 using System.ComponentModel;
+using System.Security.Claims;
 using Application.Configs;
 using Application.Utils.Service;
 using GraphQL.AspNet.Attributes;
+using GraphQL.AspNet.Interfaces.Controllers;
 using Infrastructure.GQL;
 using Infrastructure.Requests.Processor.Services.Countries;
+using Infrastructure.Requests.Processor.Services.Views;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Serilog;
 namespace BackendApi.Controllers.v1.GQL;
 
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -16,8 +20,29 @@ public class GeneralController : BaseGraphController {
 
     [Query("getCountries", typeof(IEnumerable<Country>))]
     [Description("Get all suported countries")]
-    [AllowAnonymous]
-    public async Task<IEnumerable<Country>> GetCountries() {
-        return await Mediator.Send(new GetCountriesRequest());
+    public async Task<IGraphActionResult> GetCountries() {
+        try {
+            return Ok(await Mediator.Send(new GetCountriesRequest()));
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
+    }
+
+    [Query("getViews", typeof(IEnumerable<View>))]
+    [Description("Get all views of the user and default views")]
+    public async Task<IGraphActionResult> GetViews() {
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var views = await Mediator.Send(new GetViewsRequest {
+                UserId = loggedUserId!
+            });
+            return Ok(views);
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
     }
 }
