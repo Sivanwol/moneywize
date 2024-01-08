@@ -39,7 +39,7 @@ public class UpdateClientContactHandler : IRequestHandler<UpdateClientContractRe
         var cacheKey = Cache.GetKey("Clients:Contacts:List");
         await _cacheService.RemovePatternAsync(cacheKey);
         Log.Logger.Information($" Register new client");
-        var clientContact = new CreateClientContact() {
+        var clientContact = new UpdateClientContact() {
             FirstName = request.FirstName,
             LastName = request.LastName,
             Email = request.Email,
@@ -57,14 +57,14 @@ public class UpdateClientContactHandler : IRequestHandler<UpdateClientContractRe
             Company = request.Company,
             Notes = request.Notes ?? "",
         };
-        var clientContactId = await _clientRepository.AddContact(request.ClientId, clientContact);
+        await _clientRepository.UpdateContact(request.ClientId, request.ClientContactId, clientContact);
         await _activityLogRepository.AddActivity(
             request.LoggedInUserId,
-            clientContactId.ToString(),
+            request.ClientContactId.ToString(),
             nameof(Clients),
             ActivityLogOperationType.ClientContactUpdate,
             $"Client Contact {request.FirstName}, {request.LastName} been create",
-            $"Client Contact on client {request.ClientId} been create by {request.LoggedInUserId} with id {clientContactId}",
+            $"Client Contact on client {request.ClientId} been create by {request.LoggedInUserId} with id {request.ClientContactId}",
             ActivityStatus.Success,
             request.IpAddress,
             request.UserAgent);
@@ -89,15 +89,24 @@ public class UpdateClientContactHandler : IRequestHandler<UpdateClientContractRe
             throw new AuthorizationException();
         }
 
-        var country = await _countriesRepository.GetById(request.CountryId);
-        if (country?.SupportedAt == null) {
-            Log.Logger.Error($"Country not found");
-            throw new EntityNotFoundException(nameof(Countries), request.CountryId.ToString());
+        if (request.CountryId.HasValue) {
+            var country = await _countriesRepository.GetById(request.CountryId.Value);
+            if (country?.SupportedAt == null) {
+                Log.Logger.Error($"Country not found");
+                throw new EntityNotFoundException(nameof(Countries), request.CountryId.Value.ToString());
+            }
         }
+
         var client = await _clientRepository.GetById(request.ClientId);
         if (client == null) {
             Log.Logger.Error($"Client not found");
             throw new EntityNotFoundException(nameof(Clients), request.ClientId.ToString());
+        }
+
+        var clientContact = await _clientRepository.GetClientContactById(request.ClientId, request.ClientContactId);
+        if (clientContact == null) {
+            Log.Logger.Error($"Client Contact not found");
+            throw new EntityNotFoundException(nameof(ClientContacts), request.ClientContactId.ToString());
         }
     }
 }

@@ -27,6 +27,7 @@ public static class ServiceValidatorsExtensions {
 
         services.AddValidatorsFromAssemblyContaining<CreateClientValidator>();
         services.AddValidatorsFromAssemblyContaining<CreateClientContactValidator>();
+        services.AddValidatorsFromAssemblyContaining<UpdateClientContactValidator>();
 
         #endregion
 

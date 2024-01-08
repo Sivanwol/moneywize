@@ -97,31 +97,4 @@ public class ClientContactInput {
             IpAddress = ipAddress
         };
     }
-
-
-    public UpdateClientContractRequest ToProcessEntity(Guid loggedInUserId, int clientContactId, string userAgent, string ipAddress) {
-        return new UpdateClientContractRequest() {
-            LoggedInUserId = loggedInUserId,
-            ClientContactId = clientContactId,
-            ClientId = ClientId,
-            FirstName = FirstName,
-            LastName = LastName,
-            Email = Email,
-            Phone1 = Phone1,
-            Phone2 = Phone2,
-            Fax = Fax,
-            Whatsapp = Whatsapp,
-            CountryId = CountryId,
-            PostalCode = PostalCode,
-            Address = Address,
-            City = City,
-            State = State,
-            JobTitle = JobTitle,
-            Department = Department,
-            Company = Company,
-            Notes = Notes,
-            UserAgent = userAgent,
-            IpAddress = ipAddress
-        };
-    }
 }

@@ -23,7 +23,7 @@ public interface IClientRepository : IGenericRepository<Clients, int> {
     Task<int> GetAllCount(RecordFilterPagination<ClientFilters> filter, bool onlyDeleted);
 
     Task<int> AddContact(int clientId, CreateClientContact clientContact);
-    Task UpdateContact(int clientId, int clientContactId, CreateClientContact clientContact);
+    Task UpdateContact(int clientId, int clientContactId, UpdateClientContact clientContact);
     Task DeleteContact(int clientId, int clientContactId);
     Task RestoreContact(int clientId, int clientContactId);
     Task DeleteAllContacts(int clientId);

@@ -173,28 +173,44 @@ public class ClientRepository : BaseRepository, IClientRepository {
         await Context.Instance.SaveChangesAsync();
         return clientContactRecord.Id;
     }
-    public async Task UpdateContact(int clientId, int clientContactId, CreateClientContact clientContact) {
+    public async Task UpdateContact(int clientId, int clientContactId, UpdateClientContact clientContact) {
         var clientContactRecord = await Context.ClientContacts.FirstOrDefaultAsync(w => w.Id == clientContactId && w.ClientId == clientId);
         if (clientContactRecord == null) {
             throw new Exception("Client contact not found");
         }
 
-        clientContactRecord.FirstName = clientContact.FirstName;
-        clientContactRecord.LastName = clientContact.LastName;
-        clientContactRecord.Email = clientContact.Email;
-        clientContactRecord.Phone1 = clientContact.Phone1;
-        clientContactRecord.Phone2 = clientContact.Phone2;
-        clientContactRecord.Fax = clientContact.Fax;
-        clientContactRecord.Whatsapp = clientContact.Whatsapp;
-        clientContactRecord.Address = clientContact.Address;
-        clientContactRecord.City = clientContact.City;
-        clientContactRecord.CountryId = clientContact.CountryId;
-        clientContactRecord.State = clientContact.State;
-        clientContactRecord.JobTitle = clientContact.JobTitle;
-        clientContactRecord.Department = clientContact.Department;
-        clientContactRecord.Company = clientContact.Company;
-        clientContactRecord.PostalCode = clientContact.PostalCode;
-        clientContactRecord.Notes = clientContact.Notes;
+        if (clientContact.FirstName != null)
+            clientContactRecord.FirstName = clientContact.FirstName;
+        if (clientContact.LastName != null)
+            clientContactRecord.LastName = clientContact.LastName;
+        if (clientContact.Email != null)
+            clientContactRecord.Email = clientContact.Email;
+        if (clientContact.Phone1 != null)
+            clientContactRecord.Phone1 = clientContact.Phone1;
+        if (clientContact.Phone2 != null)
+            clientContactRecord.Phone2 = clientContact.Phone2;
+        if (clientContact.Fax != null)
+            clientContactRecord.Fax = clientContact.Fax;
+        if (clientContact.Whatsapp != null)
+            clientContactRecord.Whatsapp = clientContact.Whatsapp;
+        if (clientContact.Address != null)
+            clientContactRecord.Address = clientContact.Address;
+        if (clientContact.City != null)
+            clientContactRecord.City = clientContact.City;
+        if (clientContact.CountryId != null)
+            clientContactRecord.CountryId = clientContact.CountryId.Value;
+        if (clientContact.State != null)
+            clientContactRecord.State = clientContact.State;
+        if (clientContact.JobTitle != null)
+            clientContactRecord.JobTitle = clientContact.JobTitle;
+        if (clientContact.Department != null)
+            clientContactRecord.Department = clientContact.Department;
+        if (clientContact.Company != null)
+            clientContactRecord.Company = clientContact.Company;
+        if (clientContact.PostalCode != null)
+            clientContactRecord.PostalCode = clientContact.PostalCode;
+        if (clientContact.Notes != null)
+            clientContactRecord.Notes = clientContact.Notes;
         await Context.Instance.SaveChangesAsync();
     }
     public async Task DeleteContact(int clientId, int clientContactId) {

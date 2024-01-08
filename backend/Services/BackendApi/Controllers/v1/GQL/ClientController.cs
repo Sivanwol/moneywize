@@ -23,16 +23,20 @@ namespace BackendApi.Controllers.v1.GQL;
 public class ClientController : BaseGraphController {
     private readonly IValidator<ClientContactInput> _createClientContactValidator;
     private readonly IValidator<ClientInput> _createClientValidator;
+
     private readonly IValidator<EntityPage> _pageValidator;
+    private readonly IValidator<ClientContactUpdateInput> _updateClientContactValidator;
     public ClientController(
         IMediator _mediator,
         BackendApplicationConfig _configuration,
         IValidator<EntityPage> pageValidator,
         IValidator<ClientContactInput> createClientContactValidator,
+        IValidator<ClientContactUpdateInput> updateClientContactValidator,
         IValidator<ClientInput> createClientValidator
     ) : base(_mediator, _configuration) {
         _createClientContactValidator = createClientContactValidator;
         _createClientValidator = createClientValidator;
+        _updateClientContactValidator = updateClientContactValidator;
         _pageValidator = pageValidator;
     }
 
@@ -177,13 +181,13 @@ public class ClientController : BaseGraphController {
         [FromGraphQL("clientContactId")] [Description("Client Contact Id")]
         int clientContactId,
         [FromGraphQL("contact")] [Description("Client Contact Object input")]
-        ClientContactInput clientContactInput
+        ClientContactUpdateInput clientContactInput
     ) {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         try {
             var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var validator = await _createClientContactValidator.ValidateAsync(clientContactInput);
+            var validator = await _updateClientContactValidator.ValidateAsync(clientContactInput);
             if (!validator.IsValid) {
                 return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
             }
