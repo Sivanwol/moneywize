@@ -1,6 +1,6 @@
-using Domain.DTO.Filters;
-using Domain.DTO.Filters.Fields;
 using Domain.Entities;
+using Domain.Filters;
+using Domain.Filters.Fields;
 using Domain.Persistence.Mock.Services;
 using Domain.Persistence.Repositories;
 using Infrastructure.Enums;

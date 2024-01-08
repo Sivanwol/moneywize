@@ -1,6 +1,6 @@
 using Application.Utils;
-using Domain.DTO.Filters;
 using Domain.Entities;
+using Domain.Filters;
 using Domain.Persistence.Context;
 using Domain.Persistence.Repositories.Common;
 using Domain.Persistence.Repositories.Interfaces;
@@ -18,6 +18,12 @@ public class ActivityLogRepository : BaseRepository, IActivityLogRepository {
         return Context.ActivityLogs.FirstOrDefaultAsync(w => w.Id == id);
     }
 
+    public Task AddActivity(Guid? userId, string entityType, string operationType, string activity, string details, ActivityStatus status) {
+        return AddActivity(userId, null, entityType, operationType, activity, details, status);
+    }
+    public Task AddActivity(Guid? userId, string entityType, string operationType, string activity, string details, ActivityStatus status, string? ipAddress, string? userAgent) {
+        return AddActivity(userId, null, entityType, operationType, activity, details, status, ipAddress, userAgent);
+    }
     public Task AddActivity(Guid? userId, string entityId, string entityType, string operationType, string activity, string details, ActivityStatus status) {
         return AddActivity(userId, null, entityId, entityType, operationType, activity, details, status);
     }

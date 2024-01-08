@@ -20,7 +20,7 @@ public class ApplicationUser : IdentityUser, ISoftDeletable {
     public ICollection<ActivityLog> ActivityLogs { get; set; }
     public DateTime? RegisterCompletedAt { get; set; }
     public virtual ICollection<ApplicationUserRole> UserRoles { get; set; }
-    public DateTime? DeletedAt { get; }
+    public DateTime? DeletedAt { get; set; }
     public User ToGql(ICollection<string> roles) {
         return new() {
             Id = Id,
@@ -46,7 +46,7 @@ public class ApplicationUser : IdentityUser, ISoftDeletable {
             Address = Address,
             Country = Country?.ToGql(),
             DisplayLanguage = DisplayLanguage?.ToGql(),
-            Roles = UserRoles.Select(x => x.Role.Name).ToList(),
+            Roles = new List<string>(),
             RegisterCompletedAt = RegisterCompletedAt.GetValueOrDefault()
         };
     }

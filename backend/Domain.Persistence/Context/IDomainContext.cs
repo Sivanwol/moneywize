@@ -28,7 +28,6 @@ public interface IDomainContext : IDisposable {
     DbSet<Media> Media { get; set; }
     DbSet<Clients> Client { get; set; }
     DbSet<ClientContacts> ClientContacts { get; set; }
-    DbSet<ClientsHasClientContacts> ClientHasClientContacts { get; set; }
     DbSet<ClientEmployees> ClientEmployees { get; set; }
     DbSet<ClientEmployeesHasAssets> ClientEmployeesHasAssets { get; set; }
     DbSet<ClientEmployeeHasTags> ClientEmployeeTags { get; set; }

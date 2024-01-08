@@ -1,5 +1,5 @@
-using Domain.DTO.Filters;
 using Domain.Entities;
+using Domain.Filters;
 using Domain.Persistence.Repositories.Common.Interfaces;
 using Infrastructure.Enums;
 namespace Domain.Persistence.Repositories.Interfaces;

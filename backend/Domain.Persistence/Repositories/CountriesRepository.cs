@@ -15,20 +15,22 @@ public class CountriesRepository : BaseRepository, ICountriesRepository {
     }
 
     public async Task<IEnumerable<Countries>> GetAll() {
-        // return await Context.Countries.ToListAsync();
         _logger.LogInformation("Fetching all countries");
-        var result = Context.Countries.Select(row => row).ToList();
+        var result = Context.Countries
+            .Select(row => row)
+            .Where(w => w.SupportedAt != null)
+            .ToList();
         return result;
     }
     public async Task<Countries?> GetByCode(string code) {
         _logger.LogInformation($"Fetching country with code {code}");
-        var result = Context.Countries.FirstOrDefault(row => row.CountryCode == code);
+        var result = Context.Countries.FirstOrDefault(row => row.SupportedAt != null && row.CountryCode == code);
         return result;
     }
 
     public async Task<Countries?> GetById(int id) {
         _logger.LogInformation($"Fetching country with id {id}");
-        var result = Context.Countries.FirstOrDefault(row => row.Id == id);
+        var result = Context.Countries.FirstOrDefault(row => row.SupportedAt != null && row.Id == id);
         return result;
     }
 }

@@ -26,4 +26,18 @@ public static class ActivityLogOperationType {
 
     #endregion
 
+    #region Client Operations
+
+    public const string ClientCreate = "ClientCreate";
+    public const string ClientUpdate = "ClientUpdate";
+    public const string ClientDelete = "ClientDelete";
+    public const string ClientExport = "ClientExport";
+    public const string ClientList = "ClientList";
+    public const string ClientContactCreate = "ClientContactCreate";
+    public const string ClientContactUpdate = "ClientContactUpdate";
+    public const string ClientContactDelete = "ClientContactDelete";
+    public const string ClientContactList = "ClientContactList";
+
+    #endregion
+
 }

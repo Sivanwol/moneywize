@@ -42,25 +42,19 @@ public class ActivitiesLogsController : BaseGraphController {
             if (!validator.IsValid) {
                 return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
             }
-            try {
-                var activities = await Mediator.Send(new GetActivityRequest {
-                    LoggedInUserId = Guid.Parse(loggedUserId!),
-                    PageControl = page
-                });
-                return Ok(activities);
-            }
-            catch (EntityNotFoundException e) {
-                Log.Logger.Error(e, e.Message);
-                return Error("Failed to find user");
-            }
-            catch (Exception e) {
-                Log.Logger.Error(e, e.Message);
-                return Error("Something went wrong");
-            }
+            var activities = await Mediator.Send(new GetActivityRequest {
+                LoggedInUserId = Guid.Parse(loggedUserId!),
+                PageControl = page
+            });
+            return Ok(activities);
+        }
+        catch (EntityNotFoundException e) {
+            Log.Logger.Error(e, e.Message);
+            return Error("Failed to find user");
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);
-            return Error("Something went wrong");
+            return Error(e.Message);
         }
     }
 }

@@ -20,5 +20,5 @@ public class ClientEmployeesHasAssets : BaseEntityWithoutId, ISoftDeletable {
     public ClientContacts ContactEmployee { get; set; }
 
     public DateTime? DisabledAt { get; set; }
-    public DateTime? DeletedAt { get; }
+    public DateTime? DeletedAt { get; set; }
 }

@@ -74,11 +74,11 @@ public class RegisterHandler : IRequestHandler<RegisterRequest, EmptyResponse> {
                 ActivityStatus.Failed);
             throw new AuthenticationException("Invalid user not matching permissions");
         }
-        var cacheKey = await _cache.KeyExistsAsync(Cache.GetKey($"COUNTRY_{request.CountryId}"));
-        Countries? country = null;
+        var cacheKey = await _cache.KeyExistsAsync(Cache.GetKey($"COUNTRY:{request.CountryId}"));
+        Domain.Entities.Countries? country = null;
         if (cacheKey) {
-            var payload = await _cache.StringGetAsync(Cache.GetKey($"COUNTRY_{request.CountryId}"));
-            country = JsonConvert.DeserializeObject<Countries>(payload);
+            var payload = await _cache.StringGetAsync(Cache.GetKey($"COUNTRY:{request.CountryId}"));
+            country = JsonConvert.DeserializeObject<Domain.Entities.Countries>(payload);
         }
         if (country == null) {
             country = await _countriesRepository.GetById(request.CountryId!.Value);
