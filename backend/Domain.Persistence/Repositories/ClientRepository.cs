@@ -83,6 +83,7 @@ public class ClientRepository : BaseRepository, IClientRepository {
         clientRecord.DeletedAt = DateTime.UtcNow;
         Context.Instance.Update(clientRecord);
         await Context.Instance.SaveChangesAsync();
+        await DeleteAllContacts(clientId);
     }
     public async Task Restore(int clientId) {
         var clientRecord = Context.Clients.FirstOrDefault(w => w.Id == clientId && w.DeletedAt != null);
