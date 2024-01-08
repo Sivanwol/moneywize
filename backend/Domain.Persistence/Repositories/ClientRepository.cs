@@ -132,7 +132,6 @@ public class ClientRepository : BaseRepository, IClientRepository {
     }
     public async Task<int> GetAllCount(RecordFilterPagination<ClientFilters> filter) {
         var query = Context.Clients.AsQueryable();
-        query = query.Where(w => w.DeletedAt == null);
         var entitiesCount = await filter.ApplyQueryWithoutPagination(query).Where(w => w.DeletedAt == null).CountAsync();
         return entitiesCount;
     }
@@ -174,7 +173,7 @@ public class ClientRepository : BaseRepository, IClientRepository {
         return clientContactRecord.Id;
     }
     public async Task UpdateContact(int clientId, int clientContactId, UpdateClientContact clientContact) {
-        var clientContactRecord = await Context.ClientContacts.FirstOrDefaultAsync(w => w.Id == clientContactId && w.ClientId == clientId);
+        var clientContactRecord = await Context.ClientContacts.FirstOrDefaultAsync(w => w.Id == clientContactId && w.ClientId == clientId && w.DeletedAt == null);
         if (clientContactRecord == null) {
             throw new Exception("Client contact not found");
         }
@@ -214,8 +213,12 @@ public class ClientRepository : BaseRepository, IClientRepository {
         await Context.Instance.SaveChangesAsync();
     }
     public async Task DeleteContact(int clientId, int clientContactId) {
-        var clientContactRecord = Context.ClientContacts.FirstOrDefault(w => w.Id == clientContactId && w.ClientId == clientId);
-        Context.Instance.Remove(clientContactRecord);
+        var clientContactRecord = Context.ClientContacts.FirstOrDefault(w => w.Id == clientContactId && w.ClientId == clientId && w.DeletedAt == null);
+        if (clientContactRecord == null) {
+            throw new EntityNotFoundException(nameof(ClientContacts), clientContactId.ToString());
+        }
+        clientContactRecord.DeletedAt = DateTime.UtcNow;
+        Context.Instance.Update(clientContactRecord);
         await Context.Instance.SaveChangesAsync();
     }
     public async Task RestoreContact(int clientId, int clientContactId) {
