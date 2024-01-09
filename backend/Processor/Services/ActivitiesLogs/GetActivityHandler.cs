@@ -51,8 +51,7 @@ public class GetActivityHandler : IRequestHandler<GetActivityRequest, EntityPage
             }
         }
 
-        var view = await _configurableUserViewRepository.GetViewDefinition(request.LoggedInUserId.ToString(), request.PageControl.ViewClientIdId);
-        var pageFilter = await BuildPageFilter(request, view);
+        var pageFilter = await BuildPageFilter(request);
         var activities = await _activityRepository.GetActivities(pageFilter);
         var totalPages = await _activityRepository.GetActivitiesTotalPages(pageFilter);
         var totalRecords = await _activityRepository.GetActivitiesCount(pageFilter);
@@ -61,7 +60,6 @@ public class GetActivityHandler : IRequestHandler<GetActivityRequest, EntityPage
             TotalRecords = totalRecords,
             HasPreviousPage = (totalPages > 1 && pageFilter.Page > 1),
             HasNextPage = (totalPages > pageFilter.Page),
-            ViewDefinition = view,
             Records = activities.Select(x => x.ToGql())
         };
         await _cacheService.RegisterAsync(cacheKey, records);
@@ -89,14 +87,13 @@ public class GetActivityHandler : IRequestHandler<GetActivityRequest, EntityPage
         }
     }
 
-    private async Task<RecordFilterPagination<ActivityLogFilters>> BuildPageFilter(GetActivityRequest request, View view) {
+    private async Task<RecordFilterPagination<ActivityLogFilters>> BuildPageFilter(GetActivityRequest request) {
         var pageFilter = new RecordFilterPagination<ActivityLogFilters>() {
             Page = request.PageControl.Page,
             PageSize = (int)request.PageControl.PageSize,
             SortByField = request.PageControl.SortByField!,
             SortDirection = request.PageControl.SortDirection,
-            FilterCollectionOperation = request.PageControl.FilterCollectionOperation,
-            SelectedColumns = view.Columns
+            FilterCollectionOperation = request.PageControl.FilterCollectionOperation
         };
 
         foreach (var filter in request.PageControl.Filters) {

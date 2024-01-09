@@ -53,8 +53,7 @@ public class GetAllHandler : IRequestHandler<GetClientsRequest, EntityPage<Infra
             }
         }
 
-        var view = await _configurableUserViewRepository.GetViewDefinition(request.LoggedInUserId.ToString(), request.PageControl.ViewClientIdId);
-        var pageFilter = await BuildPageFilter(request, view);
+        var pageFilter = await BuildPageFilter(request);
         var results = await _clientRepository.GetAll(pageFilter);
         var totalPages = await _clientRepository.GetAllTotalPages(pageFilter);
         var totalRecords = await _clientRepository.GetAllCount(pageFilter);
@@ -63,7 +62,6 @@ public class GetAllHandler : IRequestHandler<GetClientsRequest, EntityPage<Infra
             TotalRecords = totalRecords,
             HasPreviousPage = (totalPages > 1 && pageFilter.Page > 1),
             HasNextPage = (totalPages > pageFilter.Page),
-            ViewDefinition = view,
             Records = results.Select(x => x.ToGql())
         };
         await _cacheService.RegisterAsync(cacheKey, records);
@@ -101,14 +99,13 @@ public class GetAllHandler : IRequestHandler<GetClientsRequest, EntityPage<Infra
         }
     }
 
-    private async Task<RecordFilterPagination<ClientFilters>> BuildPageFilter(GetClientsRequest request, View view) {
+    private async Task<RecordFilterPagination<ClientFilters>> BuildPageFilter(GetClientsRequest request) {
         var pageFilter = new RecordFilterPagination<ClientFilters>() {
             Page = request.PageControl.Page,
             PageSize = (int)request.PageControl.PageSize,
             SortByField = request.PageControl.SortByField!,
             SortDirection = request.PageControl.SortDirection,
             FilterCollectionOperation = request.PageControl.FilterCollectionOperation,
-            SelectedColumns = view.Columns
         };
 
         foreach (var filter in request.PageControl.Filters) {

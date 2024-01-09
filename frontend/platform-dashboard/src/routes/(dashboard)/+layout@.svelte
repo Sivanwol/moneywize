@@ -8,8 +8,11 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { requestRefreshToken } from '@api/auth.js';
+	import { userStore } from '@stores/userStore.js';
+
 
 	$: auth = createAuth();
+	$: userStoreState = userStore;
 	let sidebarCollapsed = false;
 	let userRoles = ['admin'];
 	function handleToggleSidebar(event) {
@@ -33,6 +36,7 @@
 	}
 
 	onMount(async () => {
+		if (userStoreState.)
 		if (!auth.isLoggedIn()) {
 			await goto('/login');
 		}

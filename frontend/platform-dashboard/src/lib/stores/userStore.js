@@ -6,29 +6,30 @@ function createUserStore() {
 		profile: {},
 		userViews: [],
 		userActivities: [],
+		isEmptyState: true,
 		loading: false
 	};
-	const { subscribe, set, update } = storage(localStorageKey, initialValues);
+	const { subscribe, set, update, get } = storage(localStorageKey, initialValues);
 
 	return {
 		subscribe,
-		updateUserProfile: (entity) => update((n) => {
-			n.profile = { ...n.profile, ...entity };
+		updateUserProfile: async (entity) => update((state) => {
+			state.profile = { ...state.profile, ...entity };
+			state.isEmptyState = false;
 		}),
-		updateViews: (entities) => update((n) => {
-			n.userViews = [...n.userViews, ...entities];
+		updateViews: (entities) => update((state) => {
+			state.userViews = [...state.userViews, ...entities];
+			state.isEmptyState = false;
 		}),
-		updateUserActivities: (entities) => update((n) => {
-			n.userActivities = [...n.userActivities, ...entities];
+		updateUserActivities: (entities) => update((state) => {
+			state.userActivities = [...state.userActivities, ...entities];
+			state.isEmptyState = false;
 		}),
-		loading: (isLoading) => update((n) => {
-			n.loading = isLoading;
+		clearViews: () => update((state) => {
+			state.userViews = initialValues.userViews;
 		}),
-		clearViews: () => update((n) => {
-			n.userViews = initialValues.userViews;
-		}),
-		clearActivities: () => update((n) => {
-			n.userActivities = initialValues.userActivities;
+		clearActivities: () => update((state) => {
+			state.userActivities = initialValues.userActivities;
 		}),
 		logout: () => set(initialValues)
 	};

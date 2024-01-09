@@ -53,8 +53,7 @@ public class GetContactsAllHandler : IRequestHandler<GetClientsContactsRequest, 
             }
         }
 
-        var view = await _configurableUserViewRepository.GetViewDefinition(request.LoggedInUserId.ToString(), request.PageControl.ViewClientIdId);
-        var pageFilter = await BuildPageFilter(request, view);
+        var pageFilter = await BuildPageFilter(request);
         var results = await _clientRepository.GetClientContactsAll(request.ClientId, pageFilter);
         var totalPages = await _clientRepository.GetClientContactsAllTotalPages(request.ClientId, pageFilter);
         var totalRecords = await _clientRepository.GetClientContactsAllCount(request.ClientId, pageFilter);
@@ -63,7 +62,6 @@ public class GetContactsAllHandler : IRequestHandler<GetClientsContactsRequest, 
             TotalRecords = totalRecords,
             HasPreviousPage = (totalPages > 1 && pageFilter.Page > 1),
             HasNextPage = (totalPages > pageFilter.Page),
-            ViewDefinition = view,
             Records = results.Select(x => x.ToGql())
         };
         await _cacheService.RegisterAsync(cacheKey, records);
@@ -106,15 +104,14 @@ public class GetContactsAllHandler : IRequestHandler<GetClientsContactsRequest, 
         }
     }
 
-    private async Task<RecordFilterPagination<ClientContactsFilters>> BuildPageFilter(GetClientsContactsRequest request, View view) {
+    private async Task<RecordFilterPagination<ClientContactsFilters>> BuildPageFilter(GetClientsContactsRequest request) {
         ;
         var pageFilter = new RecordFilterPagination<ClientContactsFilters>() {
             Page = request.PageControl.Page,
             PageSize = (int)request.PageControl.PageSize,
             SortByField = request.PageControl.SortByField!,
             SortDirection = request.PageControl.SortDirection,
-            FilterCollectionOperation = request.PageControl.FilterCollectionOperation,
-            SelectedColumns = view.Columns
+            FilterCollectionOperation = request.PageControl.FilterCollectionOperation
         };
 
         foreach (var filter in request.PageControl.Filters) {

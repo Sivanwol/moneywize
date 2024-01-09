@@ -11,13 +11,13 @@ public class EntityPageValidator : AbstractValidator<EntityPage> {
         RuleFor(x => x.PageSize)
             .IsInEnum()
             .WithMessage("PageSize is not valid");
-        RuleFor(x => x.ViewClientIdId)
+        RuleFor(x => x.ViewClientId)
             .NotEmpty()
-            .WithMessage("ViewClientIdId is required")
+            .WithMessage("ViewClientId is required")
             .IsGuid()
-            .WithMessage("ViewClientIdId is not valid")
+            .WithMessage("ViewClientId is not valid")
             .NotEqual(Guid.Empty)
-            .WithMessage("ViewClientIdId is required");
+            .WithMessage("ViewClientId is required");
         RuleFor(x => x.SortByField)
             .NotEmpty()
             .WithMessage("SortByField is required")

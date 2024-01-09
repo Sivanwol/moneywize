@@ -1,0 +1,16 @@
+export const EQUAL = 'EQUAL';
+export const NOT_EQUAL = 'NOTEQUAL';
+export const GREATER_THAN = 'GREATERTHAN';
+export const CONTAINS = 'CONTAINS';
+export const NOT_CONTAINS = 'NOTCONTAINS';
+export const STARTS_WITH = 'STARTSWITH';
+export const NOT_STARTS_WITH = 'NOTSTARTSWITH';
+export const ENDS_WITH = 'ENDSWITH';
+export const NOT_ENDS_WITH = 'NOTENDSWITH';
+export const GREATER_THAN_OR_EQUAL = 'GREATERTHANOREQUAL';
+export const LESS_THAN = 'LESSTHAN';
+export const LESS_THAN_OR_EQUAL = 'LESSTHANOREQUAL';
+export const BETWEEN = 'BETWEEN';
+export const NOT_BETWEEN = 'NOTBETWEEN';
+export const IN = 'IN';
+export const NOT_IN = 'NOTIN';

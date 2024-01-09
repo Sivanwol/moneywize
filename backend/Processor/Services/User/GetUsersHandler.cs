@@ -54,8 +54,7 @@ public class GetUsersHandler : IRequestHandler<GetUsersRequest, EntityPage<Infra
             }
         }
 
-        var view = await _configurableUserViewRepository.GetViewDefinition(request.LoggedInUserId.ToString(), request.PageControl.ViewClientIdId);
-        var pageFilter = await BuildPageFilter(request, view);
+        var pageFilter = await BuildPageFilter(request);
         var entities = await _applicationUserRepository.GetUsers(pageFilter);
         // we enrich the entities (that are user records with roles if it has any
         var users = new List<Infrastructure.GQL.User>();
@@ -72,7 +71,6 @@ public class GetUsersHandler : IRequestHandler<GetUsersRequest, EntityPage<Infra
             TotalRecords = totalRecords,
             HasPreviousPage = (totalPages > 1 && pageFilter.Page > 1),
             HasNextPage = (totalPages > pageFilter.Page),
-            ViewDefinition = view,
             Records = users
         };
         await _cacheService.RegisterAsync(cacheKey, records);
@@ -99,14 +97,13 @@ public class GetUsersHandler : IRequestHandler<GetUsersRequest, EntityPage<Infra
         }
     }
 
-    private async Task<RecordFilterPagination<ApplicationUserFilters>> BuildPageFilter(GetUsersRequest request, View view) {
+    private async Task<RecordFilterPagination<ApplicationUserFilters>> BuildPageFilter(GetUsersRequest request) {
         var pageFilter = new RecordFilterPagination<ApplicationUserFilters>() {
             Page = request.PageControl.Page,
             PageSize = (int)request.PageControl.PageSize,
             SortByField = request.PageControl.SortByField!,
             SortDirection = request.PageControl.SortDirection,
             FilterCollectionOperation = request.PageControl.FilterCollectionOperation,
-            SelectedColumns = view.Columns
         };
 
         foreach (var filter in request.PageControl.Filters) {
