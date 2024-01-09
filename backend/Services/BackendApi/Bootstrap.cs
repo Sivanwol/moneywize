@@ -140,9 +140,6 @@ public class Bootstrap {
                 schemaOptions.AddType<EntityColumnDataType>();
 
             });
-            if (Environment.IsProduction()) {
-                services.AddGraphQLLocalQueryCache();
-            }
             services.AddHostedService<JwtRefreshTokenCache>();
         });
         if (Environment.IsDevelopment() || applicationConfig.EnableSwagger) {
