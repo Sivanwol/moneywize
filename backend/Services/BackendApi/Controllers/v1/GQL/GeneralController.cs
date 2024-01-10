@@ -17,10 +17,18 @@ namespace BackendApi.Controllers.v1.GQL;
 [GraphRoute("general")]
 public class GeneralController : BaseGraphController {
     public GeneralController(IMediator _mediator, BackendApplicationConfig _configuration) : base(_mediator, _configuration) { }
+    [Query("maintenanceMode", typeof(bool))]
+    [Description("Get maintenance mode status")]
+    public IGraphActionResult MaintenanceMode() {
+        return Ok(IsMaintenanceMode());
+    }
 
     [Query("getCountries", typeof(IEnumerable<Country>))]
     [Description("Get all suported countries")]
     public async Task<IGraphActionResult> GetCountries() {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
         try {
             return Ok(await Mediator.Send(new GetCountriesRequest()));
         }
@@ -33,6 +41,9 @@ public class GeneralController : BaseGraphController {
     [Query("getViews", typeof(IEnumerable<View>))]
     [Description("Get all views of the user and default views")]
     public async Task<IGraphActionResult> GetViews() {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
         try {
             var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var views = await Mediator.Send(new GetViewsRequest {

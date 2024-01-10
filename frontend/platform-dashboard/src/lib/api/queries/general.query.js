@@ -20,6 +20,12 @@ query getViews {
 	}
 }`;
 
+export const GetMaintenanceMode = gql`
+query GetMaintenanceMode {
+	general {
+		maintenanceMode 
+	}
+}`;
 export const getCountries = gql`
 query getCountries {
 	general {

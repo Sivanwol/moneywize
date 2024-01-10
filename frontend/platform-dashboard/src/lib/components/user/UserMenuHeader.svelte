@@ -4,6 +4,7 @@
 	import { UserProfile } from '@models/UserProfile';
 	import { goto } from '$app/navigation';
 	import Gravatar from 'svelte-gravatar';
+	import { isEmpty } from 'lodash-es';
 	import { createAuth } from '@stores/authStore.js';
 
 
@@ -62,9 +63,11 @@
 				<figcaption>
 					<div class="text-dark dark:text-title-dark mb-0.5 text-sm">{userProfile.firstName}
 						, {userProfile.lastName}</div>
-					{#each userProfile.roles as role}
-						<div class="mb-0 text-xs text-body dark:text-subtitle-dark">{role}</div>
-					{/each}
+					{#if !isEmpty(userProfile.roles)}
+						{#each userProfile.roles as role}
+							<div class="mb-0 text-xs text-body dark:text-subtitle-dark">{role}</div>
+						{/each}
+					{/if}
 				</figcaption>
 			</figure>
 			<ul class="m-0 pb-[10px] overflow-x-hidden overflow-y-auto scrollbar bg-transparent max-h-[230px]">

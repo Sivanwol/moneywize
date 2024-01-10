@@ -10,6 +10,7 @@
 	import { Language } from '@models/Language.js';
 	import { UserProfile } from '@models/UserProfile.js';
 	import { getClient } from 'svelte-apollo';
+	import { isEmpty } from 'lodash-es';
 
 	const dispatch = createEventDispatcher();
 	$: client = getClient();
@@ -19,7 +20,7 @@
 		Language.fromJson({ id: 2, name: 'Spanish', code: 'es', flag: '/img/flags/spanish.png' })
 	];
 	let selectedLanguage = languages[0];
-	let userProfile = UserProfile.fromJson($userStore.profile);
+	$: userProfile = UserProfile.fromJson($userStore.profile);
 
 	let showMessageWindow = false;
 	let showNotificationWindow = false;
@@ -151,8 +152,10 @@
 																			 openWindow={showLanguageWindow} selectLanguage={selectedLanguage} />
 				</li>
 				<li>
-					<UserMenuHeader on:statusUserSettingsWindow={handleUserSettingsWindow} openWindow={showUserSettingsWindow}
-													userProfile={userProfile} />
+					{#if !isEmpty($userStore.profile)}
+						<UserMenuHeader on:statusUserSettingsWindow={handleUserSettingsWindow} openWindow={showUserSettingsWindow}
+														userProfile={userProfile} />
+					{/if}
 				</li>
 			</ul>
 		</div>

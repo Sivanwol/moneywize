@@ -11,9 +11,11 @@
 	import { requestRefreshToken } from '@api/auth.js';
 	import { getClient } from 'svelte-apollo';
 	import { userStore } from '@stores/userStore.js';
+	import { applicationStore } from '@stores/applicationStore.js';
 	import { GetMyProfileQuery } from '@api/queries/user.query.js';
-	import { getViews } from '@api/queries/general.query.js';
+	import { GetMaintenanceMode, getViews } from '@api/queries/general.query.js';
 	import { isEmpty } from 'lodash-es';
+	import { PUBLIC_MAINTENANCE_URL } from '$env/static/public';
 
 
 	$: auth = createAuth();
@@ -44,6 +46,18 @@
 	}
 
 	onMount(async () => {
+
+		const result = await fetch(PUBLIC_MAINTENANCE_URL, {
+			method: 'GET'
+		});
+		if (result.ok) {
+			const data = await result.json();
+			if (data.Maintenance) {
+				console.log('maintenance mode');
+				// await goto('/maintenance')
+			}
+
+		}
 		if (!auth.isLoggedIn()) {
 			await goto('/login');
 		}
@@ -77,29 +91,59 @@
 				auth.logout();
 				await goto('/login');
 			}
-			await fetchInitialUserData();
+			await fetchSystemMaintenanceMode();
+			if ($applicationStore.maintenanceMode) {
+				await goto('/maintenance');
+				return;
+			}
+			await setupInitialUserData();
 		}
 	});
 
-	async function fetchInitialUserData() {
-		userStore.setLoading(true);
+	async function fetchSystemMaintenanceMode() {
+		applicationStore.setLoading(true);
 		try {
-			if (isEmpty($userStore?.profile)) {
-				await fetchMyProfile();
-			}
+			const res = await client?.query({
+				query: GetMaintenanceMode
+			});
+			applicationStore.setMaintenanceMode(res?.data?.general?.maintenanceMode || true);
+
 		} catch (e) {
-			userStore.setLoading(false);
-			return;
+			console.log(e);
+			applicationStore.setError(e.message);
+			applicationStore.setMaintenanceMode(true);
 		}
-		try {
-			if (isEmpty($userStore?.userViews)) {
-				await fetchUserViews();
-			}
-		} catch (e) {
-		}
-		userStore.setLoading(false);
+		applicationStore.setLoading(false);
 	}
 
+	async function setupInitialUserData() {
+		applicationStore.setLoading(true);
+		try {
+			if (isEmpty($userStore?.profile) && isEmpty($userStore?.userViews) && isEmpty($applicationStore?.countries)) {
+				await fetchInitialUserViews();
+			}
+		} catch (e) {
+			applicationStore.setLoading(false);
+			return;
+		}
+		applicationStore.setLoading(false);
+	}
+
+	async function fetchInitialUserViews() {
+		try {
+			const res = await client?.query({
+				query: GetMyProfileQuery
+			});
+			if (res?.data?.user?.getMyProfile && res?.data?.general?.getViews) {
+				userStore.updateUserProfile(res.data?.user?.getMyProfile);
+				userStore.updateViews(res.data?.general?.getViews);
+			}
+
+		} catch (e) {
+			console.log(e);
+			applicationStore.setError(e.message);
+		}
+	}
 	async function fetchMyProfile() {
 		try {
 			const res = await client?.query({
@@ -160,15 +204,6 @@
 
 <div>
 	{#if loggedUser}
-		{#if $userStore.loading}
-			<div class="flex justify-center items-center h-screen">
-				<div class="flex flex-col items-center">
-					<div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
-					<h2 class="text-center text-white text-xl font-semibold">Loading...</h2>
-					<p class="w-1/3 text-center text-white">This may take a few seconds, please don't close this page.</p>
-				</div>
-			</div>
-		{/if}
 		
 		<!-- Header -->
 		<aside
@@ -194,7 +229,19 @@
 				<div class=" mx-[30px] -z-[1] min-h-[calc(100vh-195px)] mb-[30px] ssm:mt-[30px] mt-[15px]">
 					<div class="grid grid-cols-12 gap-5">
 						<div class="col-span-12">
-							<slot />
+
+							{#if $userStore.loading}
+								<div class="flex justify-center items-center h-screen">
+									<div class="flex flex-col items-center">
+										<div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
+										<h2 class="text-center text-white text-xl font-semibold">Loading...</h2>
+										<p class="w-1/3 text-center text-white">This may take a few seconds, please don't close this
+											page.</p>
+									</div>
+								</div>
+							{:else}
+								<slot />
+							{/if}
 						</div>
 					</div>
 				</div>

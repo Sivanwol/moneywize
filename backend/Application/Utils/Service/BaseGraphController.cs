@@ -11,4 +11,8 @@ public class BaseGraphController : GraphController {
         Mediator = _mediator;
         Configuration = _configuration;
     }
+
+    public bool IsMaintenanceMode() {
+        return Configuration.MaintenanceMode;
+    }
 }

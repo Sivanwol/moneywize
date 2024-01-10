@@ -34,6 +34,9 @@ public class ActivitiesLogsController : BaseGraphController {
     public async Task<IGraphActionResult> GetActivities(
         [FromGraphQL("page")] [Description("Entity Page Data( paging , sorting , filtering )")]
         EntityPage page) {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         try {

@@ -289,7 +289,7 @@ namespace Domain.Persistence.Migrations
                 { "Oromo", "om" },
                 });
             migrationBuilder.Sql($"UPDATE {nameof(Countries)} SET SupportedAt = now(), Provider=1 WHERE CountryCode = 'IL'");
-            migrationBuilder.Sql($"UPDATE {nameof(Languages)} SET SupportedAt = now() WHERE Code in ('en', 'he')");
+            migrationBuilder.Sql($"UPDATE {nameof(Languages)} SET SupportedAt = now() WHERE Code in ('en', 'es')");
             //Adding Asian countries
             migrationBuilder.InsertData("AspNetRoles", new[] { "Id", "Name", "NormalizedName" }, new object[,]
             {

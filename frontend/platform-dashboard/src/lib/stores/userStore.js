@@ -6,20 +6,12 @@ function createUserStore() {
 		profile: {},
 		userViews: [],
 		userActivities: [],
-		loading: false,
 		errorMessage: null,
-		systemNotAvailable: false
 	};
 	const { subscribe, set, update } = storage(localStorageKey, initialValues);
 	return {
 		subscribe,
-		setLoading: (loading) => update((state) => {
-			state.loading = loading;
-			return { ...state };
-		}),
-
 		updateUserProfile: (profile) => update((state) => {
-			state.loading = false;
 			state.profile = { ...state.profile, ...profile };
 			return { ...state };
 		}),

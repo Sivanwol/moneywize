@@ -16,4 +16,7 @@ public abstract class BaseApiController : ControllerBase {
         Mediator = _mediator;
         Configuration = _configuration;
     }
+    protected bool IsMaintenanceMode() {
+        return Configuration.MaintenanceMode;
+    }
 }

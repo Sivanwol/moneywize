@@ -13,8 +13,9 @@
 		}
 		await waitLocale();
 	};
-	onMount(() => {
+	onMount(async () => {
 		window.addEventListener('orientationchange', checkOrientation);
+		await load();
 	});
 
 	function checkOrientation() {

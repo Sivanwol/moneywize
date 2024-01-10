@@ -133,8 +133,11 @@ public class Bootstrap {
             services.AddGraphQL(schemaOptions => {
                 schemaOptions.QueryHandler.Route = "/api/gql";
                 schemaOptions.AuthorizationOptions.Method = AuthorizationMethod.PerField;
-                schemaOptions.ResponseOptions.ExposeExceptions = true;
-                schemaOptions.ResponseOptions.ExposeMetrics = true;
+                if (Environment.IsDevelopment()) {
+                    schemaOptions.ResponseOptions.ExposeExceptions = true;
+                    schemaOptions.ResponseOptions.ExposeMetrics = true;
+                    schemaOptions.ExecutionOptions.DebugMode = true;
+                }
                 schemaOptions.ExecutionOptions.MaxQueryDepth = 15;
                 schemaOptions.AddType<SortDirection>();
                 schemaOptions.AddType<FilterOperations>();

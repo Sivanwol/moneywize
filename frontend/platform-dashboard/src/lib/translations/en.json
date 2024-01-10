@@ -1,17 +1,28 @@
 {
   "credit": "DevCo",
+  "projectName": "DevCo",
   "footer": {
     "logo": "DevCo™",
     "credit": "© 2023 DevCo™ All Rights Reserved."
   },
   "common": {
     "loading": "Loading...",
+    "welcomeTo": "Welcome to",
+    "and": "and",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "maintenance": {
+      "title": "We'll be back soon!",
+      "content": "We are currently performing scheduled maintenance. We will be back shortly. Thank you for your patience.",
+      "alert": "The system is currently under maintenance. Please try again later.",
+      "info": "The system will automatically monitor the ongoing maintenance. The current timestamp is {maintenanceTime}. The elapsed time since maintenance check is {maintenanceElapsed} seconds."
+    },
     "alerts": {
       "snap": "Oh, snapp!",
       "success": "Success",
       "error": "Action Failed!",
       "warning": "Warning",
-      "info": "Info"
+      "info": "Info"      
     }
   },
   "navigation": {
@@ -22,6 +33,7 @@
   "login": {
     "title": "Login",
     "email": "E-mail",
+    "pleaseEnterYourCredentials": "Please enter your credential.",
     "password": "Password",
     "code": "Code",
     "error": "Invalid email or password.",
@@ -29,6 +41,7 @@
     "submit": "Login",
     "submit_confirm": "Confirm",
     "forget": "Forgot password?",
+    "byClicking": "By clicking continue, you agree to our",
     "forget_here": "Reset it here",
     "statement_1": "We are a team of professionals who are ready to help you with any task.",
     "statement_2": "We are a team of professionals who are ready to help you with any task.",

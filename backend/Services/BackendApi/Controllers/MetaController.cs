@@ -14,6 +14,13 @@ public class MetaController : BaseApiController {
         _mailService = mailService;
         _templateService = templateService;
     }
+    [HttpGet("/maintenance")]
+    public IActionResult Maintenance() {
+        return Ok(new {
+            Maintenance = IsMaintenanceMode()
+        });
+    }
+
     [HttpGet("/info")]
     public ActionResult<string> Info() {
         var assembly = typeof(Program).Assembly;

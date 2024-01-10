@@ -46,6 +46,9 @@ public class ClientController : BaseGraphController {
         [FromGraphQL("client")] [Description("Client object input")]
         ClientInput clientInput
     ) {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         try {
@@ -73,6 +76,9 @@ public class ClientController : BaseGraphController {
         [FromGraphQL("client")] [Description("Client Object input")]
         ClientInput clientInput
     ) {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         try {
@@ -99,6 +105,9 @@ public class ClientController : BaseGraphController {
         [FromGraphQL("clientId")] [Description("Client Id")]
         int clientId
     ) {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         try {
@@ -123,6 +132,9 @@ public class ClientController : BaseGraphController {
     public async Task<IGraphActionResult> GetClients(
         [FromGraphQL("page")] [Description("Entity Page Data( paging , sorting , filtering )")]
         EntityPage page) {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         try {
@@ -155,6 +167,9 @@ public class ClientController : BaseGraphController {
         [FromGraphQL("contact")] [Description("Client Contact Object input")]
         ClientContactInput clientContactInput
     ) {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
@@ -183,6 +198,9 @@ public class ClientController : BaseGraphController {
         [FromGraphQL("contact")] [Description("Client Contact Object input")]
         ClientContactUpdateInput clientContactInput
     ) {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         try {

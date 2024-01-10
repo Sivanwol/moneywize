@@ -78,4 +78,44 @@ export const GetUsers = (filters = []) => {
 	];
 	return GetList('user', 'getUsers', filters, columns);
 };
+
+export const GetInitialUserData = gql`
+query GetInitialUserData {
+	general {
+		getViews {
+			clientKey, color, name, description,isPredefined, isShareAble, 
+			columns {
+				entityName,
+				columnName,
+				dataType,
+				filterOperationType,
+				isFilterable,
+				isSortable,
+				isHidden,
+				isFixed,
+				order
+			}
+		}
+		getCountries {
+			id, 
+			countryName, 
+			countryCode, 
+			countryNumber
+		}
+	}
+	user {
+		getMyProfile {
+			id,
+			email,
+			firstName,
+			lastName,
+			phoneNumber,
+			country { id, countryName },
+			address,
+			displayLanguage { id, code },
+			roles,
+			registerCompletedAt
+		}
+	}
+}`;
 	
