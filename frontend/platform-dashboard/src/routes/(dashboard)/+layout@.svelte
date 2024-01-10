@@ -9,12 +9,16 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { requestRefreshToken } from '@api/auth.js';
+	import { getClient } from 'svelte-apollo';
 	import { userStore } from '@stores/userStore.js';
+	import { GetMyProfileQuery } from '@api/queries/user.query.js';
+	import { getViews } from '@api/queries/general.query.js';
 
 
 	$: auth = createAuth();
 	$: loggedUser = auth.isLoggedIn();
 	$: auth.isLoggedIn() ?createApolloClient(auth.getAccessToken()): null;
+	$: client = auth.isLoggedIn() ? getClient() : null;
 	let sidebarCollapsed = false;
 	let userRoles = ['admin'];
 	let is
@@ -43,30 +47,95 @@
 			await goto('/login');
 		}
 		if (auth.isLoggedIn()) {
-			setAccessToken(auth.getAccessToken());
-			if (auth.isRenewToken()) {
-				const res = await requestRefreshToken(auth.getRefreshToken());
-				if (res.status === 200) {
-					/** @type {{accessToken: string, refreshToken: {tokenString: string, expiresIn: number}}} */
-					const { accessToken, refreshToken } = res.data;
-					if (accessToken && refreshToken) {
-						auth.reloadTokens({
-							accessToken,
-							refreshToken: refreshToken.tokenString,
-							expireAt: refreshToken.expiresIn
-						});
-						setAccessToken(auth.getAccessToken());
-						return;
-					}
-					auth.logout();
-					await goto('/login');
-				}
+			const accessToken = auth.getAccessToken();
+			if (!accessToken) {
+				await logout();
+				return;
 			}
-			await userStore.init();
+			setAccessToken(accessToken);
+			try {
+				if (auth.isRenewToken()) {
+					const res = await requestRefreshToken(auth.getRefreshToken());
+					if (res.status === 200) {
+						/** @type {{accessToken: string, refreshToken: {tokenString: string, expiresIn: number}}} */
+						const { accessToken, refreshToken } = res.data;
+						if (accessToken && refreshToken) {
+							auth.reloadTokens({
+								accessToken,
+								refreshToken: refreshToken.tokenString,
+								expireAt: refreshToken.expiresIn
+							});
+							setAccessToken(auth.getAccessToken());
+							return;
+						}
+						await logout();
+					}
+				}
+			} catch (e) {
+				console.log(e);
+				auth.logout();
+				await goto('/login');
+			}
+			await fetchInitialUserData();
 		}
 	});
+
+	async function fetchInitialUserData() {
+		userStore.setLoading(true);
+		try {
+			await fetchMyProfile();
+		} catch (e) {
+			userStore.setLoading(false);
+			return;
+		}
+		try {
+			await fetchUserViews();
+		} catch (e) {
+			userStore.setLoading(false);
+		}
+	}
+
+	async function fetchMyProfile() {
+		try {
+			const res = await client?.query({
+				query: GetMyProfileQuery
+			});
+			if (res?.data?.user?.getMyProfile) {
+				userStore.updateUserProfile(res.data?.user?.getMyProfile);
+				return;
+			}
+			userStore.setError(res?.error);
+
+		} catch (e) {
+			console.log(e);
+			userStore.setError(e.message);
+		}
+	}
+
+	async function fetchUserViews() {
+		try {
+			const res = await client?.query({
+				query: getViews
+			});
+			if (res?.data?.general?.getViews) {
+				userStore.updateViews(res.data?.general?.getViews);
+				return;
+			}
+			userStore.setError(res?.error);
+
+		} catch (e) {
+			console.log(e);
+			userStore.setError(e.message);
+		}
+	}
+
+	async function logout() {
+		auth.logout();
+		await goto('/login');
+	}
 	console.log('userStore', userStore);
 	console.log('profile', $userStore.profile);
+	console.log('userViews', $userStore.userViews);
 </script>
 <style lang="postcss">
     /* Mobile devices */

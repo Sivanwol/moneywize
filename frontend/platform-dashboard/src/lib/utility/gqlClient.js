@@ -1,15 +1,13 @@
-import { InMemoryCache, ApolloClient } from '@apollo/client/core';
+import { ApolloClient, InMemoryCache } from '@apollo/client/core';
 import { split } from '@apollo/client/link/core';
-import { HttpLink} from '@apollo/client/link/http';
-import { setClient } from "svelte-apollo";
-import { PUBLIC_GQL_API_URL, PUBLIC_GQL_WS_URL, PUBLIC_GQL_ENABLED_CACHE } from '$env/static/public';
-import { getMainDefinition } from "@apollo/client/utilities";
-import { WebSocketLink } from "@apollo/client/link/ws";
+import { HttpLink } from '@apollo/client/link/http';
+import { setClient } from 'svelte-apollo';
+import { PUBLIC_GQL_API_URL, PUBLIC_GQL_ENABLED_CACHE } from '$env/static/public';
+import { getMainDefinition } from '@apollo/client/utilities';
 
 export function createApolloClient(access_token) {
 
 	const headers = {
-		'Access-Control-Allow-Origin': '*',
 		Authorization: `Bearer ${access_token}`,
 	};
 	const httpLink = new HttpLink({
@@ -17,15 +15,15 @@ export function createApolloClient(access_token) {
 		headers,
 	});
 
-	const wsLink = new WebSocketLink({
-		uri: PUBLIC_GQL_WS_URL,
-		options: {
-			reconnect: true,
-			connectionParams: {
-				headers,
-			},
-		},
-	});
+	// const wsLink = new WebSocketLink({
+	// 	uri: PUBLIC_GQL_WS_URL,
+	// 	options: {
+	// 		reconnect: true,
+	// 		connectionParams: {
+	// 			headers,
+	// 		},
+	// 	},
+	// });
 
 	const link = split(
 		({ query }) => {
@@ -35,12 +33,12 @@ export function createApolloClient(access_token) {
 				definition.operation === "subscription"
 			);
 		},
-		wsLink,
+		//wsLink,
 		httpLink
 	);
 	const cache = (PUBLIC_GQL_ENABLED_CACHE)?new InMemoryCache().restore({}): "no-cache";
 	const client = new ApolloClient({
-		link,
+		link: httpLink,
 		cache,
 	});
 	setClient(client);

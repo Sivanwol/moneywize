@@ -12,7 +12,6 @@ using Domain.Persistence;
 using Domain.Persistence.Context;
 using GraphQL.AspNet.Configuration;
 using GraphQL.AspNet.Security;
-using Microsoft.AspNetCore.WebSockets;
 using HealthChecks.ApplicationStatus.DependencyInjection;
 using HealthChecks.UI.Client;
 using Infrastructure.Enums;
@@ -22,6 +21,7 @@ using Infrastructure.Services.Cache;
 using Infrastructure.Services.Email;
 using Infrastructure.Validators;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -34,6 +34,8 @@ using Serilog;
 namespace BackendApi;
 
 public class Bootstrap {
+
+    private static TimeSpan KEEP_ALIVE_INTERVAL = TimeSpan.FromMilliseconds(10000);
     public Bootstrap(IConfiguration configuration, IWebHostEnvironment env) {
         Configuration = configuration;
         Environment = env;
@@ -41,8 +43,6 @@ public class Bootstrap {
         ActiveAzureConfigConnectionString = Configuration["AzureConfigConnectionString"]!;
         IsLocalConfiguration = string.IsNullOrEmpty(ActiveAzureConfigConnectionString);
     }
-
-    private static TimeSpan KEEP_ALIVE_INTERVAL = TimeSpan.FromMilliseconds(10000);
     public static IWebHostEnvironment Environment { get; set; }
     public static bool IsLocalConfiguration { get; set; }
 
@@ -129,13 +129,10 @@ public class Bootstrap {
             services.AddTransient<ICacheService, CacheService>();
             services.AddValidatorsExtension();
             services.AddRazorPages();
-            
-            services.AddWebSockets(socketOptions => {
-                socketOptions.KeepAliveInterval = KEEP_ALIVE_INTERVAL;
-            });
+
             services.AddGraphQL(schemaOptions => {
                 schemaOptions.QueryHandler.Route = "/api/gql";
-                schemaOptions.AuthorizationOptions.Method = AuthorizationMethod.PerRequest;
+                schemaOptions.AuthorizationOptions.Method = AuthorizationMethod.PerField;
                 schemaOptions.ResponseOptions.ExposeExceptions = true;
                 schemaOptions.ResponseOptions.ExposeMetrics = true;
                 schemaOptions.ExecutionOptions.MaxQueryDepth = 15;
@@ -144,10 +141,7 @@ public class Bootstrap {
                 schemaOptions.AddType<PageSize>();
                 schemaOptions.AddType<EntityColumnOperationType>();
                 schemaOptions.AddType<EntityColumnDataType>();
-                
-            }).AddSubscriptions(options => {
-                options.AuthenticatedRequestsOnly = false;
-                options.ConnectionKeepAliveInterval = KEEP_ALIVE_INTERVAL;
+
             });
             services.AddHostedService<JwtRefreshTokenCache>();
         });
@@ -243,7 +237,7 @@ public class Bootstrap {
             o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         });
 
-        services.AddAuthentication("Bearer").AddJwtBearer(x => {
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(x => {
             x.RequireHttpsMetadata = false;
             x.SaveToken = true;
             x.IncludeErrorDetails = true;
