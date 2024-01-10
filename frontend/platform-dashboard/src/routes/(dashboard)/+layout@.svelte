@@ -9,12 +9,15 @@
 	import { goto } from '$app/navigation';
 	import { requestRefreshToken } from '@api/auth.js';
 	import { userStore } from '@stores/userStore.js';
+	import { createApolloClient } from '@api/gqlClient.js';
 
 
 	$: auth = createAuth();
-	$: userStoreState = userStore;
+	$: loggedUser = auth.isLoggedIn();
+	$: client = auth.isLoggedIn() ? createApolloClient(auth.getAccessToken()) : null;
 	let sidebarCollapsed = false;
 	let userRoles = ['admin'];
+	let is;
 	function handleToggleSidebar(event) {
 		sidebarCollapsed = !sidebarCollapsed;
 		if (sidebarCollapsed) {
@@ -36,7 +39,6 @@
 	}
 
 	onMount(async () => {
-		if (userStoreState.)
 		if (!auth.isLoggedIn()) {
 			await goto('/login');
 		}
@@ -60,8 +62,11 @@
 					await goto('/login');
 				}
 			}
+			await userStore.init();
 		}
 	});
+	console.log('userStore', userStore);
+	console.log('profile', $userStore.profile);
 </script>
 <style lang="postcss">
     /* Mobile devices */
@@ -80,48 +85,61 @@
 </style>
 
 <div>
-	<!-- Header -->
-	<aside
-		class="asidebar dark:bg-box-dark fixed start-0 top-0 z-[1035] h-screen overflow-hidden bg-dark xl:!w-[280px] xl:[&.collapsed]:!w-[80px] [&.collapsed]:!w-[250px] !transition-all !duration-[0.2s] ease-linear delay-[0s] !w-0 xl:[&.collapsed>.logo-wrapper]:w-[80px] {sidebarCollapsed? 'collapsed': ''}">
-		<div class="flex w-[280px] border-e border-[#edf2f9] dark:border-box-dark-up logo-wrapper items-center h-[71px]">
-			<a class="block text-center" href="/platform/main">
-				<div class="{sidebarCollapsed? 'hidden': ''} logo-full">
-					<img alt="Logo" class="ps-[27px]" src="/img/logo/logo.svg" width="100">
-				</div>
-				<div class="{sidebarCollapsed? '': 'hidden'} logo-fold">
-					<img alt="Logo" class="p-[27px] max-w-[80px]" src="/img/logo/logo.svg" width="80">
-				</div>
-			</a>
-		</div>
-		<SideBar sidebarCollapsed={sidebarCollapsed} userRoles={userRoles} />
-	</aside>
-
-	<div
-		class="relative flex flex-col flex-1 xl:ps-[280px] xl:[&.expanded]:ps-[80px] !transition-all !duration-[0.2s] ease-linear delay-[0s] bg-normalBG dark:bg-main-dark {sidebarCollapsed? 'expanded': ''}">
-		<ApplicationBar on:toggleSidebar={handleToggleSidebar} />
-
-		<main class="bg-normalBG dark:bg-main-dark  ">
-			<div class=" mx-[30px] -z-[1] min-h-[calc(100vh-195px)] mb-[30px] ssm:mt-[30px] mt-[15px]">
-				<div class="grid grid-cols-12 gap-5">
-					<div class="col-span-12">
-						<slot />
-					</div>
+	{#if loggedUser}
+		{#if $userStore.loading}
+			<div class="flex justify-center items-center h-screen">
+				<div class="flex flex-col items-center">
+					<div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
+					<h2 class="text-center text-white text-xl font-semibold">Loading...</h2>
+					<p class="w-1/3 text-center text-white">This may take a few seconds, please don't close this page.</p>
 				</div>
 			</div>
-			<Footer class="dark bg-background px-[25px] dark:bg-box-dark w-full" footerType="logo">
-				<div class="sm:flex sm:items-center sm:justify-between">
-					<FooterBrand alt="{$_('footer.logo')}" href="https://flowbite.com" name="{$_('footer.logo')}"
-											 src="/img/logo/logo.svg" />
-					<FooterLinkGroup
-						ulClass="flex flex-wrap items-center mb-6 text-sm text-gray-500 sm:mb-0 dark:text-gray-400">
-						<FooterLink href="/terms">{$_("navigation.terms")}</FooterLink>
-						<FooterLink href="/policy">{$_("navigation.privacy")}</FooterLink>
-					</FooterLinkGroup>
+		{/if}
+
+		<!-- Header -->
+		<aside
+			class="asidebar dark:bg-box-dark fixed start-0 top-0 z-[1035] h-screen overflow-hidden bg-dark xl:!w-[280px] xl:[&.collapsed]:!w-[80px] [&.collapsed]:!w-[250px] !transition-all !duration-[0.2s] ease-linear delay-[0s] !w-0 xl:[&.collapsed>.logo-wrapper]:w-[80px] {sidebarCollapsed? 'collapsed': ''}">
+			<div class="flex w-[280px] border-e border-[#edf2f9] dark:border-box-dark-up logo-wrapper items-center h-[71px]">
+				<a class="block text-center" href="/platform/main">
+					<div class="{sidebarCollapsed? 'hidden': ''} logo-full">
+						<img alt="Logo" class="ps-[27px]" src="/img/logo/logo.svg" width="100">
+					</div>
+					<div class="{sidebarCollapsed? '': 'hidden'} logo-fold">
+						<img alt="Logo" class="p-[27px] max-w-[80px]" src="/img/logo/logo.svg" width="80">
+					</div>
+				</a>
+			</div>
+			<SideBar sidebarCollapsed={sidebarCollapsed} userRoles={userRoles} />
+		</aside>
+
+		<div
+			class="relative flex flex-col flex-1 xl:ps-[280px] xl:[&.expanded]:ps-[80px] !transition-all !duration-[0.2s] ease-linear delay-[0s] bg-normalBG dark:bg-main-dark {sidebarCollapsed? 'expanded': ''}">
+			<ApplicationBar on:toggleSidebar={handleToggleSidebar} />
+
+			<main class="bg-normalBG dark:bg-main-dark  ">
+				<div class=" mx-[30px] -z-[1] min-h-[calc(100vh-195px)] mb-[30px] ssm:mt-[30px] mt-[15px]">
+					<div class="grid grid-cols-12 gap-5">
+						<div class="col-span-12">
+							<slot />
+						</div>
+					</div>
 				</div>
-				<hr class="my-6 border-gray-200 dark:border-gray-700 lg:my-8" />
-				<FooterCopyright by="{$_('footer.credit')}" href="/platform/main" />
-			</Footer>
-		</main>
-	</div>
+				<Footer class="dark bg-background px-[25px] dark:bg-box-dark w-full" footerType="logo">
+					<div class="sm:flex sm:items-center sm:justify-between">
+						<FooterBrand alt="{$_('footer.logo')}" href="https://flowbite.com" name="{$_('footer.logo')}"
+												 src="/img/logo/logo.svg" />
+						<FooterLinkGroup
+							ulClass="flex flex-wrap items-center mb-6 text-sm text-gray-500 sm:mb-0 dark:text-gray-400">
+							<FooterLink href="/terms">{$_("navigation.terms")}</FooterLink>
+							<FooterLink href="/policy">{$_("navigation.privacy")}</FooterLink>
+						</FooterLinkGroup>
+					</div>
+					<hr class="my-6 border-gray-200 dark:border-gray-700 lg:my-8" />
+					<FooterCopyright by="{$_('footer.credit')}" href="/platform/main" />
+				</Footer>
+			</main>
+		</div>
+
+	{/if}
 </div>
 	

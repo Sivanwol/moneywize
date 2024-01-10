@@ -1,4 +1,6 @@
 import storage from '@stores/store.js';
+import { getClient } from 'svelte-apollo';
+import { GetMyProfileQuery } from '@api/queries/user.query.js';
 
 function createUserStore() {
 	const localStorageKey = 'userData';
@@ -7,16 +9,54 @@ function createUserStore() {
 		userViews: [],
 		userActivities: [],
 		isEmptyState: true,
-		loading: false
+		loading: false,
+		errorMessage: null,
+		systemNotAvailable: false
 	};
-	const { subscribe, set, update, get } = storage(localStorageKey, initialValues);
-
+	const { subscribe, set, update } = storage(localStorageKey, initialValues);
 	return {
 		subscribe,
-		updateUserProfile: async (entity) => update((state) => {
-			state.profile = { ...state.profile, ...entity };
-			state.isEmptyState = false;
-		}),
+		init: async () => {
+			try {
+				const client = getClient();
+				update((state) => {
+					state.loading = true;
+				});
+				const { data } = await client.query({ query: GetMyProfileQuery });
+				const { getMyProfile } = data.user;
+				update((state) => {
+					state.loading = false;
+					state.profile = { ...state.profile, ...getMyProfile };
+					state.isEmptyState = false;
+				});
+			} catch (error) {
+				set({
+					isEmptyState: true,
+					errorMessage: error.message
+				});
+			}
+
+		},
+		updateUserProfile: async () => {
+			const client = getClient();
+			update((state) => {
+				state.loading = true;
+			});
+			try {
+				const { data } = await client.query({ query: GetMyProfileQuery });
+				const { getMyProfile } = data.user;
+
+				update((state) => {
+					state.loading = false;
+					state.profile = { ...state.profile, ...getMyProfile };
+				});
+			} catch (error) {
+				set({
+					isEmptyState: true,
+					errorMessage: error.message
+				});
+			}
+		},
 		updateViews: (entities) => update((state) => {
 			state.userViews = [...state.userViews, ...entities];
 			state.isEmptyState = false;
