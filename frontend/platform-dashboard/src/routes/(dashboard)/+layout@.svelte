@@ -54,7 +54,7 @@
 			const data = await result.json();
 			if (data.Maintenance) {
 				console.log('maintenance mode');
-				// await goto('/maintenance')
+				await goto('/maintenance');
 			}
 
 		}

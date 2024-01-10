@@ -8,18 +8,32 @@
 	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
 	import { PUBLIC_MAINTENANCE_URL } from '$env/static/public';
-
+	import { goto } from '$app/navigation';
+	/** @type {number} */
+	$: timerIns = 0;
+	$: checkerIns = 0;
 	onMount(async () => {
-		if (!$requestMaintenanceStatus) {
-			if ($maintenanceElapsed > 360) {
-				requestMaintenanceStatus.set(true);
+		if ($requestMaintenanceStatus) {
+			if (timerIns) {
+				clearTimeout(timerIns);
 			}
-			if ($requestMaintenanceStatus) {
+			timerIns = setTimeout(async () => {
 				await refresh();
-			}
+				resetMaintenanceStart();
+			}, 1000);
+			requestMaintenanceStatus.set(false);
 		}
+
 	});
 
+	if (checkerIns) {
+		clearInterval(checkerIns);
+	}
+	checkerIns = setInterval(async () => {
+		if ($maintenanceElapsed > 60) {
+			requestMaintenanceStatus.set(true);
+		}
+	}, 1000);
 	async function refresh() {
 		console.log('Maintenance is Check Status');
 		const result = await fetch(PUBLIC_MAINTENANCE_URL, {
@@ -30,10 +44,12 @@
 			console.log(data);
 			if (!data?.Maintenance) {
 				console.log('Maintenance is over');
-				// await goto('/platform/main')
+				clearInterval(checkerIns);
+				await goto('/platform/main');
+			} else {
+				console.log('Maintenance is still on');
+				console.log('sad we still on Maintenance');
 			}
-			requestMaintenanceStatus.set(false);
-			resetMaintenanceStart();
 		}
 	}
 </script>
