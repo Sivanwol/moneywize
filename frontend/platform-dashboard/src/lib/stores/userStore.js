@@ -24,11 +24,11 @@ function createUserStore() {
 			return { ...state };
 		}),
 		updateViews: (entities) => update((state) => {
-			state.userViews = [...state.userViews, ...entities];
+			state.userViews = entities;
 			return { ...state };
 		}),
 		updateUserActivities: (entities) => update((state) => {
-			state.userActivities = [...state.userActivities, ...entities];
+			state.userActivities = entities;
 			return { ...state };
 		}),
 		clearActivities: () => update((state) => {

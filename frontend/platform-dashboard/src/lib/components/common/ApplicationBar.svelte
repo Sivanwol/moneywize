@@ -6,26 +6,20 @@
 	import SiteSectionSelectionHeader from '@components/user/SiteSectionSelectionHeader.svelte';
 	import UserSelectionLanguageHeader from '@components/user/UserSelectionLanguageHeader.svelte';
 	import UserMenuHeader from '@components/user/UserMenuHeader.svelte';
+	import { userStore } from '@stores/userStore.js';
 	import { Language } from '@models/Language.js';
 	import { UserProfile } from '@models/UserProfile.js';
+	import { getClient } from 'svelte-apollo';
 
 	const dispatch = createEventDispatcher();
+	$: client = getClient();
 
 	const languages = [
 		Language.fromJson({ id: 1, name: 'English', code: 'en', flag: '/img/flags/english.png' }),
 		Language.fromJson({ id: 2, name: 'Spanish', code: 'es', flag: '/img/flags/spanish.png' })
 	];
 	let selectedLanguage = languages[0];
-	let userProfile = UserProfile.fromJson({
-		id: 1,
-		firstName: 'Jo',
-		lastName: 'Hoi',
-		email: 'ho@test.com',
-		phone: '0542454511',
-		role: 'Admin',
-		avatarImage: '/img/avatars/thumbs-2.png',
-		createdAt: '2021-09-01'
-	});
+	let userProfile = UserProfile.fromJson($userStore.profile);
 
 	let showMessageWindow = false;
 	let showNotificationWindow = false;

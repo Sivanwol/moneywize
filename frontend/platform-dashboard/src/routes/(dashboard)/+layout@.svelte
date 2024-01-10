@@ -13,6 +13,7 @@
 	import { userStore } from '@stores/userStore.js';
 	import { GetMyProfileQuery } from '@api/queries/user.query.js';
 	import { getViews } from '@api/queries/general.query.js';
+	import { isEmpty } from 'lodash-es';
 
 
 	$: auth = createAuth();
@@ -83,16 +84,20 @@
 	async function fetchInitialUserData() {
 		userStore.setLoading(true);
 		try {
-			await fetchMyProfile();
+			if (isEmpty($userStore?.profile)) {
+				await fetchMyProfile();
+			}
 		} catch (e) {
 			userStore.setLoading(false);
 			return;
 		}
 		try {
-			await fetchUserViews();
+			if (isEmpty($userStore?.userViews)) {
+				await fetchUserViews();
+			}
 		} catch (e) {
-			userStore.setLoading(false);
 		}
+		userStore.setLoading(false);
 	}
 
 	async function fetchMyProfile() {
