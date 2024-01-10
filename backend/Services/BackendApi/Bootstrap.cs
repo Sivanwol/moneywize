@@ -12,6 +12,7 @@ using Domain.Persistence;
 using Domain.Persistence.Context;
 using GraphQL.AspNet.Configuration;
 using GraphQL.AspNet.Security;
+using Microsoft.AspNetCore.WebSockets;
 using HealthChecks.ApplicationStatus.DependencyInjection;
 using HealthChecks.UI.Client;
 using Infrastructure.Enums;
@@ -41,6 +42,7 @@ public class Bootstrap {
         IsLocalConfiguration = string.IsNullOrEmpty(ActiveAzureConfigConnectionString);
     }
 
+    private static TimeSpan KEEP_ALIVE_INTERVAL = TimeSpan.FromMilliseconds(10000);
     public static IWebHostEnvironment Environment { get; set; }
     public static bool IsLocalConfiguration { get; set; }
 
@@ -127,9 +129,13 @@ public class Bootstrap {
             services.AddTransient<ICacheService, CacheService>();
             services.AddValidatorsExtension();
             services.AddRazorPages();
+            
+            services.AddWebSockets(socketOptions => {
+                socketOptions.KeepAliveInterval = KEEP_ALIVE_INTERVAL;
+            });
             services.AddGraphQL(schemaOptions => {
                 schemaOptions.QueryHandler.Route = "/api/gql";
-                schemaOptions.AuthorizationOptions.Method = AuthorizationMethod.PerField;
+                schemaOptions.AuthorizationOptions.Method = AuthorizationMethod.PerRequest;
                 schemaOptions.ResponseOptions.ExposeExceptions = true;
                 schemaOptions.ResponseOptions.ExposeMetrics = true;
                 schemaOptions.ExecutionOptions.MaxQueryDepth = 15;
@@ -138,7 +144,10 @@ public class Bootstrap {
                 schemaOptions.AddType<PageSize>();
                 schemaOptions.AddType<EntityColumnOperationType>();
                 schemaOptions.AddType<EntityColumnDataType>();
-
+                
+            }).AddSubscriptions(options => {
+                options.AuthenticatedRequestsOnly = false;
+                options.ConnectionKeepAliveInterval = KEEP_ALIVE_INTERVAL;
             });
             services.AddHostedService<JwtRefreshTokenCache>();
         });
@@ -285,6 +294,7 @@ public class Bootstrap {
             // endpoints.MapGroup("/auth").MapIdentityApi<ApplicationUser>();
             endpoints.MapControllers().RequireCors("AllowAll");
         });
+        app.UseWebSockets();
         app.UseGraphQL();
         Log.Information("End Perp Setup Starting Server");
     }

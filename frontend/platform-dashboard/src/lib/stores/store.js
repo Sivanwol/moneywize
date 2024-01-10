@@ -1,5 +1,5 @@
-import { browser } from '$app/env';
 import { get, writable } from 'svelte/store';
+import { browser } from '$app/environment';
 
 const storage = (key, initValue) => {
 	const store = writable(initValue);

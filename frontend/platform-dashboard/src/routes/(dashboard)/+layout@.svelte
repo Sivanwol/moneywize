@@ -1,6 +1,7 @@
 <script>
 	import { Footer, FooterBrand, FooterCopyright, FooterLink, FooterLinkGroup } from 'flowbite-svelte';
 	import { setAccessToken } from '@utility/apiCaller.js';
+	import { createApolloClient } from '@utility/gqlClient.js';
 	import { _ } from 'svelte-i18n';
 	import ApplicationBar from '@components/common/ApplicationBar.svelte';
 	import SideBar from '@components/common/sidebar/SideBar.svelte';
@@ -9,15 +10,14 @@
 	import { goto } from '$app/navigation';
 	import { requestRefreshToken } from '@api/auth.js';
 	import { userStore } from '@stores/userStore.js';
-	import { createApolloClient } from '@api/gqlClient.js';
 
 
 	$: auth = createAuth();
 	$: loggedUser = auth.isLoggedIn();
-	$: client = auth.isLoggedIn() ? createApolloClient(auth.getAccessToken()) : null;
+	$: auth.isLoggedIn() ?createApolloClient(auth.getAccessToken()): null;
 	let sidebarCollapsed = false;
 	let userRoles = ['admin'];
-	let is;
+	let is
 	function handleToggleSidebar(event) {
 		sidebarCollapsed = !sidebarCollapsed;
 		if (sidebarCollapsed) {
@@ -95,7 +95,7 @@
 				</div>
 			</div>
 		{/if}
-
+		
 		<!-- Header -->
 		<aside
 			class="asidebar dark:bg-box-dark fixed start-0 top-0 z-[1035] h-screen overflow-hidden bg-dark xl:!w-[280px] xl:[&.collapsed]:!w-[80px] [&.collapsed]:!w-[250px] !transition-all !duration-[0.2s] ease-linear delay-[0s] !w-0 xl:[&.collapsed>.logo-wrapper]:w-[80px] {sidebarCollapsed? 'collapsed': ''}">
@@ -111,11 +111,11 @@
 			</div>
 			<SideBar sidebarCollapsed={sidebarCollapsed} userRoles={userRoles} />
 		</aside>
-
+	
 		<div
 			class="relative flex flex-col flex-1 xl:ps-[280px] xl:[&.expanded]:ps-[80px] !transition-all !duration-[0.2s] ease-linear delay-[0s] bg-normalBG dark:bg-main-dark {sidebarCollapsed? 'expanded': ''}">
 			<ApplicationBar on:toggleSidebar={handleToggleSidebar} />
-
+	
 			<main class="bg-normalBG dark:bg-main-dark  ">
 				<div class=" mx-[30px] -z-[1] min-h-[calc(100vh-195px)] mb-[30px] ssm:mt-[30px] mt-[15px]">
 					<div class="grid grid-cols-12 gap-5">

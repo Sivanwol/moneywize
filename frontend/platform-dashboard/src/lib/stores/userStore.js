@@ -29,19 +29,20 @@ function createUserStore() {
 					state.profile = { ...state.profile, ...getMyProfile };
 					state.isEmptyState = false;
 				});
-			} catch (error) {
+			}
+			catch (error) {
 				set({
 					isEmptyState: true,
 					errorMessage: error.message
 				});
 			}
-
+			
 		},
-		updateUserProfile: async () => {
+		updateUserProfile:  async () => {
 			const client = getClient();
 			update((state) => {
 				state.loading = true;
-			});
+			})
 			try {
 				const { data } = await client.query({ query: GetMyProfileQuery });
 				const { getMyProfile } = data.user;
@@ -49,7 +50,7 @@ function createUserStore() {
 				update((state) => {
 					state.loading = false;
 					state.profile = { ...state.profile, ...getMyProfile };
-				});
+				})
 			} catch (error) {
 				set({
 					isEmptyState: true,
