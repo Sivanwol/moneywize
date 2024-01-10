@@ -1,4 +1,5 @@
 import { derived, readable, writable } from 'svelte/store';
+// import { debounce } from 'lodash'
 
 export const maintenanceTime = readable(new Date(), function start(set) {
 	const interval = setInterval(() => {
@@ -10,11 +11,19 @@ export const maintenanceTime = readable(new Date(), function start(set) {
 	};
 });
 let maintenanceStart = new Date();
-export const resetMaintenanceStart = () => {
+const resetMaintenanceStart = () => {
 	maintenanceStart = new Date();
 };
-export const requestMaintenanceStatus = writable(true);
+export const requestMaintenanceStatus = writable(false);
 export const maintenanceElapsed = derived(
 	maintenanceTime,
-	($maintenanceTime) => Math.round(($maintenanceTime - maintenanceStart) / 1000)
+	($maintenanceTime) => {
+		const seconds = Math.round(($maintenanceTime - maintenanceStart) / 1000);
+		if (seconds >= 30) {
+			console.log('Maintenance checking');
+			resetMaintenanceStart();
+			requestMaintenanceStatus.set(true);
+		}
+		return seconds;
+	}
 );

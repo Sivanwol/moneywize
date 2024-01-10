@@ -1,40 +1,41 @@
 <script>
-	import {
-		maintenanceElapsed,
-		maintenanceTime,
-		requestMaintenanceStatus,
-		resetMaintenanceStart
-	} from '@stores/maintenanceTimerStorage';
+	import { maintenanceElapsed, maintenanceTime, requestMaintenanceStatus } from '@stores/maintenanceTimerStorage';
 	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
 	import { PUBLIC_MAINTENANCE_URL } from '$env/static/public';
 	import { goto } from '$app/navigation';
-	/** @type {number} */
-	$: timerIns = 0;
-	$: checkerIns = 0;
-	onMount(async () => {
-		if ($requestMaintenanceStatus) {
-			if (timerIns) {
-				clearTimeout(timerIns);
-			}
-			timerIns = setTimeout(async () => {
-				await refresh();
-				resetMaintenanceStart();
-			}, 1000);
-			requestMaintenanceStatus.set(false);
-		}
 
+	$:preventDebounce = false;
+	$:timeoutInstance = 0;
+	requestMaintenanceStatus.subscribe(async (value) => {
+		if (value && !preventDebounce) {
+			preventDebounce = true;
+			requestMaintenanceStatus.set(false);
+			if (timeoutInstance) {
+				clearTimeout(timeoutInstance);
+			}
+			timeoutInstance = setTimeout(async () => {
+				console.log(`Maintenance check is Requested value=${value} preventDebounce=${preventDebounce}`);
+				await checkStatus();
+
+				preventDebounce = false;
+			}, 500);
+		}
+	});
+	onMount(async () => {
+		if (!preventDebounce) {
+			preventDebounce = true;
+			console.log('Maintenance is Mounted');
+			if (timeoutInstance) {
+				clearTimeout(timeoutInstance);
+			}
+			console.log(`Init Maintenance check is Requested preventDebounce=${preventDebounce}`);
+			await checkStatus();
+			preventDebounce = false;
+		}
 	});
 
-	if (checkerIns) {
-		clearInterval(checkerIns);
-	}
-	checkerIns = setInterval(async () => {
-		if ($maintenanceElapsed > 60) {
-			requestMaintenanceStatus.set(true);
-		}
-	}, 1000);
-	async function refresh() {
+	async function checkStatus() {
 		console.log('Maintenance is Check Status');
 		const result = await fetch(PUBLIC_MAINTENANCE_URL, {
 			method: 'GET'
@@ -44,12 +45,14 @@
 			console.log(data);
 			if (!data?.Maintenance) {
 				console.log('Maintenance is over');
-				clearInterval(checkerIns);
 				await goto('/platform/main');
 			} else {
 				console.log('Maintenance is still on');
 				console.log('sad we still on Maintenance');
 			}
+		} else {
+			console.log('Maintenance is still on');
+			console.log('sad we still on Maintenance');
 		}
 	}
 </script>
