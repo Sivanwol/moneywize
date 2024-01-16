@@ -1,3 +1,4 @@
+using Application.Configs;
 using Application.Configs.Providers;
 using Application.Contract;
 using MailKit.Net.Smtp;
@@ -9,12 +10,14 @@ using Serilog;
 namespace Infrastructure.Services.Email;
 
 public class MailService : IMailService {
+    private readonly BackendApplicationConfig _backendApplicationConfig;
 
     private readonly MailServerConfig _settings;
 
-    public MailService(IOptions<MailServerConfig> mailServerConfigOptions) {
+    public MailService(IOptions<MailServerConfig> mailServerConfigOptions, BackendApplicationConfig backendApplicationConfig) {
         Log.Information($"MailService: {mailServerConfigOptions.Value}");
         _settings = mailServerConfigOptions.Value;
+        _backendApplicationConfig = backendApplicationConfig;
     }
 
     public async Task<bool> SendWithAttachmentsAsync(MailDataWithAttachments mailData, CancellationToken ct = default) {
@@ -93,7 +96,7 @@ public class MailService : IMailService {
             }
 
             if (_settings.IsUseCredentials) {
-                await smtp.AuthenticateAsync(_settings.Username, _settings.Password, ct);
+                await smtp.AuthenticateAsync(_backendApplicationConfig.EMailUser, _backendApplicationConfig.EMailPassword, ct);
             }
             await smtp.SendAsync(mail, ct);
             await smtp.DisconnectAsync(true, ct);

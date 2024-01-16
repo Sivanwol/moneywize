@@ -23,6 +23,8 @@ public class BackendApplicationConfig : BaseConfig {
     public string EmailFrom { get; set; } = "system@wolberg.pro";
     public string EmailFromName { get; set; } = "Wolberg Pro";
     public string ShadowEmailBcc { get; set; } = "shadow@wolberg.pro";
+    public string EMailPassword { get; set; }
+    public string EMailUser { get; set; }
 
     #endregion
 

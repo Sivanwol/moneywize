@@ -10,6 +10,7 @@ using Application.Extensions;
 using Domain.Entities;
 using Domain.Persistence;
 using Domain.Persistence.Context;
+using DotEnv.Core;
 using GraphQL.AspNet.Configuration;
 using GraphQL.AspNet.Security;
 using HealthChecks.ApplicationStatus.DependencyInjection;
@@ -59,6 +60,16 @@ public class Bootstrap {
             services.Configure<BackendApplicationConfig>(Configuration.GetSection("ApplicationConfig"));
         }
         var applicationConfig = Configuration.GetSection("ApplicationConfig").Get<BackendApplicationConfig>()!;
+        services.Configure<MailServerConfig>(Configuration.GetSection("MailConfig"));
+        new EnvLoader().Load();
+        var settings = new EnvBinder().Bind<BackendSecretApplicationConfig>();
+        if (settings != null) {
+            applicationConfig.JwtSecret = settings.JwtSecret;
+            applicationConfig.SMSProviderInfouToken = settings.SMSProviderInfouToken;
+            applicationConfig.EMailPassword = settings.EMailPassword;
+            applicationConfig.EMailUser = settings.EMailUser;
+        }
+
         var jwtTokenConfig = new JwtTokenConfig {
             Secret = applicationConfig.JwtSecret,
             Issuer = applicationConfig.JwtIssuer,
@@ -119,7 +130,6 @@ public class Bootstrap {
                         .EnableDetailedErrors();
                 }
             });
-            services.Configure<MailServerConfig>(Configuration.GetSection("MailConfig"));
             services.Configure<FrontEndPaths>(Configuration.GetSection("FrontEndWebPaths"));
 
             services.AddTransient<IDomainContext>(provider => provider.GetService<DomainContext>()!);

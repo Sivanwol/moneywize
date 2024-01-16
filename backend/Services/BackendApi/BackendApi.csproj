@@ -17,6 +17,7 @@
         <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="7.1.0"/>
         <PackageReference Include="AspNetCore.HealthChecks.UI.MySql.Storage" Version="7.0.0"/>
         <PackageReference Include="AspNetCore.HealthChecks.UI.SqlServer.Storage" Version="7.0.0"/>
+        <PackageReference Include="DotEnv.Core" Version="3.0.0"/>
         <PackageReference Include="EasyCaching.Core" Version="1.9.2"/>
         <PackageReference Include="EasyCaching.Extensions.EasyCompressor" Version="1.4.0"/>
         <PackageReference Include="EasyCaching.Redis" Version="1.9.2"/>
@@ -75,5 +76,4 @@
     <ItemGroup>
         <Folder Include="wwwroot\assets\"/>
     </ItemGroup>
-
 </Project>
