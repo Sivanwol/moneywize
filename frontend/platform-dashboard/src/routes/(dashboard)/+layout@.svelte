@@ -110,8 +110,16 @@
 
 		} catch (e) {
 			console.log(e);
-			applicationStore.setError(e.message);
-			applicationStore.setMaintenanceMode(true);
+			if (e.message.includes('Network error')) {
+				applicationStore.setError('Network error');
+				applicationStore.setMaintenanceMode(true);
+			}
+			if (e.message.includes('Access Denied to field')) {
+				console.log('Login invalid');
+
+				auth.logout();
+				await goto('/login');
+			}
 		}
 		applicationStore.setLoading(false);
 	}

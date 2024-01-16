@@ -94,8 +94,8 @@
 					<div class="p-0 dark:hover:text-white hover:bg-primary/10 dark:hover:bg-box-dark-up rounded-4">
 						<a href="/platform/user-activities"
 							class="inline-flex items-center text-light dark:text-subtitle-dark hover:text-primary hover:ps-6 w-full px-2.5 py-3 text-sm transition-all ease-in-out delay-150 gap-[10px]">
-							<i class="text-[16px] uil uil-users-alt"></i>
-							Activity
+							<i class="text-[16px] uil uil-shield"></i>
+							User Activity
 						</a>
 					</div>
 				</li>

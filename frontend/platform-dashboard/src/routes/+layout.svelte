@@ -31,7 +31,10 @@
 		}
 	}
 </script>
-<style lang="postcss">
+
+<style global lang="postcss">
+    @import "https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css";
+		
     :host {
         display: block;
     }

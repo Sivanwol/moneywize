@@ -3,6 +3,7 @@
 	import SideBarSubMenuItem from '@components/common/sidebar/SideBarSubMenuItem.svelte';
 	import { allowAccess } from '@utility/permission.js';
 	import * as _ from 'lodash';
+	import { goto } from '$app/navigation';
 
 	const dispatch = createEventDispatcher();
 	/** @type {string} */
@@ -29,7 +30,6 @@
 	export let permissions = [];
 
 	let hasSidebarItems = _.isArray(items) && items.length > 0;
-	console.log(sectionTitle, hasSectionTitle);
 
 	function handleSideBarSubTitleChange(event) {
 		const { id, enabled, title } = event.detail;
@@ -45,11 +45,11 @@
 		visibleSideBarSubItems = !visibleSideBarSubItems;
 	}
 
-	function handleSideBarClick() {
+	async function handleSideBarClick() {
 		if (hasSidebarItems && !sidebarCollapsed) {
 			return;
 		}
-		window.location = link;
+		await goto(link);
 	}
 </script>
 {#if allowAccess(permissions, userRoles)}
