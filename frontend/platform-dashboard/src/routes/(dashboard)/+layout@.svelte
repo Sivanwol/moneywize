@@ -147,6 +147,10 @@
 				console.log('res', res);
 				userStore.updateUserProfile(res.data?.user?.getMyProfile);
 				userStore.updateViews(res.data?.general?.getViews);
+
+				console.log('userStore', userStore);
+				console.log('profile', $userStore.profile);
+				console.log('userViews', $userStore.userViews);
 			}
 
 		} catch (e) {
@@ -159,9 +163,6 @@
 		auth.logout();
 		await goto('/login');
 	}
-	console.log('userStore', userStore);
-	console.log('profile', $userStore.profile);
-	console.log('userViews', $userStore.userViews);
 </script>
 <style lang="postcss">
     /* Mobile devices */

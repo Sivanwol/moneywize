@@ -7,8 +7,7 @@
 	import Grid from 'gridjs-svelte';
 	import { PUBLIC_VIEWS_USER_ACTIVITY } from '$env/static/public';
 
-	let defaultViewKey = PUBLIC_VIEWS_USER_ACTIVITY;
-	let currentViewKey = null || defaultViewKey;
+	let currentViewKey = null || PUBLIC_VIEWS_USER_ACTIVITY;
 	let enabledDrawer = true;
 	let hiddenDrawer = true;
 	let loading = false;
