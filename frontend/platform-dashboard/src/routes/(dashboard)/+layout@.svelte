@@ -12,8 +12,8 @@
 	import { getClient } from 'svelte-apollo';
 	import { userStore } from '@stores/userStore.js';
 	import { applicationStore } from '@stores/applicationStore.js';
-	import { GetMyProfileQuery } from '@api/queries/user.query.js';
-	import { GetMaintenanceMode, getViews } from '@api/queries/general.query.js';
+	import { GetInitialUserData } from '@api/queries/user.query.js';
+	import { GetMaintenanceMode } from '@api/queries/general.query.js';
 	import { isEmpty } from 'lodash-es';
 	import { PUBLIC_MAINTENANCE_URL } from '$env/static/public';
 
@@ -24,7 +24,6 @@
 	$: client = auth.isLoggedIn() ? getClient() : null;
 	let sidebarCollapsed = false;
 	let userRoles = ['admin'];
-	let is
 	function handleToggleSidebar(event) {
 		sidebarCollapsed = !sidebarCollapsed;
 		if (sidebarCollapsed) {
@@ -91,6 +90,7 @@
 				auth.logout();
 				await goto('/login');
 			}
+			// we rechecking also for verify if user is logged in this case required for logged in user
 			await fetchSystemMaintenanceMode();
 			if ($applicationStore.maintenanceMode) {
 				await goto('/maintenance');
@@ -128,7 +128,8 @@
 		applicationStore.setLoading(true);
 		try {
 			if (isEmpty($userStore?.profile) && isEmpty($userStore?.userViews) && isEmpty($applicationStore?.countries)) {
-				await fetchInitialUserViews();
+				await fetchInitialUserData();
+				
 			}
 		} catch (e) {
 			applicationStore.setLoading(false);
@@ -137,12 +138,13 @@
 		applicationStore.setLoading(false);
 	}
 
-	async function fetchInitialUserViews() {
+	async function fetchInitialUserData() {
 		try {
 			const res = await client?.query({
-				query: GetMyProfileQuery
+				query: GetInitialUserData
 			});
 			if (res?.data?.user?.getMyProfile && res?.data?.general?.getViews) {
+				console.log('res', res);
 				userStore.updateUserProfile(res.data?.user?.getMyProfile);
 				userStore.updateViews(res.data?.general?.getViews);
 			}
@@ -150,39 +152,6 @@
 		} catch (e) {
 			console.log(e);
 			applicationStore.setError(e.message);
-		}
-	}
-	async function fetchMyProfile() {
-		try {
-			const res = await client?.query({
-				query: GetMyProfileQuery
-			});
-			if (res?.data?.user?.getMyProfile) {
-				userStore.updateUserProfile(res.data?.user?.getMyProfile);
-				return;
-			}
-			userStore.setError(res?.error);
-
-		} catch (e) {
-			console.log(e);
-			userStore.setError(e.message);
-		}
-	}
-
-	async function fetchUserViews() {
-		try {
-			const res = await client?.query({
-				query: getViews
-			});
-			if (res?.data?.general?.getViews) {
-				userStore.updateViews(res.data?.general?.getViews);
-				return;
-			}
-			userStore.setError(res?.error);
-
-		} catch (e) {
-			console.log(e);
-			userStore.setError(e.message);
 		}
 	}
 

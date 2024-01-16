@@ -1,37 +1,33 @@
-import storage from '@stores/store.js';
+import moment from 'moment';
+import { writable } from 'svelte/store';
 
 function createUserStore() {
-	const localStorageKey = 'userData';
 	const initialValues = {
 		profile: {},
 		userViews: [],
 		userActivities: [],
 		errorMessage: null,
+		expireAt: null
 	};
-	const { subscribe, set, update } = storage(localStorageKey, initialValues);
+	const { subscribe, set, update } = writable(initialValues);
 	return {
 		subscribe,
-		updateUserProfile: (profile) => update((state) => {
-			state.profile = { ...state.profile, ...profile };
-			return { ...state };
-		}),
-		updateViews: (entities) => update((state) => {
-			state.userViews = entities;
-			return { ...state };
-		}),
-		updateUserActivities: (entities) => update((state) => {
-			state.userActivities = entities;
-			return { ...state };
-		}),
-		clearActivities: () => update((state) => {
-			state.userActivities = initialValues.userActivities;
-			return { ...state };
-		}),
-		setError: (errorMessage) => update((state) => {
-			state.errorMessage = errorMessage;
-			return { ...state };
-		}),
-		logout: () => set(initialValues)
+		updateUserProfile: (profile) => update((state) => ({
+			...state,
+			profile: { ...state.profile, ...profile },
+			expireAt: moment().add(1, 'minutes').toDate()
+		})),
+		updateViews: (entities) => update((state) => ({
+			...state,
+			userViews: entities,
+			expireAt: moment().add(1, 'minutes').toDate()
+		})),
+		updateUserActivities: (entities) => update((state) => ({
+			...state,
+			userActivities: entities,
+			expireAt: moment().add(1, 'minutes').toDate()
+		})),
+		setError: (errorMessage) => update((state) => ({ ...state, errorMessage, expireAt: null }))
 	};
 }
 
