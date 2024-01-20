@@ -48,7 +48,9 @@ namespace Domain.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     EntityName = table.Column<string>(type: "nvarchar(100)", nullable: false),
-                    ColumnName = table.Column<string>(type: "nvarchar(100)", nullable: true),
+                    ColumnName = table.Column<string>(type: "nvarchar(100)", nullable: false),
+                    FieldAlias = table.Column<string>(type: "nvarchar(100)", nullable: false),
+                    FieldPath = table.Column<string>(type: "nvarchar(500)", nullable: false),
                     DisplayName = table.Column<string>(type: "nvarchar(100)", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -72,12 +74,6 @@ namespace Domain.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ConfigurableEntityColumnDefinitions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ConfigurableEntityColumnDefinitions_ConfigurableCategories_C~",
-                        column: x => x.CategoryId,
-                        principalTable: "ConfigurableCategories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -89,7 +85,7 @@ namespace Domain.Persistence.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ConfigurableEntityColumnDefinitions_EntityName_ColumnName_Di~",
                 table: "ConfigurableEntityColumnDefinitions",
-                columns: new[] { "EntityName", "ColumnName", "DisplayName" },
+                columns: new[] { "EntityName", "ColumnName", "FieldAlias" },
                 unique: true);
         }
 

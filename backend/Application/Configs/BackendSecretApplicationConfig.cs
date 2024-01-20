@@ -13,4 +13,7 @@ public class BackendSecretApplicationConfig {
 
     [EnvKey("SMSProviderInfouToken")]
     public string SMSProviderInfouToken { get; set; }
+
+    [EnvKey("DatabaseConnectionString")]
+    public string DatabaseConnectionString { get; set; }
 }

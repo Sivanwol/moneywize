@@ -731,6 +731,16 @@ acorn@^8.10.0, acorn@^8.9.0:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.11.2.tgz#ca0d78b51895be5390a5903c5b3bdcdaf78ae40b"
   integrity sha512-nc0Axzp/0FILLEVsm4fNwLCwMttvhEI263QtVPQcbpfZZ3ts0hLsZGOpE6czNlid7CJ9MlyH8reXkpsf3YUY4w==
 
+ag-grid-community@^31.0.2:
+  version "31.0.2"
+  resolved "https://registry.yarnpkg.com/ag-grid-community/-/ag-grid-community-31.0.2.tgz#8421c4e23e29205628281c1258808e83dccdada2"
+  integrity sha512-gxUdHeAZUV2TDHqnDax5QSQgUxIvJ1zaFxUuPzcfiiPwbN6btz6kxg/KNrDfEjQi70JBfJV46BMR9KTG6iAVmQ==
+
+ag-grid-svelte@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/ag-grid-svelte/-/ag-grid-svelte-0.3.0.tgz#b79b2bfc3e2f4ffdda0c397a498001fdef6f48fc"
+  integrity sha512-jaEwHqhZPeNtPgXTlUQ7URVbuU1eGqkGs4L7S7aLPzfDJORmAOZQYmWmHEulTN9WpbGQstScS+ACyT07uUMXwQ==
+
 agent-base@6, agent-base@^6.0.2:
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/agent-base/-/agent-base-6.0.2.tgz#49fff58577cfee3f37176feab4c22e00f86d7f77"
@@ -2367,18 +2377,6 @@ graphql@^16.8.1:
   resolved "https://registry.yarnpkg.com/graphql/-/graphql-16.8.1.tgz#1930a965bef1170603702acdb68aedd3f3cf6f07"
   integrity sha512-59LZHPdGZVh695Ud9lRzPBVTtlX9ZCV150Er2W43ro37wVof0ctenSaskPPjN7lVTIN8mSZt8PHUNKZuNQUuxw==
 
-gridjs-svelte@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/gridjs-svelte/-/gridjs-svelte-2.1.1.tgz#1356ed519aafe20ffd1c8195945e4ac598e2d3ec"
-  integrity sha512-tYkgdqNKSnfmAYYc8EP4axn/Xlugp7VLwAlpNkP4SBLHHYD/ejD2DJ+FMatDNqcJ1Z1kuMnJWO+VBcAOirEByw==
-
-gridjs@^6.1.1:
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/gridjs/-/gridjs-6.1.1.tgz#299017de48d67b52860ac8d64eb0dec586b1741e"
-  integrity sha512-nFwbz1pGxe4h3dC7xDZaazN5aAg6Mhnu4J790Vj/D+mvJAtT3FEYXULiPAyrYB5BhukAZixvKYed7p7IhmdwXQ==
-  dependencies:
-    preact "^10.11.3"
-
 has-bigints@^1.0.1, has-bigints@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/has-bigints/-/has-bigints-1.0.2.tgz#0871bd3e3d51626f6ca0966668ba35d5602d6eaa"
@@ -3671,11 +3669,6 @@ postcss@^8.4.14, postcss@^8.4.23, postcss@^8.4.29, postcss@^8.4.32, postcss@^8.4
     nanoid "^3.3.7"
     picocolors "^1.0.0"
     source-map-js "^1.0.2"
-
-preact@^10.11.3:
-  version "10.19.3"
-  resolved "https://registry.yarnpkg.com/preact/-/preact-10.19.3.tgz#7a7107ed2598a60676c943709ea3efb8aaafa899"
-  integrity sha512-nHHTeFVBTHRGxJXKkKu5hT8C/YWBkPso4/Gad6xuj5dbptt9iF9NZr9pHbPhBrnT2klheu7mHTxTZ/LjwJiEiQ==
 
 prelude-ls@^1.2.1:
   version "1.2.1"

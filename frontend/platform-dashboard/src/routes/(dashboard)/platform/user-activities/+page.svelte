@@ -1,35 +1,107 @@
 <script>
 	import { InfoCircleSolid } from 'flowbite-svelte-icons';
+	import 'ag-grid-community/styles/ag-grid.css';
+	import 'ag-grid-community/styles/ag-theme-alpine.css';
 	import { Breadcrumb, BreadcrumbItem, Button, ButtonGroup, Card, ListPlaceholder } from 'flowbite-svelte';
 	import PropDrawer from '@components/common/PropDrawer.svelte';
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { userStore } from '@stores/userStore';
-	import Grid from 'gridjs-svelte';
 	import { PUBLIC_VIEWS_USER_ACTIVITY } from '$env/static/public';
+	import { _ } from 'svelte-i18n';
+	import { md5 } from '@utility/md5.js';
+	import { systemMessagesStore } from '@stores/systemMessagesStore';
+	import { ErrorSystemMessage } from '@models/ErrorSystemMessage.js';
+	import { getClient } from 'svelte-apollo';
+	import { GetUserActivities } from '@api/queries/user.query.js';
+	import { PAGE_SIZE } from '@api/queries/utils/PageSize.js';
 
+	$: client = getClient();
+	$: currentPage = 1;
+
+	let api, columnApi;
 	let currentViewKey = null || PUBLIC_VIEWS_USER_ACTIVITY;
+	let currentView = null;
 	let enabledDrawer = true;
 	let hiddenDrawer = true;
 	let loading = false;
+	let columns = [];
 	const dispatch = createEventDispatcher();
-	$: currentView = $userStore.userViews.find(view => view.clientKey === currentViewKey);
 	function handlePropDrawerToggle() {
 		if (enabledDrawer) {
 			hiddenDrawer = !hiddenDrawer;
 		}
 	}
 
-	const data = [
-		{ name: 'John', email: 'john@example.com' },
-		{ name: 'Mark', email: 'mark@gmail.com' }
-	];
+	let data = [];
 
 	function onLoadingRequest(event) {
 		console.log(event.detail);
 		loading = !loading;
 	}
+
+	onMount(async () => {
+		currentView = $userStore.userViews.find(view => view.clientKey === currentViewKey);
+		if (currentView == null) {
+			systemMessagesStore.addMessage(ErrorSystemMessage.fromJson({
+				message: _('userActivity.errors.viewNotFound'),
+				severity: 'critical',
+				type: 'error'
+			}));
+			data = [];
+		}
+		parseColumnsFromView(currentView);
+		console.log(currentView);
+	});
+
+	function parseColumnsFromView(view) {
+		let tColumns = view.columns;
+		tColumns.sort((a, b) => a.order - b.order);
+		tColumns.forEach(column => {
+			columns.push({
+				id: md5(column.fieldAlias),
+				field: column.fieldAlias,
+				sort: column.isSortable || false,
+				hidden: column.isHidden,
+				data: column,
+				width: '30%'
+				// formatter: (cell, row) => {
+				// 	return column.formatter(cell, row);
+				// }
+			});
+		});
+		console.log(columns);
+	}
+
+	async function fetchData(opts) {
+		console.log({
+			query: GetUserActivities([]),
+			variables: {},
+			opts
+		});
+		const res = await client.query({
+			query: GetUserActivities([]),
+			variables: {
+				pageSize: PAGE_SIZE.TWENTY.gql,
+				page: 1
+			}
+		});
+		if (res?.data?.user?.getUserActivities) {
+			console.log(res?.data?.user?.getUserActivities);
+			return res?.data?.user?.getUserActivities;
+		}
+		console.log('No data');
+		return [];
+	}
+
+	const onGridReady = (event) => {
+		api = event.api;
+		columnApi = event.columnApi;
+	};
 </script>
 
+<svelte:head>
+	<title>{$_('userActivity.title')}</title>
+</svelte:head>
 <div
 	class="px-[25px] text-dark dark:text-title-dark font-medium text-[17px] flex flex-wrap items-center justify-between max-sm:flex-col max-sm:h-auto border-b border-regular dark:border-white/10">
 	<Breadcrumb aria-label="Default breadcrumb example">
@@ -38,19 +110,8 @@
 	</Breadcrumb>
 </div>
 <div class="p-[25px] bg-dark rounded-10 dark:bg-box-dark ">
-	<div class="ml-4 mr-4 w-full bg-gray-700 p-4">
-		<div class="flex flex-col bg-gray-800 text-white">
-			<div>Hello world</div>
-			<div class="flex-grow">
-				<Button color="dark" on:click={handlePropDrawerToggle} outline>Toggle Prop Draw</Button>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- Right Bar -->
-<PropDrawer enabled={enabledDrawer} hidden={hiddenDrawer}>
-	<div slot="propBarContent">
-		<Card on:loadingRequest={onLoadingRequest}>
+	<div class="ml-4 mr-4 w-full p-4 ">
+		<Card on:loadingRequest={onLoadingRequest} size="xl">
 			{#if loading}
 				<div class="flex justify-center items-center h-40">
 					<div class="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
@@ -61,15 +122,21 @@
 				<div class="flex justify-between items-center mb-4">
 					<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">User Activity</h5>
 					<ButtonGroup>
-						<Button>Change Filters</Button>
-						<Button>Change View</Button>
+						<Button on:click={handlePropDrawerToggle} outline>Change Filters</Button>
+						<Button on:click={handlePropDrawerToggle} outline>Change View</Button>
 					</ButtonGroup>
 				</div>
-				<div class="p-4">
-					<Grid data={data} />
+				<div class="p-4 ag-theme-alpine">
+					<AGGridSvelte {onGridReady} />
 				</div>
 			{/if}
 		</Card>
+	</div>
+</div>
+<!-- Right Bar -->
+<PropDrawer enabled={enabledDrawer} hidden={hiddenDrawer}>
+	<div slot="propBarContent">
+		<h3>Change</h3>
 	</div>
 	<div slot="propBarHeader">
 		<h5 class="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-gray-400"

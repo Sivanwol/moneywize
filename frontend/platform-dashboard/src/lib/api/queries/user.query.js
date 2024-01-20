@@ -38,31 +38,16 @@ query getUserProfile($userId: Guid!) {
 }`;
 
 /**
- * @param {{fieldName: string, filterOperationType: filterOperationTypes, operationType: operationTypes, value: string|bool|number, values: string[]|bool[]|number[] }} filters
+ * @param {{fieldName: string, filterOperationType: filterOperationTypes, operationType: operationTypes, value: string|bool|number, values: string[]|bool[]|number[] }[]} filters
  * @returns {DocumentNode}
- * @constructor
  */
-export const GetUserActivities = (filters = []) => {
-	const columns = [
-		{ columnName: 'id' },
-		{ columnName: `user { id, firstName, lastName` },
-		{ columnName: 'entityId' },
-		{ columnName: 'entityType' },
-		{ columnName: 'activity' },
-		{ columnName: 'details' },
-		{ columnName: 'status' },
-		{ columnName: 'userAgent' },
-		{ columnName: 'ipAddress' },
-		{ columnName: 'createdAt' }
-
-	];
-	return GetList('user', 'getUserActivities', filters, columns);
+export const GetUserActivities = (columns, filters) => {
+	return gql`${GetList('user', 'getUserActivities', filters, columns)}`;
 };
 
 /**
  * @param {{fieldName: string, filterOperationType: filterOperationTypes, operationType: operationTypes, value: string|bool|number, values: string[]|bool[]|number[] }} filters
  * @returns {DocumentNode}
- * @constructor
  */
 export const GetUsers = (filters = []) => {
 	const columns = [
@@ -76,7 +61,7 @@ export const GetUsers = (filters = []) => {
 		{ columnName: 'displayLanguage { id, name, flag, code }' },
 		{ columnName: 'registerCompletedAt' }
 	];
-	return GetList('user', 'getUsers', filters, columns);
+	return gql`${GetList('user', 'getUsers', filters, columns)}`;
 };
 
 export const GetInitialUserData = gql`
@@ -85,7 +70,7 @@ query GetInitialUserData {
 		getViews {
 			clientKey, color, name, description,isPredefined, isShareAble, 
 			columns {
-				entityName,
+          displayName,
 				columnName,
 				dataType,
 				filterOperationType,

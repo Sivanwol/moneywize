@@ -10,19 +10,8 @@ namespace Domain.Persistence.Migrations
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder) {
-            var sql = @"ALTER TABLE ConfigurableUserViews ADD COLUMN ClientUniqueKey varchar(36) NULL;
-
-DROP TRIGGER IF EXISTS `ConfigurableUserViews_BINS`;
-
-CREATE TRIGGER `ConfigurableUserViews_BINS` BEFORE INSERT ON `ConfigurableUserViews`
-FOR EACH ROW
-BEGIN
-    IF NEW.ClientUniqueKey IS NULL THEN
-        SET NEW.ClientUniqueKey = uuid();
-    END IF;
-END;
-
-UPDATE ConfigurableUserViews SET ClientUniqueKey = uuid() WHERE ClientUniqueKey IS NULL;";
+            var sql = @"ALTER TABLE ConfigurableUserViews ADD COLUMN ClientUniqueKey varchar(36) NULL AFTER Id;
+                UPDATE ConfigurableUserViews SET ClientUniqueKey = uuid() WHERE ClientUniqueKey IS NULL;";
             migrationBuilder.Sql(sql);
             migrationBuilder.CreateIndex(
                 name: "IX_ConfigurableUserViews_ClientUniqueKey",

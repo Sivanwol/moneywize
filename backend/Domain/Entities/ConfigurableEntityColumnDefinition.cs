@@ -14,6 +14,13 @@ public class ConfigurableEntityColumnDefinition : BaseEntity {
     [Column(TypeName = "nvarchar(100)")]
     public string DisplayName { get; set; }
 
+    [Column(TypeName = "nvarchar(100)")]
+    public string FieldAlias { get; set; }
+
+    [Column(TypeName = "nvarchar(500)")]
+    public string FieldPath { get; set; }
+
+
     [Column(TypeName = "text")]
     public string? Description { get; set; }
 

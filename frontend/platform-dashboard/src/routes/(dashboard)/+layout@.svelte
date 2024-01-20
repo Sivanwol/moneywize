@@ -17,7 +17,6 @@
 	import { isEmpty } from 'lodash-es';
 	import { PUBLIC_MAINTENANCE_URL } from '$env/static/public';
 
-
 	$: auth = createAuth();
 	$: loggedUser = auth.isLoggedIn();
 	$: auth.isLoggedIn() ?createApolloClient(auth.getAccessToken()): null;

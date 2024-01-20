@@ -1,10 +1,14 @@
+using GraphQL.AspNet.Attributes;
 using Infrastructure.Enums;
 namespace Infrastructure.GQL;
 
 public class ViewColumn {
     public int Id { get; set; }
     public string DisplayName { get; set; }
+
+    [GraphSkip]
     public string EntityName { get; set; }
+
     public string ColumnName { get; set; }
     public string? Description { get; set; }
     public EntityColumnDataType DataType { get; set; }

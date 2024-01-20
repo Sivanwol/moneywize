@@ -35,21 +35,11 @@ namespace Domain.Persistence.Migrations
                 columns: new[] { "FirstName", "LastName", "ClientId", "CountryId" },
                 unique: true);
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_ClientContacts_Clients_ClientId",
-                table: "ClientContacts",
-                column: "ClientId",
-                principalTable: "Clients",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_ClientContacts_Clients_ClientId",
-                table: "ClientContacts");
 
             migrationBuilder.DropIndex(
                 name: "IX_ClientContacts_ClientId",

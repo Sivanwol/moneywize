@@ -11,9 +11,6 @@ namespace Domain.Persistence.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_ConfigurableEntityColumnDefinitions_ConfigurableCategories_C~",
-                table: "ConfigurableEntityColumnDefinitions");
 
             migrationBuilder.DropColumn(
                 name: "IsDefault",
@@ -88,20 +85,11 @@ namespace Domain.Persistence.Migrations
                 oldClrType: typeof(int),
                 oldType: "int");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_ConfigurableEntityColumnDefinitions_ConfigurableCategories_C~",
-                table: "ConfigurableEntityColumnDefinitions",
-                column: "CategoryId",
-                principalTable: "ConfigurableCategories",
-                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_ConfigurableEntityColumnDefinitions_ConfigurableCategories_C~",
-                table: "ConfigurableEntityColumnDefinitions");
 
             migrationBuilder.DropColumn(
                 name: "Permissions",
@@ -204,13 +192,6 @@ namespace Domain.Persistence.Migrations
                 nullable: false,
                 defaultValue: false);
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_ConfigurableEntityColumnDefinitions_ConfigurableCategories_C~",
-                table: "ConfigurableEntityColumnDefinitions",
-                column: "CategoryId",
-                principalTable: "ConfigurableCategories",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
         }
     }
 }

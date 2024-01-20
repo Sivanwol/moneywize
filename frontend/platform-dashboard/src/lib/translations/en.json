@@ -46,5 +46,12 @@
     "statement_1": "We are a team of professionals who are ready to help you with any task.",
     "statement_2": "We are a team of professionals who are ready to help you with any task.",
     "statement_by": "S.W"
+  },
+  "userActivity": {
+    "title": "User Activity",
+    "errors": {
+      "noData": "No data available",
+      "viewNotFound": "View not found"
+    }
   }
 }

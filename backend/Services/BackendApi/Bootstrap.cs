@@ -63,11 +63,19 @@ public class Bootstrap {
         services.Configure<MailServerConfig>(Configuration.GetSection("MailConfig"));
         new EnvLoader().Load();
         var settings = new EnvBinder().Bind<BackendSecretApplicationConfig>();
+
+        if (string.IsNullOrEmpty(applicationConfig.ConnectionString)) {
+            ActiveConnectionString = Configuration.GetConnectionString("DbConnection")!;
+            Log.Information("Change Domain Connection: {ActiveConnectionString}", ActiveConnectionString);
+        }
         if (settings != null) {
+            Log.Information("Override Configuration base environment variables");
             applicationConfig.JwtSecret = settings.JwtSecret;
             applicationConfig.SMSProviderInfouToken = settings.SMSProviderInfouToken;
             applicationConfig.EMailPassword = settings.EMailPassword;
             applicationConfig.EMailUser = settings.EMailUser;
+            ActiveConnectionString = settings.DatabaseConnectionString;
+            Log.Information("Change Domain Connection: {ActiveConnectionString}", ActiveConnectionString);
         }
 
         var jwtTokenConfig = new JwtTokenConfig {
@@ -82,10 +90,6 @@ public class Bootstrap {
             Token = applicationConfig.SMSProviderInfouToken,
             Sender = applicationConfig.SMSProviderInfouSender
         };
-        if (string.IsNullOrEmpty(applicationConfig.ConnectionString)) {
-            ActiveConnectionString = Configuration.GetConnectionString("DbConnection")!;
-            Log.Information($"Domain Connection: {ActiveConnectionString}");
-        }
         services.AddSingleton(jwtTokenConfig!);
         services.AddSingleton(applicationConfig);
         services.AddSingleton(infoUSmsProvider);
