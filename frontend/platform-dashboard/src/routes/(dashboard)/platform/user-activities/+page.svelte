@@ -64,8 +64,6 @@
 				name: column.displayName,
 				sort: column.isSortable || false,
 				hidden: column.isHidden,
-				data: column,
-				width: '30%'
 				// formatter: (cell, row) => {
 				// 	return column.formatter(cell, row);
 				// }
@@ -107,15 +105,19 @@
 		const newRecords = [];
 		records.forEach(record => {
 			const newRecord = {};
-			Object.keys(record).filter(f => f !== '__typename').forEach(key => {
-				const column = currentView.columns.find(column => column.fieldAlias === key);
+			currentView.columns.forEach(column => {
 				if (column) {
-					newRecord[column.fieldAlias] = get(record[key], column.fieldPath);
+					newRecord[column.fieldAlias] = get(record, column.fieldPath) || '';
 				}
 			});
 			newRecords.push(newRecord);
 		});
 		return newRecords;
+	};
+	const style = {
+		table: {
+			'white-space': 'nowrap'
+		}
 	};
 	const server = {
 		url: 'https://api.github.com/users',
@@ -125,7 +127,6 @@
 			console.log(dta);
 			const data = convertRecordsToFieldAlias(dta.records);
 			console.log(data);
-			debugger;
 			return {
 				data,
 				total: dta.totalRecords
@@ -162,7 +163,7 @@
 					</ButtonGroup>
 				</div>
 				<div class="p-4 ag-theme-alpine">
-					<Grid columns={columns} server={server} pagination={pagination} />
+					<Grid columns={columns} server={server} style={style} pagination={pagination} />
 				</div>
 			{/if}
 		</Card>
