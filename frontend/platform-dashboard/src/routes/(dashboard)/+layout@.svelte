@@ -45,16 +45,21 @@
 
 	onMount(async () => {
 
-		const result = await fetch(PUBLIC_MAINTENANCE_URL, {
-			method: 'GET'
-		});
-		if (result.ok) {
-			const data = await result.json();
-			if (data.Maintenance) {
-				console.log('maintenance mode');
-				await goto('/maintenance');
-			}
+		try {
+			const result = await fetch(PUBLIC_MAINTENANCE_URL, {
+				method: 'GET'
+			});
+			if (result.ok) {
+				const data = await result.json();
+				if (data.Maintenance) {
+					console.log('maintenance mode');
+					await goto('/maintenance');
+				}
 
+			}
+		} catch (e) {
+			await logout();
+			return;
 		}
 		if (!auth.isLoggedIn()) {
 			await goto('/login');

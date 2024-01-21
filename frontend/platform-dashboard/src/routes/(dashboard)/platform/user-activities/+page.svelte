@@ -1,14 +1,12 @@
 <script>
 	import { InfoCircleSolid } from 'flowbite-svelte-icons';
-	import 'ag-grid-community/styles/ag-grid.css';
-	import 'ag-grid-community/styles/ag-theme-alpine.css';
+	import { Grid } from 'gridjs';
 	import { Breadcrumb, BreadcrumbItem, Button, ButtonGroup, Card, ListPlaceholder } from 'flowbite-svelte';
 	import PropDrawer from '@components/common/PropDrawer.svelte';
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { userStore } from '@stores/userStore';
 	import { PUBLIC_VIEWS_USER_ACTIVITY } from '$env/static/public';
 	import { _ } from 'svelte-i18n';
-	import { md5 } from '@utility/md5.js';
 	import { systemMessagesStore } from '@stores/systemMessagesStore';
 	import { ErrorSystemMessage } from '@models/ErrorSystemMessage.js';
 	import { getClient } from 'svelte-apollo';
@@ -18,7 +16,6 @@
 	$: client = getClient();
 	$: currentPage = 1;
 
-	let api, columnApi;
 	let currentViewKey = null || PUBLIC_VIEWS_USER_ACTIVITY;
 	let currentView = null;
 	let enabledDrawer = true;
@@ -58,7 +55,7 @@
 		tColumns.sort((a, b) => a.order - b.order);
 		tColumns.forEach(column => {
 			columns.push({
-				id: md5(column.fieldAlias),
+				id: column.columnName,
 				field: column.fieldAlias,
 				sort: column.isSortable || false,
 				hidden: column.isHidden,
@@ -72,31 +69,24 @@
 		console.log(columns);
 	}
 
-	async function fetchData(opts) {
-		console.log({
-			query: GetUserActivities([]),
-			variables: {},
-			opts
-		});
-		const res = await client.query({
-			query: GetUserActivities([]),
-			variables: {
-				pageSize: PAGE_SIZE.TWENTY.gql,
-				page: 1
+	async function fetchData() {
+		return new Promise(async (resolve) => {
+			const res = await client.query({
+				query: GetUserActivities(currentView.columns, []),
+				variables: {
+					pageSize: PAGE_SIZE.TWENTY.gql,
+					page: 1
+				}
+			});
+			if (res?.data?.user?.getUserActivities) {
+				console.log(res?.data?.user?.getUserActivities);
+				return resolve(res?.data?.user?.getUserActivities);
 			}
+			console.log('No data');
+			return resolve([]);
 		});
-		if (res?.data?.user?.getUserActivities) {
-			console.log(res?.data?.user?.getUserActivities);
-			return res?.data?.user?.getUserActivities;
-		}
-		console.log('No data');
-		return [];
 	}
 
-	const onGridReady = (event) => {
-		api = event.api;
-		columnApi = event.columnApi;
-	};
 </script>
 
 <svelte:head>
@@ -127,7 +117,7 @@
 					</ButtonGroup>
 				</div>
 				<div class="p-4 ag-theme-alpine">
-					<AGGridSvelte {onGridReady} />
+					<Grid columns={columns} data={fetchData} />
 				</div>
 			{/if}
 		</Card>
