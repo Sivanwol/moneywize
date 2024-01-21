@@ -9,6 +9,8 @@ public class ViewColumn {
     [GraphSkip]
     public string EntityName { get; set; }
 
+    public string FieldAlias { get; set; }
+    public string FieldPath { get; set; }
     public string ColumnName { get; set; }
     public string? Description { get; set; }
     public EntityColumnDataType DataType { get; set; }

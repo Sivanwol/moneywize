@@ -85,6 +85,8 @@ query GetInitialUserData {
           displayName,
 				columnName,
 				dataType,
+          fieldAlias,
+          fieldPath,
 				filterOperationType,
 				isFilterable,
 				isSortable,

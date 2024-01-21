@@ -31,6 +31,8 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
                 select new ViewColumn() {
                     DisplayName = vc.ConfigurableEntityColumnDefinition.DisplayName,
                     EntityName = vc.ConfigurableEntityColumnDefinition.EntityName,
+                    FieldAlias = vc.ConfigurableEntityColumnDefinition.FieldAlias,
+                    FieldPath = vc.ConfigurableEntityColumnDefinition.FieldPath,
                     ColumnName = vc.ConfigurableEntityColumnDefinition.ColumnName,
                     IsFilterable = vc.ConfigurableEntityColumnDefinition.IsFilterable,
                     IsSortable = vc.ConfigurableEntityColumnDefinition.IsSortable,
@@ -49,6 +51,8 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
             select new ViewColumn() {
                 DisplayName = vc.ConfigurableEntityColumnDefinition.DisplayName,
                 EntityName = vc.ConfigurableEntityColumnDefinition.EntityName,
+                FieldAlias = vc.ConfigurableEntityColumnDefinition.FieldAlias,
+                FieldPath = vc.ConfigurableEntityColumnDefinition.FieldPath,
                 ColumnName = vc.ConfigurableEntityColumnDefinition.ColumnName,
                 IsFilterable = vc.ConfigurableEntityColumnDefinition.IsFilterable,
                 IsSortable = vc.ConfigurableEntityColumnDefinition.IsSortable,

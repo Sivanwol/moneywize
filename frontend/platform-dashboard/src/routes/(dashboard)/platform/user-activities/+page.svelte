@@ -13,6 +13,7 @@
 	import { GetUserActivities } from '@api/queries/user.query.js';
 	import { PAGE_SIZE } from '@api/queries/utils/PageSize.js';
 	import { SortDirection } from '@api/queries/utils/SortDirection.js';
+	import { get } from 'lodash-es';
 
 	$: client = getClient();
 	$: currentPage = 1;
@@ -59,8 +60,8 @@
 		tColumns.sort((a, b) => a.order - b.order);
 		tColumns.forEach(column => {
 			columns.push({
-				id: column.columnName,
-				field: column.fieldAlias,
+				id: column.fieldAlias,
+				name: column.displayName,
 				sort: column.isSortable || false,
 				hidden: column.isHidden,
 				data: column,
@@ -80,29 +81,55 @@
 					pageSize: PAGE_SIZE.TWENTY.query,
 					sortField: 'CreatedAt',
 					userId: $userStore.profile.id,
-
 					viewClientId: currentView.clientKey,
 					sortDirection: SortDirection.DESCENDING,
 					page: 1
 				}
 			});
+
+		console.log(res);
 			if (res?.data?.user?.getUserActivities) {
 				console.log(res?.data?.user?.getUserActivities);
 				return res?.data?.user?.getUserActivities;
 			}
 			console.log('No data');
-		return [];
+		return {
+			records: [],
+			totalRecords: 0,
+			totalPages: 0
+		};
 	}
 
+	const pagination = {
+		limit: 20
+	};
+	const convertRecordsToFieldAlias = (records) => {
+		const newRecords = [];
+		records.forEach(record => {
+			const newRecord = {};
+			Object.keys(record).filter(f => f !== '__typename').forEach(key => {
+				const column = currentView.columns.find(column => column.fieldAlias === key);
+				if (column) {
+					newRecord[column.fieldAlias] = get(record[key], column.fieldPath);
+				}
+			});
+			newRecords.push(newRecord);
+		});
+		return newRecords;
+	};
 	const server = {
 		url: 'https://api.github.com/users',
 		data: async (ops) => {
 			console.log(ops);
-			return await fetchData();
-		},
-		total: (prev, page, limit) => {
-			console.log(prev, page, limit);
-			return 100;
+			const dta = await fetchData();
+			console.log(dta);
+			const data = convertRecordsToFieldAlias(dta.records);
+			console.log(data);
+			debugger;
+			return {
+				data,
+				total: dta.totalRecords
+			};
 		}
 	};
 </script>
@@ -135,7 +162,7 @@
 					</ButtonGroup>
 				</div>
 				<div class="p-4 ag-theme-alpine">
-					<Grid columns={columns} server={server} />
+					<Grid columns={columns} server={server} pagination={pagination} />
 				</div>
 			{/if}
 		</Card>

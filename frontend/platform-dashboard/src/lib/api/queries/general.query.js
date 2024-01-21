@@ -9,6 +9,8 @@ query getViews {
 				entityName,
 				columnName,
 				dataType,
+          fieldAlias,
+          fieldPath,
 				filterOperationType,
 				isFilterable,
 				isSortable,
