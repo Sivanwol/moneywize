@@ -1,2 +1,7 @@
-export const ASCENDING = 'ASCENDING';
-export const DESCENDING = 'DESCENDING';
+const ASCENDING = 'ASCENDING';
+const DESCENDING = 'DESCENDING';
+
+export const SortDirection = {
+	ASCENDING,
+	DESCENDING
+};

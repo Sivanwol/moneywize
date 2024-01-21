@@ -1,6 +1,6 @@
 <script>
 	import { InfoCircleSolid } from 'flowbite-svelte-icons';
-	import { Grid } from 'gridjs';
+	import Grid from 'gridjs-svelte';
 	import { Breadcrumb, BreadcrumbItem, Button, ButtonGroup, Card, ListPlaceholder } from 'flowbite-svelte';
 	import PropDrawer from '@components/common/PropDrawer.svelte';
 	import { createEventDispatcher, onMount } from 'svelte';
@@ -12,6 +12,7 @@
 	import { getClient } from 'svelte-apollo';
 	import { GetUserActivities } from '@api/queries/user.query.js';
 	import { PAGE_SIZE } from '@api/queries/utils/PageSize.js';
+	import { SortDirection } from '@api/queries/utils/SortDirection.js';
 
 	$: client = getClient();
 	$: currentPage = 1;
@@ -37,21 +38,24 @@
 	}
 
 	onMount(async () => {
+		console.log('onMount', $userStore.userViews);
 		currentView = $userStore.userViews.find(view => view.clientKey === currentViewKey);
 		if (currentView == null) {
 			systemMessagesStore.addMessage(ErrorSystemMessage.fromJson({
-				message: _('userActivity.errors.viewNotFound'),
+				message: $_('userActivity.errors.viewNotFound'),
 				severity: 'critical',
 				type: 'error'
 			}));
 			data = [];
+			columns = [];
 		}
-		parseColumnsFromView(currentView);
+		console.log(currentView);
+		parseColumnsFromView();
 		console.log(currentView);
 	});
 
-	function parseColumnsFromView(view) {
-		let tColumns = view.columns;
+	function parseColumnsFromView() {
+		let tColumns = currentView.columns;
 		tColumns.sort((a, b) => a.order - b.order);
 		tColumns.forEach(column => {
 			columns.push({
@@ -70,23 +74,37 @@
 	}
 
 	async function fetchData() {
-		return new Promise(async (resolve) => {
 			const res = await client.query({
-				query: GetUserActivities(currentView.columns, []),
+				query: GetUserActivities([]),
 				variables: {
-					pageSize: PAGE_SIZE.TWENTY.gql,
+					pageSize: PAGE_SIZE.TWENTY.query,
+					sortField: 'CreatedAt',
+					userId: $userStore.profile.id,
+
+					viewClientId: currentView.clientKey,
+					sortDirection: SortDirection.DESCENDING,
 					page: 1
 				}
 			});
 			if (res?.data?.user?.getUserActivities) {
 				console.log(res?.data?.user?.getUserActivities);
-				return resolve(res?.data?.user?.getUserActivities);
+				return res?.data?.user?.getUserActivities;
 			}
 			console.log('No data');
-			return resolve([]);
-		});
+		return [];
 	}
 
+	const server = {
+		url: 'https://api.github.com/users',
+		data: async (ops) => {
+			console.log(ops);
+			return await fetchData();
+		},
+		total: (prev, page, limit) => {
+			console.log(prev, page, limit);
+			return 100;
+		}
+	};
 </script>
 
 <svelte:head>
@@ -117,7 +135,7 @@
 					</ButtonGroup>
 				</div>
 				<div class="p-4 ag-theme-alpine">
-					<Grid columns={columns} data={fetchData} />
+					<Grid columns={columns} server={server} />
 				</div>
 			{/if}
 		</Card>

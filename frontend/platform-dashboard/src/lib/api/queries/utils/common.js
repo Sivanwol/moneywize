@@ -18,25 +18,24 @@ export const GetListFilterItem = (fieldName, filterOperationType, operationType,
  */
 export const GetList = (nsName, queryName, filters, columns) => `
 query ${queryName} ($viewClientId: Guid!, $userId: Guid!, $page: Int!, $pageSize: PageSize!, $sortField: String!, $sortDirection: SortDirection!) {
-		${nsName} {
-			${queryName}(
-				userId: $userId,
-				page: {
-					page:$page , 
-					pageSize: $pageSize,
-					sortField: $sortField,
-					sortDirection: $sortDirection,
-					viewClientId: $viewClientId,
-					filterCollectionOperation: AND,
-					filters: [${filters.map(filter => GetListFilterItem(filter.fieldName, filter.filterOperationType, filter.operationType, filter.value, filter.values)).toString()}]
-				}) {
-				hasNextPage,
-				hasPreviousPage,
-				totalPages,
-				totalRecords,
-				records { 
-					${columns.map(column => column.columnName).toString()}	
-				}
+	${nsName} {
+		${queryName}(
+			userId: $userId,
+			page: {
+				page:$page , 
+				pageSize: $pageSize,
+				sortByField: $sortField,
+				sortDirection: $sortDirection,
+				viewClientId: $viewClientId,
+				filterCollectionOperation: AND,
+				filters: [${filters.map(filter => GetListFilterItem(filter.fieldName, filter.filterOperationType, filter.operationType, filter.value, filter.values)).toString()}]
+			}) {
+			hasNextPage,
+			hasPreviousPage,
+			totalPages,
+			totalRecords,
+			records { 
+				${columns.map(column => column.columnName).toString()}	
 			}
 		}
 	}

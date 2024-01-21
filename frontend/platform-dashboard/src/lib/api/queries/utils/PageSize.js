@@ -5,23 +5,23 @@ const HUNDRED = 'HUNDRED';
 const TWO_HUNDRED = 'TWOHUNDRED';
 export const PAGE_SIZE = {
 	TWENTY: {
-		gql: TWENTY,
+		query: TWENTY,
 		value: 20
 	},
 	FIFTY: {
-		gql: FIFTY,
+		query: FIFTY,
 		value: 50
 	},
 	SEVENTY_FIVE: {
-		gql: SEVENTY_FIVE,
+		query: SEVENTY_FIVE,
 		value: 75
 	},
 	HUNDRED: {
-		gql: HUNDRED,
+		query: HUNDRED,
 		value: 100
 	},
 	TWO_HUNDRED: {
-		gql: TWO_HUNDRED,
+		query: TWO_HUNDRED,
 		value: 200
 	}
 };

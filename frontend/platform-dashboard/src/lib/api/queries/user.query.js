@@ -41,7 +41,19 @@ query getUserProfile($userId: Guid!) {
  * @param {{fieldName: string, filterOperationType: filterOperationTypes, operationType: operationTypes, value: string|bool|number, values: string[]|bool[]|number[] }[]} filters
  * @returns {DocumentNode}
  */
-export const GetUserActivities = (columns, filters) => {
+export const GetUserActivities = (filters) => {
+	const columns = [
+		{ columnName: 'id' },
+		{ columnName: `user { id }` },
+		{ columnName: 'entityId' },
+		{ columnName: 'entityType' },
+		{ columnName: 'activity' },
+		{ columnName: 'details' },
+		{ columnName: 'status' },
+		{ columnName: 'userAgent' },
+		{ columnName: 'ipAddress' },
+		{ columnName: 'createdAt' }
+	];
 	return gql`${GetList('user', 'getUserActivities', filters, columns)}`;
 };
 

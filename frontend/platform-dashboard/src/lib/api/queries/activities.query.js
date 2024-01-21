@@ -8,9 +8,11 @@ import { GetList } from '@api/queries/utils/common.js';
 export const GetUserActivities = (filters = []) => {
 	const columns = [
 		{ columnName: 'id' },
-		{ columnName: `user { id, firstName, lastName` },
+		{ columnName: `user { id }` },
 		{ columnName: 'entityId' },
 		{ columnName: 'entityType' },
+		{ columnName: 'fieldAlias' },
+		{ columnName: 'fieldPath' },
 		{ columnName: 'activity' },
 		{ columnName: 'details' },
 		{ columnName: 'status' },
