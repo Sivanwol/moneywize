@@ -1,13 +1,13 @@
 using System.Linq.Expressions;
-using Domain.DTO.ConfigurableEntities;
 using Domain.Filters.Fields;
 using Infrastructure.Enums;
+using Infrastructure.GQL;
 using LinqKit;
 namespace Domain.Filters.Common;
 
 public abstract class BaseFilters : IFilter {
     public abstract IQueryable<T> ApplyFilters<T>(IQueryable<T> query, FilterCollectionOperation filterCollectionOperation,
-        IEnumerable<ConfigurableUserViewColumn> SelectedColumns) where T : class;
+        IEnumerable<ViewColumn> SelectedColumns) where T : class;
     public abstract void ResetFilters();
     protected Expression<Func<T, bool>> ApplyFilterToQuery<T, TCast, TFilter>(ICollection<TFilter> filterList)
         where T : class where TFilter : IFilterField<TCast> {
@@ -24,7 +24,7 @@ public abstract class BaseFilters : IFilter {
         }
         return predicate;
     }
-    protected bool HasAllowedColumnFilter(IEnumerable<ConfigurableUserViewColumn> SelectedColumns, string columnName) {
+    protected bool HasAllowedColumnFilter(IEnumerable<ViewColumn> SelectedColumns, string columnName) {
         return SelectedColumns.Any(column => column.ColumnName == columnName && column.IsFilterable);
     }
 }

@@ -42,6 +42,7 @@ public class DeleteClientHandler : IRequestHandler<DeleteClientRequest> {
             nameof(Clients),
             ActivityLogOperationType.ClientDelete,
             $"Client {request.ClientId} deleted",
+            $"Client {request.ClientId} deleted",
             ActivityStatus.Success,
             request.IpAddress,
             request.UserAgent);

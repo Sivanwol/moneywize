@@ -42,6 +42,7 @@ public class DeleteClientContactHandler : IRequestHandler<DeleteClientContactReq
             nameof(Clients),
             ActivityLogOperationType.ClientContactDelete,
             $"Client Contacts from Client {request.ClientId} been deleted",
+            $"Client Contacts from Client {request.ClientId} been deleted",
             ActivityStatus.Success,
             request.IpAddress,
             request.UserAgent);

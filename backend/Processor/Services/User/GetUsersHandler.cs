@@ -8,6 +8,7 @@ using Domain.Filters.Fields;
 using Domain.Persistence.Repositories.Interfaces;
 using EasyCaching.Core;
 using Infrastructure.Enums;
+using Infrastructure.GQL;
 using Infrastructure.GQL.Common;
 using Infrastructure.Requests.Processor.Services.User;
 using Infrastructure.Services.Cache;
@@ -97,14 +98,12 @@ public class GetUsersHandler : IRequestHandler<GetUsersRequest, EntityPage<Infra
     }
 
     private async Task<RecordFilterPagination<ApplicationUserFilters>> BuildPageFilter(GetUsersRequest request) {
-        var columns = await _configurableUserViewRepository.GetViewColumns(request.LoggedInUserId.ToString(), request.PageControl.ViewId);
         var pageFilter = new RecordFilterPagination<ApplicationUserFilters>() {
             Page = request.PageControl.Page,
             PageSize = (int)request.PageControl.PageSize,
             SortByField = request.PageControl.SortByField!,
             SortDirection = request.PageControl.SortDirection,
             FilterCollectionOperation = request.PageControl.FilterCollectionOperation,
-            SelectedColumns = columns
         };
 
         foreach (var filter in request.PageControl.Filters) {

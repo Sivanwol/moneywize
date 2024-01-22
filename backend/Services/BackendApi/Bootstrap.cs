@@ -10,6 +10,7 @@ using Application.Extensions;
 using Domain.Entities;
 using Domain.Persistence;
 using Domain.Persistence.Context;
+using DotEnv.Core;
 using GraphQL.AspNet.Configuration;
 using GraphQL.AspNet.Security;
 using HealthChecks.ApplicationStatus.DependencyInjection;
@@ -21,6 +22,7 @@ using Infrastructure.Services.Cache;
 using Infrastructure.Services.Email;
 using Infrastructure.Validators;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -33,6 +35,8 @@ using Serilog;
 namespace BackendApi;
 
 public class Bootstrap {
+
+    private static TimeSpan KEEP_ALIVE_INTERVAL = TimeSpan.FromMilliseconds(10000);
     public Bootstrap(IConfiguration configuration, IWebHostEnvironment env) {
         Configuration = configuration;
         Environment = env;
@@ -40,7 +44,6 @@ public class Bootstrap {
         ActiveAzureConfigConnectionString = Configuration["AzureConfigConnectionString"]!;
         IsLocalConfiguration = string.IsNullOrEmpty(ActiveAzureConfigConnectionString);
     }
-
     public static IWebHostEnvironment Environment { get; set; }
     public static bool IsLocalConfiguration { get; set; }
 
@@ -57,6 +60,24 @@ public class Bootstrap {
             services.Configure<BackendApplicationConfig>(Configuration.GetSection("ApplicationConfig"));
         }
         var applicationConfig = Configuration.GetSection("ApplicationConfig").Get<BackendApplicationConfig>()!;
+        services.Configure<MailServerConfig>(Configuration.GetSection("MailConfig"));
+        new EnvLoader().Load();
+        var settings = new EnvBinder().Bind<BackendSecretApplicationConfig>();
+
+        if (string.IsNullOrEmpty(applicationConfig.ConnectionString)) {
+            ActiveConnectionString = Configuration.GetConnectionString("DbConnection")!;
+            Log.Information("Change Domain Connection: {ActiveConnectionString}", ActiveConnectionString);
+        }
+        if (settings != null) {
+            Log.Information("Override Configuration base environment variables");
+            applicationConfig.JwtSecret = settings.JwtSecret;
+            applicationConfig.SMSProviderInfouToken = settings.SMSProviderInfouToken;
+            applicationConfig.EMailPassword = settings.EMailPassword;
+            applicationConfig.EMailUser = settings.EMailUser;
+            ActiveConnectionString = settings.DatabaseConnectionString;
+            Log.Information("Change Domain Connection: {ActiveConnectionString}", ActiveConnectionString);
+        }
+
         var jwtTokenConfig = new JwtTokenConfig {
             Secret = applicationConfig.JwtSecret,
             Issuer = applicationConfig.JwtIssuer,
@@ -69,10 +90,6 @@ public class Bootstrap {
             Token = applicationConfig.SMSProviderInfouToken,
             Sender = applicationConfig.SMSProviderInfouSender
         };
-        if (string.IsNullOrEmpty(applicationConfig.ConnectionString)) {
-            ActiveConnectionString = Configuration.GetConnectionString("DbConnection")!;
-            Log.Information($"Domain Connection: {ActiveConnectionString}");
-        }
         services.AddSingleton(jwtTokenConfig!);
         services.AddSingleton(applicationConfig);
         services.AddSingleton(infoUSmsProvider);
@@ -117,7 +134,6 @@ public class Bootstrap {
                         .EnableDetailedErrors();
                 }
             });
-            services.Configure<MailServerConfig>(Configuration.GetSection("MailConfig"));
             services.Configure<FrontEndPaths>(Configuration.GetSection("FrontEndWebPaths"));
 
             services.AddTransient<IDomainContext>(provider => provider.GetService<DomainContext>()!);
@@ -127,20 +143,23 @@ public class Bootstrap {
             services.AddTransient<ICacheService, CacheService>();
             services.AddValidatorsExtension();
             services.AddRazorPages();
+
             services.AddGraphQL(schemaOptions => {
                 schemaOptions.QueryHandler.Route = "/api/gql";
                 schemaOptions.AuthorizationOptions.Method = AuthorizationMethod.PerField;
-                schemaOptions.ResponseOptions.ExposeExceptions = true;
-                schemaOptions.ResponseOptions.ExposeMetrics = true;
+                if (Environment.IsDevelopment()) {
+                    schemaOptions.ResponseOptions.ExposeExceptions = true;
+                    schemaOptions.ResponseOptions.ExposeMetrics = true;
+                    schemaOptions.ExecutionOptions.DebugMode = true;
+                }
                 schemaOptions.ExecutionOptions.MaxQueryDepth = 15;
                 schemaOptions.AddType<SortDirection>();
                 schemaOptions.AddType<FilterOperations>();
                 schemaOptions.AddType<PageSize>();
                 schemaOptions.AddType<EntityColumnOperationType>();
+                schemaOptions.AddType<EntityColumnDataType>();
+
             });
-            if (Environment.IsProduction()) {
-                services.AddGraphQLLocalQueryCache();
-            }
             services.AddHostedService<JwtRefreshTokenCache>();
         });
         if (Environment.IsDevelopment() || applicationConfig.EnableSwagger) {
@@ -235,7 +254,7 @@ public class Bootstrap {
             o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         });
 
-        services.AddAuthentication("Bearer").AddJwtBearer(x => {
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(x => {
             x.RequireHttpsMetadata = false;
             x.SaveToken = true;
             x.IncludeErrorDetails = true;
@@ -286,6 +305,7 @@ public class Bootstrap {
             // endpoints.MapGroup("/auth").MapIdentityApi<ApplicationUser>();
             endpoints.MapControllers().RequireCors("AllowAll");
         });
+        app.UseWebSockets();
         app.UseGraphQL();
         Log.Information("End Perp Setup Starting Server");
     }

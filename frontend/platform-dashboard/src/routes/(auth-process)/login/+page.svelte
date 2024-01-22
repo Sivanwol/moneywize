@@ -27,9 +27,9 @@
 			visibleConfirmForm = false;
 			return;
 		}
-		const accessToken = get(tokens, 'accessToken');
-		const refreshToken = get(tokens, 'refreshToken.tokenString');
-		const expiresAt = get(tokens, 'refreshToken.expireAt');
+		const accessToken = get(tokens, 'AccessToken');
+		const refreshToken = get(tokens, 'RefreshToken.TokenString');
+		const expiresAt = get(tokens, 'RefreshToken.ExpireAt');
 		auth.login(userId, accessToken, refreshToken, expiresAt);
 		// navigate to home
 		goto('/platform/main');

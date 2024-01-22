@@ -964,7 +964,7 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("ColumnName")
@@ -979,7 +979,6 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("DisabledAt")
@@ -997,9 +996,6 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("IsFilterable")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("IsHidden")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsSortable")
@@ -1040,8 +1036,10 @@ namespace Domain.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<Guid>("ClientUniqueKey")
+                        .HasColumnType("char(36)");
+
                     b.Property<string>("Color")
-                        .IsRequired()
                         .HasMaxLength(8)
                         .HasColumnType("varchar(8)");
 
@@ -1054,12 +1052,8 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsPredefined")
                         .HasColumnType("tinyint(1)");
@@ -1067,13 +1061,14 @@ namespace Domain.Persistence.Migrations
                     b.Property<bool>("IsShareAble")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<DateTime?>("LastUsed")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Permissions")
+                        .IsRequired()
+                        .HasColumnType("json");
 
                     b.Property<string>("Settings")
                         .IsRequired()
@@ -1108,7 +1103,10 @@ namespace Domain.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<bool>("IsPinable")
+                    b.Property<bool>("IsFixed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsHidden")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<int>("Order")
@@ -2084,9 +2082,7 @@ namespace Domain.Persistence.Migrations
                 {
                     b.HasOne("Domain.Entities.ConfigurableCategories", "Category")
                         .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoryId");
 
                     b.Navigation("Category");
                 });

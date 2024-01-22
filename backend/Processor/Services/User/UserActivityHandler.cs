@@ -99,14 +99,14 @@ public class UserActivityHandler : IRequestHandler<UserActivityRequest, EntityPa
     }
 
     private async Task<RecordFilterPagination<ActivityLogFilters>> BuildPageFilter(UserActivityRequest request) {
-        var columns = await _configurableUserViewRepository.GetViewColumns(request.LoggedInUserId.ToString(), request.PageControl.ViewId);
+        var view = await _configurableUserViewRepository.GetViewDefinition(request.LoggedInUserId.ToString(), request.PageControl.ViewClientId);
         var pageFilter = new RecordFilterPagination<ActivityLogFilters>() {
             Page = request.PageControl.Page,
             PageSize = (int)request.PageControl.PageSize,
             SortByField = request.PageControl.SortByField!,
             SortDirection = request.PageControl.SortDirection,
             FilterCollectionOperation = request.PageControl.FilterCollectionOperation,
-            SelectedColumns = columns
+            SelectedColumns = view.Columns ?? throw new InvalidOperationException()
         };
 
         pageFilter.Filters.UserIdFilters.Add(new StringFilterField("UserId", FilterStringOperation.Equal) {

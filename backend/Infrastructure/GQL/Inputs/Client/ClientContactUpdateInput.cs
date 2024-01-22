@@ -59,7 +59,7 @@ public class ClientContactUpdateInput {
     [Description("client contact Notes")]
     public string? Notes { get; set; }
 
-    public UpdateClientContractRequest ToProcessEntity(Guid loggedInUserId, int clientContactId, string userAgent, string ipAddress) {
+    public UpdateClientContractRequest ToProcessEntity(Guid loggedInUserId, int clientContactId, string ipAddress, string userAgent) {
         return new UpdateClientContractRequest() {
             LoggedInUserId = loggedInUserId,
             ClientContactId = clientContactId,

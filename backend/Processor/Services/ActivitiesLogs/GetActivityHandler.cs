@@ -88,14 +88,12 @@ public class GetActivityHandler : IRequestHandler<GetActivityRequest, EntityPage
     }
 
     private async Task<RecordFilterPagination<ActivityLogFilters>> BuildPageFilter(GetActivityRequest request) {
-        var columns = await _configurableUserViewRepository.GetViewColumns(request.LoggedInUserId.ToString(), request.PageControl.ViewId);
         var pageFilter = new RecordFilterPagination<ActivityLogFilters>() {
             Page = request.PageControl.Page,
             PageSize = (int)request.PageControl.PageSize,
             SortByField = request.PageControl.SortByField!,
             SortDirection = request.PageControl.SortDirection,
-            FilterCollectionOperation = request.PageControl.FilterCollectionOperation,
-            SelectedColumns = columns
+            FilterCollectionOperation = request.PageControl.FilterCollectionOperation
         };
 
         foreach (var filter in request.PageControl.Filters) {

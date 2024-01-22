@@ -12,7 +12,6 @@ const apiClientUnauthorized = axios.create({
 	timeout: PUBLIC_API_TIMEOUT || 5000,
 	headers: {
 		'Content-Type': 'application/json;charset=utf-8',
-		'Access-Control-Allow-Origin': '*',
 	}
 });
 const apiClientAuthorized = axios.create({
@@ -21,7 +20,6 @@ const apiClientAuthorized = axios.create({
 	withCredentials: true,
 	headers: {
 		'Content-Type': 'application/json;charset=utf-8',
-		'Access-Control-Allow-Origin': '*',
 	}
 });
 

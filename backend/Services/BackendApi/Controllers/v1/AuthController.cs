@@ -83,6 +83,11 @@ public class AuthController : BaseApiController {
     })]
     [AllowAnonymous]
     public async Task<IActionResult> Login(LoginRequest request) {
+        if (IsMaintenanceMode()) {
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "System is under maintenance"
+            }, HttpStatusCode.ServiceUnavailable);
+        }
         var validator = await _loginValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
@@ -133,6 +138,11 @@ public class AuthController : BaseApiController {
     })]
     [AllowAnonymous]
     public async Task<IActionResult> LoginConfirm([SwaggerRequestBody("OTP Verify payload", Required = true)] VerifyOTPUserRequest request) {
+        if (IsMaintenanceMode()) {
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "System is under maintenance"
+            }, HttpStatusCode.ServiceUnavailable);
+        }
         var validator = await _verifyOtpUserValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
@@ -172,6 +182,11 @@ public class AuthController : BaseApiController {
     })]
     [Authorize]
     public async Task<IActionResult> Logout() {
+        if (IsMaintenanceMode()) {
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "System is under maintenance"
+            }, HttpStatusCode.ServiceUnavailable);
+        }
         var userToken = User.Identity?.Name!;
         try {
             await Mediator.Send(new LogoutUserRequest {
@@ -202,6 +217,11 @@ public class AuthController : BaseApiController {
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     [AllowAnonymous]
     public async Task<IActionResult> ForgotPassword(ForgetPasswordRequest request) {
+        if (IsMaintenanceMode()) {
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "System is under maintenance"
+            }, HttpStatusCode.ServiceUnavailable);
+        }
         var validator = await _forgetPasswordValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
@@ -253,7 +273,12 @@ public class AuthController : BaseApiController {
         "Auth"
     })]
     [AllowAnonymous]
-    public async Task ForgotPasswordConfirm([SwaggerRequestBody("OTP Verify payload", Required = true)] VerifyOTPUserRequest request) {
+    public async Task<IActionResult> ForgotPasswordConfirm([SwaggerRequestBody("OTP Verify payload", Required = true)] VerifyOTPUserRequest request) {
+        if (IsMaintenanceMode()) {
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "System is under maintenance"
+            }, HttpStatusCode.ServiceUnavailable);
+        }
         var validator = await _verifyOtpUserValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
@@ -267,20 +292,22 @@ public class AuthController : BaseApiController {
                 IpAddress = HttpContext.Connection.RemoteIpAddress!.ToString(),
                 UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
             });
-            ResponseHelper.CreateResponse(result);
-            if (result.UserId == null) {
-                Log.Error($"unable to confirm OTP for user [{request.UserToken} , {request.OTPToken}]");
-            }
+            if (result.UserId != null)
+                return ResponseHelper.CreateResponse(result);
+            Log.Error($"unable to confirm OTP for user [{request.UserToken} , {request.OTPToken}]");
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "unable to confirm OTP"
+            }, HttpStatusCode.BadRequest);
         }
         catch (EntityNotFoundException e) {
             Log.Error(e, "One of the entities was not found");
-            ResponseHelper.CreateEmptyResponse(new List<string> {
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
                 "One of the params was not found"
             }, HttpStatusCode.BadRequest);
         }
         catch (Exception e) {
             Log.Error(e, "Error in RequestOTPCode");
-            ResponseHelper.CreateEmptyResponse(new List<string> {
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
                 e.Message
             }, HttpStatusCode.InternalServerError);
         }
@@ -300,6 +327,11 @@ public class AuthController : BaseApiController {
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized", typeof(DataResponse<EmptyResponse>))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     public async Task<IActionResult> ResetPassword(ResetPasswordRequest request) {
+        if (IsMaintenanceMode()) {
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "System is under maintenance"
+            }, HttpStatusCode.ServiceUnavailable);
+        }
         var validator = await _resetPasswordValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
@@ -344,6 +376,11 @@ public class AuthController : BaseApiController {
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthorized", typeof(DataResponse<EmptyResponse>))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     public async Task<IActionResult> RequestOTPCode([SwaggerRequestBody("OTP Request payload", Required = true)] MobileRequestOTPUserRequest request) {
+        if (IsMaintenanceMode()) {
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "System is under maintenance"
+            }, HttpStatusCode.ServiceUnavailable);
+        }
         var validationResult = await _requestOTPValidator.ValidateAsync(request);
         if (!validationResult.IsValid) {
             return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validationResult), HttpStatusCode.BadRequest);
@@ -395,6 +432,11 @@ public class AuthController : BaseApiController {
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "Internal server error", typeof(DataResponse<EmptyResponse>))]
     [Authorize]
     public async Task<IActionResult> RefreshToken(RefreshTokenRequest request) {
+        if (IsMaintenanceMode()) {
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "System is under maintenance"
+            }, HttpStatusCode.ServiceUnavailable);
+        }
         var validator = await _refreshTokenValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
@@ -442,6 +484,11 @@ public class AuthController : BaseApiController {
     })]
     [AllowAnonymous]
     public async Task<IActionResult> ConfirmEmail(ConfirmEmailRequest request) {
+        if (IsMaintenanceMode()) {
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "System is under maintenance"
+            }, HttpStatusCode.ServiceUnavailable);
+        }
         var validator = await _confirmEmailValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);
@@ -495,6 +542,11 @@ public class AuthController : BaseApiController {
     public async Task<IActionResult> Register(
         [SwaggerRequestBody("register user payload", Required = true)]
         RegisterNewUserRequest request) {
+        if (IsMaintenanceMode()) {
+            return ResponseHelper.CreateEmptyResponse(new List<string> {
+                "System is under maintenance"
+            }, HttpStatusCode.ServiceUnavailable);
+        }
         var validator = await _registerNewUserValidator.ValidateAsync(request);
         if (!validator.IsValid) {
             return ResponseHelper.CreateEmptyResponse(ResponseHelper.HandlerErrorResponse(validator), HttpStatusCode.BadRequest);

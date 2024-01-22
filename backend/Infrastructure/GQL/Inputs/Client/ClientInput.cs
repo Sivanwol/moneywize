@@ -38,7 +38,7 @@ public class ClientInput {
     public string? City { get; set; }
 
 
-    public CreateClientRequest ToProcessEntity(Guid loggedInUserId, string userAgent, string ipAddress) {
+    public CreateClientRequest ToProcessEntity(Guid loggedInUserId, string ipAddress, string userAgent) {
         return new CreateClientRequest {
             LoggedInUserId = loggedInUserId,
             ParentId = ParentId,
@@ -53,7 +53,7 @@ public class ClientInput {
         };
     }
 
-    public UpdateClientRequest ToProcessEntity(Guid loggedInUserId, int clientId, string userAgent, string ipAddress) {
+    public UpdateClientRequest ToProcessEntity(Guid loggedInUserId, int clientId, string ipAddress, string userAgent) {
         return new UpdateClientRequest {
             LoggedInUserId = loggedInUserId,
             ClientId = clientId,

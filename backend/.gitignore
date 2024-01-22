@@ -11,6 +11,7 @@
 .idea
 .vscode
 .vs
+.aspnet
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 # any crap of docker need be ignored

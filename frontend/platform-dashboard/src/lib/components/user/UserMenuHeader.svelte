@@ -2,14 +2,17 @@
 	import Notifications from '@components/common/Menus/Notifications.svelte';
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { UserProfile } from '@models/UserProfile';
-	import { createAuth } from '@stores/authStore.js';
 	import { goto } from '$app/navigation';
+	import Gravatar from 'svelte-gravatar';
+	import { isEmpty } from 'lodash-es';
+	import { createAuth } from '@stores/authStore.js';
+
 
 	const dispatch = createEventDispatcher();
 
+	$: auth = createAuth();
 	export let openWindow = false;
 
-	$: auth = createAuth();
 	/** @type { UserProfile } */
 	export let userProfile;
 
@@ -41,8 +44,8 @@
 					on:keydown={(evt) => evt.key === 'Enter' && handleToggleMessageWindow()}
 					type="button">
 		<span class="sr-only">Open user menu</span>
-		<img alt="user photo" class="min-w-[32px] w-8 h-8 rounded-full xl:me-2"
-				 src="{userProfile.avatarImage}" />
+		<Gravatar alt="User Avatar" class="min-w-[32px] w-8 h-8 rounded-full xl:me-2" default="identicon" domain="www.gravatar.com"
+							email={userProfile.email} protocol="http://" size={32} useWaypoint={false} />
 		<span class="hidden xl:block">{userProfile.firstName}, {userProfile.lastName} </span>
 		<i class="uil uil-angle-down text-light dark:text-subtitle-dark text-[18px] hidden xl:block"></i>
 	</button>
@@ -55,11 +58,16 @@
 			class=" pt-4 px-[15px] py-[12px] bg-dark dark:bg-box-dark shadow-[0_2px_8px_rgba(0,0,0,.15)] dark:shadow-[0_5px_30px_rgba(1,4,19,.60)] rounded-4">
 			<figure
 				class="flex items-center text-sm rounded-[8px] bg-section dark:bg-box-dark-up py-[20px] px-[25px] mb-[12px] gap-[15px]">
-				<img alt="user" class="w-8 h-8 rounded-full bg-regular" src="{userProfile.avatarImage}">
+				<Gravatar alt="User Avatar" class="w-8 h-8 rounded-full bg-regular" default="identicon" domain="www.gravatar.com"
+									email={userProfile.email} protocol="http://" size={32} useWaypoint={false} />
 				<figcaption>
 					<div class="text-dark dark:text-title-dark mb-0.5 text-sm">{userProfile.firstName}
 						, {userProfile.lastName}</div>
-					<div class="mb-0 text-xs text-body dark:text-subtitle-dark">{userProfile.role}</div>
+					{#if !isEmpty(userProfile.roles)}
+						{#each userProfile.roles as role}
+							<div class="mb-0 text-xs text-body dark:text-subtitle-dark">{role}</div>
+						{/each}
+					{/if}
 				</figcaption>
 			</figure>
 			<ul class="m-0 pb-[10px] overflow-x-hidden overflow-y-auto scrollbar bg-transparent max-h-[230px]">
@@ -84,11 +92,11 @@
 				</li>
 				<li class="w-full">
 					<div class="p-0 dark:hover:text-white hover:bg-primary/10 dark:hover:bg-box-dark-up rounded-4">
-						<button
+						<a href="/platform/user-activities"
 							class="inline-flex items-center text-light dark:text-subtitle-dark hover:text-primary hover:ps-6 w-full px-2.5 py-3 text-sm transition-all ease-in-out delay-150 gap-[10px]">
-							<i class="text-[16px] uil uil-users-alt"></i>
-							Activity
-						</button>
+							<i class="text-[16px] uil uil-shield"></i>
+							User Activity
+						</a>
 					</div>
 				</li>
 				<li class="w-full">

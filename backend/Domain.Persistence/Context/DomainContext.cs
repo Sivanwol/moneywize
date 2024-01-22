@@ -117,6 +117,7 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
         }).IsUnique();
 
         builder.Entity<ConfigurableUserView>().Property(x => x.Settings).HasColumnType("json");
+        builder.Entity<ConfigurableUserView>().Property(x => x.Permissions).HasColumnType("json");
         builder.Entity<ConfigurableUserView>().HasIndex(x => new {
             x.UserId,
             x.Name
@@ -225,136 +226,6 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
             x.FirstName,
             x.LastName
         }).IsUnique();
-
-        #region Foreign Keys
-
-        builder.Entity<Clients>().HasOne(x => x.Country)
-            .WithMany(x => x.Clients)
-            .HasForeignKey(x => x.CountryId);
-        builder.Entity<Clients>().HasOne(x => x.Parent)
-            .WithMany(x => x.Children)
-            .HasForeignKey(x => x.ParentId);
-        builder.Entity<Clients>().HasOne(x => x.OwnerUser)
-            .WithMany(x => x.Clients)
-            .HasForeignKey(x => x.OwnerUserId);
-
-        builder.Entity<ClientContacts>().HasOne(x => x.Country)
-            .WithMany(x => x.ClientContacts)
-            .HasForeignKey(x => x.CountryId);
-
-        builder.Entity<ClientContacts>().HasOne(x => x.Client)
-            .WithMany(x => x.Contacts)
-            .HasForeignKey(x => x.ClientId);
-
-        builder.Entity<ConfigurableUserViewHasConfigurableEntityColumnDefinition>()
-            .HasOne(vc => vc.ConfigurableUserView)
-            .WithMany(v => v.Columns)
-            .HasForeignKey(vc => vc.ConfigurableUserViewId);
-        builder.Entity<ConfigurableUserViewHasConfigurableEntityColumnDefinition>()
-            .HasOne(vc => vc.ConfigurableEntityColumnDefinition)
-            .WithMany(c => c.Views)
-            .HasForeignKey(vc => vc.ConfigurableEntityColumnDefinitionId);
-
-        builder.Entity<ConfigurableUserViewHasConfigurableUserViewTags>()
-            .HasOne(vc => vc.ConfigurableUserView)
-            .WithMany(v => v.Tags)
-            .HasForeignKey(vc => vc.ConfigurableUserViewId);
-        builder.Entity<ConfigurableUserViewHasConfigurableUserViewTags>()
-            .HasOne(vc => vc.ConfigurableUserViewTags)
-            .WithMany(c => c.Views)
-            .HasForeignKey(vc => vc.ConfigurableUserViewTagsId);
-
-        builder.Entity<ClientNetworkHasTags>()
-            .HasOne(vc => vc.Tag)
-            .WithMany(v => v.ClientNetworks)
-            .HasForeignKey(vc => vc.TagId);
-
-        builder.Entity<ClientNetworkHasTags>()
-            .HasOne(vc => vc.Network)
-            .WithMany(c => c.Tags)
-            .HasForeignKey(vc => vc.NetworkId);
-
-        builder.Entity<ClientNetworksHasAssets>()
-            .HasOne(vc => vc.Asset)
-            .WithMany(v => v.Networks)
-            .HasForeignKey(vc => vc.AssetId);
-
-        builder.Entity<ClientNetworksHasAssets>()
-            .HasOne(vc => vc.Network)
-            .WithMany(c => c.Assets)
-            .HasForeignKey(vc => vc.ClientNetworkId);
-
-        builder.Entity<ClientServerHasTags>()
-            .HasOne(vc => vc.Tag)
-            .WithMany(v => v.ClientServers)
-            .HasForeignKey(vc => vc.TagId);
-
-        builder.Entity<ClientServerHasTags>()
-            .HasOne(vc => vc.Server)
-            .WithMany(c => c.Tags)
-            .HasForeignKey(vc => vc.ServerId);
-
-        builder.Entity<ClientServersHasAssets>()
-            .HasOne(vc => vc.Asset)
-            .WithMany(v => v.Servers)
-            .HasForeignKey(vc => vc.AssetId);
-
-        builder.Entity<ClientServersHasAssets>()
-            .HasOne(vc => vc.Server)
-            .WithMany(c => c.Assets)
-            .HasForeignKey(vc => vc.ClientServerId);
-
-        builder.Entity<ClientEmployeeHasTags>()
-            .HasOne(vc => vc.Tag)
-            .WithMany(v => v.ClientEmployees)
-            .HasForeignKey(vc => vc.TagId);
-
-        builder.Entity<ClientEmployeeHasTags>()
-            .HasOne(vc => vc.Employee)
-            .WithMany(c => c.Tags)
-            .HasForeignKey(vc => vc.EmployeeId);
-
-        builder.Entity<ClientEmployeesHasAssets>()
-            .HasOne(vc => vc.Asset)
-            .WithMany(v => v.Employees)
-            .HasForeignKey(vc => vc.AssetId);
-
-        builder.Entity<ClientEmployeesHasAssets>()
-            .HasOne(vc => vc.Employee)
-            .WithMany(c => c.Assets)
-            .HasForeignKey(vc => vc.ClientEmployeeId);
-
-        builder.Entity<ProviderHasCategories>()
-            .HasOne(vc => vc.Provider)
-            .WithMany(v => v.Categories)
-            .HasForeignKey(vc => vc.ProviderId);
-
-        builder.Entity<ProviderHasCategories>()
-            .HasOne(vc => vc.Category)
-            .WithMany(c => c.Providers)
-            .HasForeignKey(vc => vc.CategoryId);
-
-        builder.Entity<ProviderHasContact>()
-            .HasOne(vc => vc.Provider)
-            .WithMany(v => v.Contacts)
-            .HasForeignKey(vc => vc.ProviderId);
-
-        builder.Entity<ProviderHasContact>()
-            .HasOne(vc => vc.Contact)
-            .WithMany(c => c.Providers)
-            .HasForeignKey(vc => vc.ContactId);
-
-        builder.Entity<VendorHasContact>()
-            .HasOne(vc => vc.Vendor)
-            .WithMany(v => v.Contacts)
-            .HasForeignKey(vc => vc.VendorId);
-
-        builder.Entity<VendorHasContact>()
-            .HasOne(vc => vc.Contact)
-            .WithMany(c => c.Vendors)
-            .HasForeignKey(vc => vc.ContactId);
-
-        #endregion
 
     }
 

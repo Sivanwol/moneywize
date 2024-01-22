@@ -4,6 +4,7 @@ public class BackendApplicationConfig : BaseConfig {
     public bool DisableHealthCheck { get; set; }
     public string AzureServiceBus { get; set; }
     public string AzureServiceBusUri { get; set; }
+    public bool MaintenanceMode { get; set; }
     public bool EnableCache { get; set; }
     public bool EnableGraphQLCache { get; set; }
 
@@ -22,6 +23,8 @@ public class BackendApplicationConfig : BaseConfig {
     public string EmailFrom { get; set; } = "system@wolberg.pro";
     public string EmailFromName { get; set; } = "Wolberg Pro";
     public string ShadowEmailBcc { get; set; } = "shadow@wolberg.pro";
+    public string EMailPassword { get; set; }
+    public string EMailUser { get; set; }
 
     #endregion
 

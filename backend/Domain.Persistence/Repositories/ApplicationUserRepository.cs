@@ -7,6 +7,7 @@ using Domain.Persistence.Context;
 using Domain.Persistence.Repositories.Common;
 using Domain.Persistence.Repositories.Interfaces;
 using Infrastructure.Enums;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 namespace Domain.Persistence.Repositories;
 
@@ -57,7 +58,10 @@ public class ApplicationUserRepository : BaseRepository, IApplicationUserReposit
     }
     public async Task<ApplicationUser?> GetById(Guid id) {
         Log.Logger.Information($"Fetching user with id {id}");
-        return Context.Users.FirstOrDefault(w => w.DeletedAt == null && w.Id == id.ToString());
+        return Context.Users
+            .Include(w => w.Country)
+            .Include(w => w.DisplayLanguage)
+            .FirstOrDefault(w => w.DeletedAt == null && w.Id == id.ToString());
     }
 
     public async Task<ApplicationUser?> GetUserByToken(string userToken) {

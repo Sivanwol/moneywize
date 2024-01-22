@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
-using Domain.DTO.ConfigurableEntities;
 using Domain.Filters.Common;
 using Infrastructure.Enums;
+using Infrastructure.GQL;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 namespace Domain.Filters;
@@ -12,7 +12,7 @@ public class RecordFilterPagination<TFilter> where TFilter : IFilter {
         Filters = (TFilter)Activator.CreateInstance(typeof(TFilter));
     }
     public int Page { get; set; } = 1;
-    public IEnumerable<ConfigurableUserViewColumn> SelectedColumns { get; set; }
+    public IEnumerable<ViewColumn> SelectedColumns { get; set; }
     public int PageSize { get; set; } = 10;
     public TFilter Filters { get; set; }
     public FilterCollectionOperation FilterCollectionOperation { get; set; } = FilterCollectionOperation.Or;

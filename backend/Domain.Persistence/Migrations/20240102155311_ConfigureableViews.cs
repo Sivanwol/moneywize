@@ -43,12 +43,6 @@ namespace Domain.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ConfigurableUserViews", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ConfigurableUserViews_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -68,12 +62,6 @@ namespace Domain.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ConfigurableUserViewTags", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ConfigurableUserViewTags_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -91,18 +79,7 @@ namespace Domain.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ConfigurableUserViewHasConfigurableEntityColumnDefinitions", x => new { x.ConfigurableUserViewId, x.ConfigurableEntityColumnDefinitionId });
-                    table.ForeignKey(
-                        name: "FK_ConfigurableUserViewHasConfigurableEntityColumnDefinitions_C~",
-                        column: x => x.ConfigurableEntityColumnDefinitionId,
-                        principalTable: "ConfigurableEntityColumnDefinitions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ConfigurableUserViewHasConfigurableEntityColumnDefinitions_~1",
-                        column: x => x.ConfigurableUserViewId,
-                        principalTable: "ConfigurableUserViews",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                    
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -118,18 +95,7 @@ namespace Domain.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ConfigurableUserViewHasConfigurableUserViewTags", x => new { x.ConfigurableUserViewId, x.ConfigurableUserViewTagsId });
-                    table.ForeignKey(
-                        name: "FK_ConfigurableUserViewHasConfigurableUserViewTags_Configurable~",
-                        column: x => x.ConfigurableUserViewId,
-                        principalTable: "ConfigurableUserViews",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ConfigurableUserViewHasConfigurableUserViewTags_Configurabl~1",
-                        column: x => x.ConfigurableUserViewTagsId,
-                        principalTable: "ConfigurableUserViewTags",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                    
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 

@@ -10,24 +10,26 @@ public class ConfigurableUserView : BaseEntity {
     public string UserId { get; set; }
 
     public ApplicationUser User { get; set; }
+    public Guid ClientUniqueKey { get; set; } = Guid.NewGuid();
 
     [StringLength(100)]
     public string Name { get; set; }
 
     [StringLength(200)]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     public bool IsShareAble { get; set; }
-    public bool IsDefault { get; set; }
 
     [StringLength(8)]
-    public string Color { get; set; }
+    public string? Color { get; set; }
 
     [Column(TypeName = "json")]
     public ICollection<ConfigurableEntityMetaData> Settings { get; set; }
 
+    [Column(TypeName = "json")]
+    public ICollection<string> Permissions { get; set; }
+
     public bool IsPredefined { get; set; } // Indicates if column is predefined
-    public DateTime? LastUsed { get; set; }
     public DateTime? DeletedAt { get; set; }
 
     public IEnumerable<ConfigurableUserViewHasConfigurableUserViewTags>? Tags { get; set; }

@@ -2,24 +2,31 @@
   "sections": [
     {
       "hasTitle": true,
-      "title": "Section 1",
+      "title": "Users & Activities",
       "permissions": [
         "admin"
       ],
       "items": [
         {
-          "key": "menu-item-1",
-          "title": "menu item 1",
+          "key": "user-list",
+          "title": "User List",
           "hasSubtitle": true,
           "hasIcon": true,
           "link": "/",
-          "icon": "uil-envelope"
+          "icon": " uil-users-alt"
         },
         {
-          "key": "menu-item-2",
-          "title": "menu item 2",
+          "key": "user-permissions",
+          "title": "User Permissions",
           "hasIcon": true,
-          "icon": "uil-envelope",
+          "icon": "uil-shield",
+          "link": "/"
+        },
+        {
+          "key": "activity-list",
+          "title": "Activity List",
+          "hasIcon": true,
+          "icon": "uil-shield-question",
           "link": "/"
         }
       ]

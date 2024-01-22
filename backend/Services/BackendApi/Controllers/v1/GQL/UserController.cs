@@ -30,6 +30,9 @@ public class UserController : BaseGraphController {
     [Query("getMyProfile", typeof(User))]
     [Description("Will return the current user profile")]
     public async Task<IGraphActionResult> GetMyProfile() {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
         try {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) {
@@ -53,6 +56,9 @@ public class UserController : BaseGraphController {
     public async Task<IGraphActionResult> GetUserProfile(
         [FromGraphQL("userId")] [Description("User Id")]
         Guid userId) {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         try {
@@ -86,6 +92,9 @@ public class UserController : BaseGraphController {
     public async Task<IGraphActionResult> GetUsers(
         [FromGraphQL("page")] [Description("Entity Page Data( paging , sorting , filtering )")]
         EntityPage page) {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         try {
@@ -123,6 +132,9 @@ public class UserController : BaseGraphController {
         Guid userId,
         [FromGraphQL("page")] [Description("Entity Page Data( paging , sorting , filtering )")]
         EntityPage page) {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         try {

@@ -22,21 +22,11 @@ namespace Domain.Persistence.Migrations
                 name: "IX_ActivityLogs_OwnerUserId",
                 table: "ActivityLogs",
                 column: "OwnerUserId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_ActivityLogs_AspNetUsers_OwnerUserId",
-                table: "ActivityLogs",
-                column: "OwnerUserId",
-                principalTable: "AspNetUsers",
-                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_ActivityLogs_AspNetUsers_OwnerUserId",
-                table: "ActivityLogs");
 
             migrationBuilder.DropIndex(
                 name: "IX_ActivityLogs_OwnerUserId",

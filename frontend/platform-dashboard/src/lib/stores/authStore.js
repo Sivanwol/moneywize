@@ -110,6 +110,7 @@ export function createAuth(initialValue = null) {
 		},
 
 		logout(note) {
+			localStorage.clear();
 			removeItem(AuthCookieKey);
 		}
 	};

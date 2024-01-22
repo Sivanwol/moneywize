@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Domain.Persistence.Migrations
 {
     [DbContext(typeof(DomainContext))]
-    [Migration("20240104132737_MoveUserRoleToExtrnalEnitity")]
-    partial class MoveUserRoleToExtrnalEnitity
+    [Migration("20240108173051_addClientUniqueKey")]
+    partial class addClientUniqueKey
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -103,6 +103,9 @@ namespace Domain.Persistence.Migrations
 
                     b.Property<int>("CountryId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("DisplayLanguageId")
                         .HasColumnType("int");
@@ -304,6 +307,9 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("ExtraMediaId")
                         .HasColumnType("int");
 
@@ -420,6 +426,9 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -445,14 +454,17 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Address")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("City")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Company")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<int>("CountryId")
                         .HasColumnType("int");
@@ -462,24 +474,30 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Department")
+                        .HasColumnType("varchar(100)");
+
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("varchar(95)");
+                        .HasColumnType("varchar(500)");
 
                     b.Property<string>("Fax")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("varchar(95)");
+                        .HasColumnType("varchar(75)");
 
                     b.Property<string>("JobTitle")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("varchar(95)");
+                        .HasColumnType("varchar(75)");
 
                     b.Property<string>("Notes")
                         .IsRequired()
@@ -487,31 +505,36 @@ namespace Domain.Persistence.Migrations
 
                     b.Property<string>("Phone1")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("Phone2")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("PostalCode")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(10)");
 
                     b.Property<string>("State")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-                    b.Property<string>("whatsapp")
-                        .HasColumnType("longtext");
+                    b.Property<string>("Whatsapp")
+                        .HasColumnType("varchar(20)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
                     b.HasIndex("CountryId", "FirstName", "LastName")
+                        .IsUnique();
+
+                    b.HasIndex("FirstName", "LastName", "ClientId", "CountryId")
                         .IsUnique();
 
                     b.ToTable("ClientContacts");
@@ -558,6 +581,9 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime?>("DisabledAt")
                         .HasColumnType("datetime(6)");
 
@@ -599,6 +625,9 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<DateTime?>("DisabledAt")
@@ -659,6 +688,9 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime?>("DisabledAt")
                         .HasColumnType("datetime(6)");
 
@@ -694,6 +726,9 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<DateTime?>("DisabledAt")
@@ -756,6 +791,9 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime?>("DisabledAt")
                         .HasColumnType("datetime(6)");
 
@@ -798,6 +836,9 @@ namespace Domain.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime?>("DisabledAt")
                         .HasColumnType("datetime(6)");
 
@@ -819,11 +860,11 @@ namespace Domain.Persistence.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasColumnType("varchar(95)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasColumnType("varchar(95)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<int>("CountryId")
                         .HasColumnType("int");
@@ -832,6 +873,9 @@ namespace Domain.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -842,7 +886,7 @@ namespace Domain.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("varchar(95)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("OwnerUserId")
                         .IsRequired()
@@ -858,7 +902,7 @@ namespace Domain.Persistence.Migrations
 
                     b.Property<string>("Website")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(500)");
 
                     b.HasKey("Id");
 
@@ -866,31 +910,13 @@ namespace Domain.Persistence.Migrations
 
                     b.HasIndex("ParentId");
 
+                    b.HasIndex("Name", "OwnerUserId")
+                        .IsUnique();
+
                     b.HasIndex("OwnerUserId", "ParentId", "CountryId", "Address", "City", "Name")
                         .IsUnique();
 
                     b.ToTable("Clients");
-                });
-
-            modelBuilder.Entity("Domain.Entities.ClientsHasClientContacts", b =>
-                {
-                    b.Property<int>("ClientId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ContactId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("ClientId", "ContactId");
-
-                    b.HasIndex("ContactId");
-
-                    b.ToTable("ClientHasClientContacts");
                 });
 
             modelBuilder.Entity("Domain.Entities.ConfigurableCategories", b =>
@@ -941,7 +967,7 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("ColumnName")
@@ -956,7 +982,6 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("DisabledAt")
@@ -974,9 +999,6 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("IsFilterable")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("IsHidden")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsSortable")
@@ -1017,8 +1039,10 @@ namespace Domain.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<Guid>("ClientUniqueKey")
+                        .HasColumnType("char(36)");
+
                     b.Property<string>("Color")
-                        .IsRequired()
                         .HasMaxLength(8)
                         .HasColumnType("varchar(8)");
 
@@ -1031,12 +1055,8 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsPredefined")
                         .HasColumnType("tinyint(1)");
@@ -1044,13 +1064,14 @@ namespace Domain.Persistence.Migrations
                     b.Property<bool>("IsShareAble")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<DateTime?>("LastUsed")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Permissions")
+                        .IsRequired()
+                        .HasColumnType("json");
 
                     b.Property<string>("Settings")
                         .IsRequired()
@@ -1085,7 +1106,10 @@ namespace Domain.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<bool>("IsPinable")
+                    b.Property<bool>("IsFixed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsHidden")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<int>("Order")
@@ -1163,14 +1187,14 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Address")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("City")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("Company")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<int>("CountryId")
                         .HasColumnType("int");
@@ -1180,49 +1204,55 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Department")
+                        .HasColumnType("varchar(100)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
                     b.Property<string>("Fax")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("varchar(95)");
+                        .HasColumnType("varchar(75)");
 
                     b.Property<string>("JobTitle")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("varchar(95)");
+                        .HasColumnType("varchar(75)");
 
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Phone1")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("Phone2")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("PostalCode")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(10)");
 
                     b.Property<string>("State")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
-                    b.Property<string>("whatsapp")
-                        .HasColumnType("longtext");
+                    b.Property<string>("Whatsapp")
+                        .HasColumnType("varchar(20)");
 
                     b.HasKey("Id");
 
@@ -1383,9 +1413,6 @@ namespace Domain.Persistence.Migrations
                     b.Property<int>("ContactId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ClientContactsId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -1393,8 +1420,6 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("ProviderId", "ContactId");
-
-                    b.HasIndex("ClientContactsId");
 
                     b.HasIndex("ContactId");
 
@@ -1411,6 +1436,9 @@ namespace Domain.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -1486,9 +1514,6 @@ namespace Domain.Persistence.Migrations
                     b.Property<int>("ContactId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ClientContactsId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -1496,8 +1521,6 @@ namespace Domain.Persistence.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("VendorId", "ContactId");
-
-                    b.HasIndex("ClientContactsId");
 
                     b.HasIndex("ContactId");
 
@@ -1518,6 +1541,9 @@ namespace Domain.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -1802,11 +1828,19 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ClientContacts", b =>
                 {
+                    b.HasOne("Domain.Entities.Clients", "Client")
+                        .WithMany("Contacts")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.Countries", "Country")
-                        .WithMany()
+                        .WithMany("ClientContacts")
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Client");
 
                     b.Navigation("Country");
                 });
@@ -2025,7 +2059,7 @@ namespace Domain.Persistence.Migrations
             modelBuilder.Entity("Domain.Entities.Clients", b =>
                 {
                     b.HasOne("Domain.Entities.Countries", "Country")
-                        .WithMany()
+                        .WithMany("Clients")
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2037,7 +2071,7 @@ namespace Domain.Persistence.Migrations
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Clients", "Parent")
-                        .WithMany()
+                        .WithMany("Children")
                         .HasForeignKey("ParentId");
 
                     b.Navigation("Country");
@@ -2047,32 +2081,11 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ClientsHasClientContacts", b =>
-                {
-                    b.HasOne("Domain.Entities.Clients", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.ClientContacts", "Contact")
-                        .WithMany()
-                        .HasForeignKey("ContactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Contact");
-                });
-
             modelBuilder.Entity("Domain.Entities.ConfigurableEntityColumnDefinition", b =>
                 {
                     b.HasOne("Domain.Entities.ConfigurableCategories", "Category")
                         .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoryId");
 
                     b.Navigation("Category");
                 });
@@ -2142,7 +2155,7 @@ namespace Domain.Persistence.Migrations
             modelBuilder.Entity("Domain.Entities.Contacts", b =>
                 {
                     b.HasOne("Domain.Entities.Countries", "Country")
-                        .WithMany()
+                        .WithMany("Contacts")
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2171,10 +2184,6 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ProviderHasContact", b =>
                 {
-                    b.HasOne("Domain.Entities.ClientContacts", null)
-                        .WithMany("Providers")
-                        .HasForeignKey("ClientContactsId");
-
                     b.HasOne("Domain.Entities.Contacts", "Contact")
                         .WithMany("Providers")
                         .HasForeignKey("ContactId")
@@ -2203,10 +2212,6 @@ namespace Domain.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.VendorHasContact", b =>
                 {
-                    b.HasOne("Domain.Entities.ClientContacts", null)
-                        .WithMany("Vendors")
-                        .HasForeignKey("ClientContactsId");
-
                     b.HasOne("Domain.Entities.Contacts", "Contact")
                         .WithMany("Vendors")
                         .HasForeignKey("ContactId")
@@ -2308,13 +2313,6 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("Providers");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ClientContacts", b =>
-                {
-                    b.Navigation("Providers");
-
-                    b.Navigation("Vendors");
-                });
-
             modelBuilder.Entity("Domain.Entities.ClientEmployees", b =>
                 {
                     b.Navigation("Assets");
@@ -2334,6 +2332,13 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("Assets");
 
                     b.Navigation("Tags");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Clients", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("Contacts");
                 });
 
             modelBuilder.Entity("Domain.Entities.ConfigurableEntityColumnDefinition", b =>
@@ -2358,6 +2363,15 @@ namespace Domain.Persistence.Migrations
                     b.Navigation("Providers");
 
                     b.Navigation("Vendors");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Countries", b =>
+                {
+                    b.Navigation("ClientContacts");
+
+                    b.Navigation("Clients");
+
+                    b.Navigation("Contacts");
                 });
 
             modelBuilder.Entity("Domain.Entities.Providers", b =>

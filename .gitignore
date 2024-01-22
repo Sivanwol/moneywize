@@ -10,3 +10,9 @@ Thumbs.db
 *.log
 *.DotSettings.user
 global.json
+
+# environment files
+!.env.example
+.env
+.env.*
+

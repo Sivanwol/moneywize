@@ -7,6 +7,7 @@ using Domain.Filters;
 using Domain.Filters.Fields;
 using Domain.Persistence.Repositories.Interfaces;
 using Infrastructure.Enums;
+using Infrastructure.GQL;
 using Infrastructure.GQL.Common;
 using Infrastructure.Requests.Processor.Services.Client;
 using Infrastructure.Services.Cache;
@@ -104,14 +105,13 @@ public class GetContactsAllHandler : IRequestHandler<GetClientsContactsRequest, 
     }
 
     private async Task<RecordFilterPagination<ClientContactsFilters>> BuildPageFilter(GetClientsContactsRequest request) {
-        var columns = await _configurableUserViewRepository.GetViewColumns(request.LoggedInUserId.ToString(), request.PageControl.ViewId);
+        ;
         var pageFilter = new RecordFilterPagination<ClientContactsFilters>() {
             Page = request.PageControl.Page,
             PageSize = (int)request.PageControl.PageSize,
             SortByField = request.PageControl.SortByField!,
             SortDirection = request.PageControl.SortDirection,
-            FilterCollectionOperation = request.PageControl.FilterCollectionOperation,
-            SelectedColumns = columns
+            FilterCollectionOperation = request.PageControl.FilterCollectionOperation
         };
 
         foreach (var filter in request.PageControl.Filters) {

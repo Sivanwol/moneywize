@@ -14,16 +14,22 @@ public class ConfigurableEntityColumnDefinition : BaseEntity {
     [Column(TypeName = "nvarchar(100)")]
     public string DisplayName { get; set; }
 
+    [Column(TypeName = "nvarchar(100)")]
+    public string FieldAlias { get; set; }
+
+    [Column(TypeName = "nvarchar(500)")]
+    public string FieldPath { get; set; }
+
+
     [Column(TypeName = "text")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [ForeignKey("CategoryId")]
-    public int CategoryId { get; set; }
+    public int? CategoryId { get; set; }
 
     public ConfigurableCategories Category { get; set; }
     public EntityColumnDataType DataType { get; set; } = EntityColumnDataType.String;
     public EntityColumnOperationType FilterOperationType { get; set; } = EntityColumnOperationType.StringFilterField;
-    public bool IsHidden { get; set; } = false; // is this column can be updated
     public bool IsSortable { get; set; }
     public bool IsFilterable { get; set; }
     public DateTime? DisabledAt { get; set; }

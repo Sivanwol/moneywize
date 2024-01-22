@@ -73,7 +73,7 @@ public class ClientContactInput {
     [Description("client contact Notes")]
     public string? Notes { get; set; }
 
-    public CreateClientContractRequest ToProcessEntity(Guid loggedInUserId, string userAgent, string ipAddress) {
+    public CreateClientContractRequest ToProcessEntity(Guid loggedInUserId, string ipAddress, string userAgent) {
         return new CreateClientContractRequest() {
             LoggedInUserId = loggedInUserId,
             ClientId = ClientId,
