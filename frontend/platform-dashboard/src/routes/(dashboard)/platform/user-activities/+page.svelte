@@ -11,19 +11,18 @@
 
 	$: client = getClient();
 	$: currentPage = 1;
+	$: currentViewKey = null || PUBLIC_VIEWS_USER_ACTIVITY;
 
-	let currentViewKey = null || PUBLIC_VIEWS_USER_ACTIVITY;
 
-
-	async function fetchData() {
+	async function fetchData(sortByField, sortByDirection) {
 		const res = await client.query({
 			query: GetUserActivities([]),
 			variables: {
 				pageSize: PAGE_SIZE.TWENTY.query,
-				sortField: 'CreatedAt',
+				sortField: sortByField || 'CreatedAt',
 				userId: $userStore.profile.id,
 				viewClientId: currentViewKey,
-				sortDirection: SortDirection.DESCENDING,
+				sortDirection: sortByDirection || SortDirection.DESCENDING,
 				page: 1
 			}
 		});
@@ -41,8 +40,9 @@
 		};
 	}
 
-	const loadingData = async (ops) => {
-		return await fetchData();
+	const loadingData = async (ops, sortByField, sortByDirection) => {
+		console.log(ops, sortByField, sortByDirection);
+		return await fetchData(sortByField, sortByDirection);
 	};
 </script>
 
@@ -58,7 +58,7 @@
 </div>
 <div class="p-[25px] bg-dark rounded-10 dark:bg-box-dark ">
 	<div class="ml-4 mr-4 w-full p-4 ">
-		<Card size="xl">
+		<Card size="2xl">
 			<Grid debug={true} onHandlerDataLoading={loadingData} userViewKey={currentViewKey} />
 		</Card>
 	</div>

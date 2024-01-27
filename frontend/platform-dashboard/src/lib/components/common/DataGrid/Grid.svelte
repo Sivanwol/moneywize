@@ -6,7 +6,8 @@
 	import { _ } from 'svelte-i18n';
 	import { Button, ButtonGroup, ListPlaceholder } from 'flowbite-svelte';
 	import Grid from 'gridjs-svelte';
-	import { get } from 'lodash-es';
+	import { capitalize, get } from 'lodash-es';
+	import { SortDirection } from '@api/queries/utils/SortDirection.js';
 
 	let columns = [];
 	let currentView = null;
@@ -18,7 +19,7 @@
 	export let showViewChanger = true;
 	export let useManualDataLoading = false;
 	export let paginationSize = 20;
-	export let onHandlerDataLoading = async (ops) => {
+	export let onHandlerDataLoading = async (ops, sortByField, sortByDirection) => {
 	};
 	export let onConvertHandlerData = (records) => {
 		const newRecords = [];
@@ -39,15 +40,40 @@
 			'white-space': 'nowrap'
 		}
 	};
+	$: sortByField = 'CreatedAt';
+	$: sortByDirection = SortDirection.DESCENDING;
 
+	const sort = {
+		multiColumn: false,
+		server: {
+			url: (prev, sortColumns) => {
+				if (!sortColumns.length) return prev;
+
+				const { index, direction } = sortColumns[0];
+				const dir = direction === 1 ? SortDirection.ASCENDING : SortDirection.DESCENDING;
+				const col = columns[index];
+				if (!col.sort) return prev;
+				sortByField = capitalize(col.columnName);
+				sortByDirection = dir;
+				if (debug) {
+					console.log('sort', col);
+					console.log('sortByField', sortByField);
+					console.log('sortByDirection', sortByDirection);
+				}
+				return `${prev}&sort=${sortByField}&direction=${dir}`;
+			}
+		}
+	};
 	const server = {
 		url: 'https://api.github.com/users',
 		data: async (ops) => {
-			const data = await onHandlerDataLoading(ops);
+			const data = await onHandlerDataLoading(ops, sortByField, sortByDirection);
 			const convertData = onConvertHandlerData(data.records);
 			if (debug) {
 				console.log('data', data);
 				console.log('convertData', convertData);
+				console.log('sortByField', sortByField);
+				console.log('sortByDirection', sortByDirection);
 			}
 			return {
 				data: convertData,
@@ -92,7 +118,8 @@
 				id: column.fieldAlias,
 				name: column.displayName,
 				sort: column.isSortable || false,
-				hidden: column.isHidden
+				hidden: column.isHidden,
+				columnName: column.columnName
 				// formatter: (cell, row) => {
 				// 	return column.formatter(cell, row);
 				// }
@@ -132,6 +159,7 @@
 				columns={columns}
 				server={server}
 				style={style}
+				sort={sort}
 				pagination={pagination}
 			/>
 		{:else}
