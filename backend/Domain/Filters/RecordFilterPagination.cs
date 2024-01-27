@@ -22,12 +22,11 @@ public class RecordFilterPagination<TFilter> where TFilter : IFilter {
     public IQueryable<T> ApplyQueryWithoutPagination<T>(IQueryable<T> query) where T : class {
         query = Filters.ApplyFilters(query, FilterCollectionOperation, SelectedColumns);
         var type = typeof(T);
-        var property = type.GetProperty(SortByField);
-        var parameter = Expression.Parameter(type, "p");
-        var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+        var parameter = Expression.Parameter(typeof(T), "p");
+        var propertyAccess = Expression.PropertyOrField(parameter, SortByField);
         var orderByExp = Expression.Lambda(propertyAccess, parameter);
         var typeArguments = new[] {
-            type, property.PropertyType
+            type, propertyAccess.Type
         };
 
         if (SortDirection == SortDirection.Ascending) {
@@ -57,18 +56,17 @@ public class RecordFilterPagination<TFilter> where TFilter : IFilter {
 
     public IQueryable<T> ApplyQuery<T>(IQueryable<T> query) where T : class {
         query = Filters.ApplyFilters(query, FilterCollectionOperation, SelectedColumns);
-        var type = typeof(T);
-        var property = type.GetProperty(SortByField);
-        var parameter = Expression.Parameter(type, "p");
-        var propertyAccess = Expression.MakeMemberAccess(parameter, property!);
-        var orderByExp = Expression.Lambda(propertyAccess, parameter);
-        var typeArguments = new[] {
-            type, property.PropertyType
-        };
-
         if (SelectedColumns.Any(c => c.ColumnName == SortByField && !c.IsSortable)) {
             SortByField = "CreatedAt"; // default sort
         }
+        var type = typeof(T);
+        var parameter = Expression.Parameter(typeof(T), "p");
+        var propertyAccess = Expression.PropertyOrField(parameter, SortByField);
+        var orderByExp = Expression.Lambda(propertyAccess, parameter);
+        var typeArguments = new[] {
+            type, propertyAccess.Type
+        };
+
         if (SortDirection == SortDirection.Ascending) {
             var orderByCall = Expression.Call(
                 typeof(Queryable),
