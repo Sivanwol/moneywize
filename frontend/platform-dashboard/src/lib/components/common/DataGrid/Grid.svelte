@@ -44,7 +44,7 @@
 		url: 'https://api.github.com/users',
 		data: async (ops) => {
 			const data = await onHandlerDataLoading(ops);
-			const convertData = onConvertHandlerData(dta.records);
+			const convertData = onConvertHandlerData(data.records);
 			if (debug) {
 				console.log('data', data);
 				console.log('convertData', convertData);
@@ -68,9 +68,6 @@
 			columns = [];
 		}
 		parseColumnsFromView();
-		if (!useManualDataLoading) {
-			data = [];
-		}
 
 		if (debug) {
 			console.log('data', data);
@@ -107,10 +104,10 @@
 	}
 
 	const onFilterOpen = (event) => {
-		console.log('onFilterOpenClient', event.detail);
+		console.log('onFilterOpenClient', event);
 	};
 	const onChangeViewOpen = (event) => {
-		console.log('onChangeViewOpenClient', event.detail);
+		console.log('onChangeViewOpenClient', event);
 	};
 </script>
 
@@ -129,7 +126,7 @@
 		</ButtonGroup>
 	</div>
 	<div class="p-4 ag-theme-alpine">
-		{#if useManualDataLoading}
+		{#if !useManualDataLoading}
 			<Grid
 				data={data}
 				columns={columns}

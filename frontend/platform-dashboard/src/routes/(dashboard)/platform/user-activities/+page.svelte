@@ -13,7 +13,6 @@
 	$: currentPage = 1;
 
 	let currentViewKey = null || PUBLIC_VIEWS_USER_ACTIVITY;
-	let currentView = null;
 
 
 	async function fetchData() {
@@ -23,7 +22,7 @@
 				pageSize: PAGE_SIZE.TWENTY.query,
 				sortField: 'CreatedAt',
 				userId: $userStore.profile.id,
-				viewClientId: currentView.clientKey,
+				viewClientId: currentViewKey,
 				sortDirection: SortDirection.DESCENDING,
 				page: 1
 			}
@@ -43,8 +42,7 @@
 	}
 
 	const loadingData = async (ops) => {
-		const dta = await fetchData();
-		return dta;
+		return await fetchData();
 	};
 </script>
 
@@ -60,7 +58,7 @@
 </div>
 <div class="p-[25px] bg-dark rounded-10 dark:bg-box-dark ">
 	<div class="ml-4 mr-4 w-full p-4 ">
-		<Card on:loadingRequest={onLoadingRequest} size="xl">
+		<Card size="xl">
 			<Grid debug={true} onHandlerDataLoading={loadingData} userViewKey={currentViewKey} />
 		</Card>
 	</div>
