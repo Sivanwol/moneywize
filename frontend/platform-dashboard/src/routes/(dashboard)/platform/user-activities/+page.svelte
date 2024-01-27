@@ -7,7 +7,7 @@
 	import { GetUserActivities } from '@api/queries/user.query.js';
 	import { PAGE_SIZE } from '@api/queries/utils/PageSize.js';
 	import { SortDirection } from '@api/queries/utils/SortDirection.js';
-	import { Grid } from '@components/common/DataGrid/Grid.svelte';
+	import Grid from '@components/common/DataGrid/Grid.svelte';
 
 	$: client = getClient();
 	$: currentPage = 1;
