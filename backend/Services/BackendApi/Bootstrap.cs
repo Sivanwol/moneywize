@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Text;
 using Application.Configs;
 using Application.Configs.General;
 using Application.Configs.Providers;
@@ -7,6 +6,7 @@ using Application.Constraints;
 using Application.Events;
 using Application.Events.Flow;
 using Application.Extensions;
+using BackendApi.Factories;
 using Domain.Entities;
 using Domain.Persistence;
 using Domain.Persistence.Context;
@@ -248,9 +248,11 @@ public class Bootstrap {
         services.AddIdentity<ApplicationUser, AspNetRoles>()
             .AddEntityFrameworkStores<DomainContext>()
             .AddSignInManager()
+            .AddClaimsPrincipalFactory<AppClaimsFactory>()
             .AddDefaultTokenProviders();
+
         services.AddAuthentication(o => {
-            o.DefaultScheme = IdentityConstants.BearerScheme;
+            o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         });
 
@@ -260,14 +262,15 @@ public class Bootstrap {
             x.IncludeErrorDetails = true;
             x.TokenValidationParameters = new TokenValidationParameters {
                 ValidateIssuerSigningKey = true,
-                ValidAudience = jwtTokenConfig.Audience,
-                ValidIssuer = jwtTokenConfig.Issuer,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtTokenConfig.Secret)),
-                ValidateAudience = true,
-                ValidateIssuer = true,
+                // ValidAudience = jwtTokenConfig.Audience,
+                // ValidIssuer = jwtTokenConfig.Issuer,
+                IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(jwtTokenConfig.Secret)),
+                ValidateAudience = false,
+                ValidateIssuer = false,
                 NameClaimType = ClaimTypes.NameIdentifier
             };
         });
+
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {

@@ -12,12 +12,11 @@ using Infrastructure.GQL.Common;
 using Infrastructure.GQL.Inputs.Common;
 using Infrastructure.Requests.Processor.Services.ActivitiesLogs;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Serilog;
 namespace BackendApi.Controllers.v1.GQL;
 
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize]
 [GraphRoute("activitiesLogs")]
 public class ActivitiesLogsController : BaseGraphController {
     private readonly IValidator<EntityPage> _pageValidator;

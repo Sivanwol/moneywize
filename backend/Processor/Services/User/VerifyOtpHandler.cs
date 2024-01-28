@@ -54,7 +54,8 @@ public class VerifyOtpHandler : IRequestHandler<VerifyOtpUserRequest, VerifyOTPR
         var claims = new List<Claim> {
             new(ClaimTypes.NameIdentifier, user.Id),
             new(ClaimTypes.Email, user.Email!),
-            new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
+            new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+            new("TenantId", ""),
         };
         roles.ToList().ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
         if (_config is { DeveloperMode: true, DeveloperModeEnabledOTP: false }) {

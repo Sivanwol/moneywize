@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 using Infrastructure.Services.Auth.Models;
 using Microsoft.IdentityModel.Tokens;
 namespace Infrastructure.Services.Auth;
@@ -40,14 +39,14 @@ public class JwtAuthManager : IJwtAuthManager {
     }
 
     public JwtAuthResult GenerateTokens(string userToken, IList<Claim> claims, DateTime now) {
-        var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtTokenConfig.Secret));
+        var signingKey = new SymmetricSecurityKey(Convert.FromBase64String(_jwtTokenConfig.Secret));
 
         var accessToken = new JwtSecurityTokenHandler().CreateEncodedJwt(new SecurityTokenDescriptor {
-            Issuer = _jwtTokenConfig.Issuer,
-            Audience = _jwtTokenConfig.Audience,
+            // Issuer = _jwtTokenConfig.Issuer,
+            // Audience = _jwtTokenConfig.Audience,
             Subject = new ClaimsIdentity(claims),
             Expires = now.AddMinutes(_jwtTokenConfig.AccessTokenExpiration),
-            SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha512)
+            SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha512Signature)
         });
         var refreshToken = new RefreshToken {
             UserToken = userToken,
@@ -89,13 +88,14 @@ public class JwtAuthManager : IJwtAuthManager {
             .ValidateToken(token,
                 new TokenValidationParameters {
                     // ValidateIssuer = true,
-                    // ValidIssuer = _jwtTokenConfig.Issuer,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtTokenConfig.Secret)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(_jwtTokenConfig.Secret)),
                     // ValidAudience = _jwtTokenConfig.Audience,
-                    // ValidateAudience = true,
-                    // ValidateLifetime = true,
-                    // ClockSkew = TimeSpan.FromMinutes(1)
+                    // ValidIssuer = _jwtTokenConfig.Issuer,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    // ClockSkew = TimeSpan.Zero
+                    // 
                 },
                 out var validatedToken);
         return (principal, validatedToken as JwtSecurityToken);
