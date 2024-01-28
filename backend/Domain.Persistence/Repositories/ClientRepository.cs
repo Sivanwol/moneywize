@@ -100,9 +100,11 @@ public class ClientRepository : BaseRepository, IClientRepository {
     }
     public async Task<ICollection<Clients>> GetAll(RecordFilterPagination<ClientFilters> filter) {
         var query = Context.Clients.AsQueryable();
-        query = filter.ApplyQuery(query).Where(w => w.DeletedAt == null);
-        query = query.Include(i => i.Country);
-        query = query.Include(i => i.OwnerUser);
+
+        query = query.Where(w => w.DeletedAt == null)
+            .Include(i => i.Country)
+            .Include(i => i.OwnerUser);
+        query = filter.ApplyQuery(query);
 
         return await query.ToListAsync();
     }

@@ -12,11 +12,12 @@ using Infrastructure.GQL.Common;
 using Infrastructure.GQL.Inputs.Common;
 using Infrastructure.Requests.Processor.Services.User;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Serilog;
 namespace BackendApi.Controllers.v1.GQL;
 
-[Authorize]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [GraphRoute("user")]
 public class UserController : BaseGraphController {
     private readonly IValidator<EntityPage> _pageValidator;
