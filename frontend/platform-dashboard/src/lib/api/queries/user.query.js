@@ -83,16 +83,18 @@ query GetInitialUserData {
 			clientKey, color, name, description,isPredefined, isShareAble, 
 			columns {
           displayName,
-				columnName,
-				dataType,
+          columnName,
+          dataType,
           fieldAlias,
           fieldPath,
-				filterOperationType,
-				isFilterable,
-				isSortable,
-				isHidden,
-				isFixed,
-				order
+          fieldFormatter,
+          description,
+          filterOperationType,
+          isFilterable,
+          isSortable,
+          isHidden,
+          isFixed,
+          order
 			}
 		}
 		getCountries {
