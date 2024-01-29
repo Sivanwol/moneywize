@@ -41,6 +41,7 @@ public class ClientController : BaseGraphController {
     }
 
     [Mutation("createClient", typeof(string))]
+    [Authorize(Roles = "Admin")]
     [Description("Will create a new client")]
     public async Task<IGraphActionResult> CreateClient(
         [FromGraphQL("client")] [Description("Client object input")]
@@ -69,6 +70,7 @@ public class ClientController : BaseGraphController {
     }
 
     [Mutation("updateClient", typeof(string))]
+    [Authorize(Roles = "Admin,IT")]
     [Description("Will update a new client")]
     public async Task<IGraphActionResult> UpdateClient(
         [FromGraphQL("clientId")] [Description("Client Id")]
@@ -100,6 +102,7 @@ public class ClientController : BaseGraphController {
     }
 
     [Mutation("deleteClient", typeof(string))]
+    [Authorize(Roles = "Admin")]
     [Description("Will delete a new client")]
     public async Task<IGraphActionResult> DeleteClient(
         [FromGraphQL("clientId")] [Description("Client Id")]
@@ -128,6 +131,7 @@ public class ClientController : BaseGraphController {
 
 
     [Query("getAll", typeof(EntityPage<Client>))]
+    [Authorize(Roles = "Admin,IT")]
     [Description("Will return the clients")]
     public async Task<IGraphActionResult> GetClients(
         [FromGraphQL("page")] [Description("Entity Page Data( paging , sorting , filtering )")]

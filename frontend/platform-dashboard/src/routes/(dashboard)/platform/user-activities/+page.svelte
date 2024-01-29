@@ -5,7 +5,6 @@
 	import { _ } from 'svelte-i18n';
 	import { getClient } from 'svelte-apollo';
 	import { GetUserActivities } from '@api/queries/user.query.js';
-	import { PAGE_SIZE } from '@api/queries/utils/PageSize.js';
 	import { SortDirection } from '@api/queries/utils/SortDirection.js';
 	import Grid from '@components/common/DataGrid/Grid.svelte';
 
@@ -14,16 +13,16 @@
 	$: currentViewKey = null || PUBLIC_VIEWS_USER_ACTIVITY;
 
 
-	async function fetchData(sortByField, sortByDirection) {
+	async function fetchData(sortByField, sortByDirection, currentPage, paginationSize) {
 		const res = await client.query({
 			query: GetUserActivities([]),
 			variables: {
-				pageSize: PAGE_SIZE.TWENTY.query,
+				pageSize: paginationSize,
 				sortField: sortByField || 'CreatedAt',
 				userId: $userStore.profile.id,
 				viewClientId: currentViewKey,
 				sortDirection: sortByDirection || SortDirection.DESCENDING,
-				page: 1
+				page: currentPage || 1
 			}
 		});
 
@@ -40,9 +39,9 @@
 		};
 	}
 
-	const loadingData = async (ops, sortByField, sortByDirection) => {
-		console.log(ops, sortByField, sortByDirection);
-		return await fetchData(sortByField, sortByDirection);
+	const loadingData = async (ops, sortByField, sortByDirection, currentPage, paginationSize) => {
+		console.log(ops, sortByField, sortByDirection, currentPage, paginationSize);
+		return await fetchData(sortByField, sortByDirection, currentPage, paginationSize);
 	};
 </script>
 
