@@ -14,6 +14,7 @@
 	import { format } from '@utility/stringExtended.js';
 	import { FieldType } from '@api/queries/utils/fieldType.js';
 	import { AdjustmentsVerticalSolid, GridSolid } from 'flowbite-svelte-icons';
+	import { html } from 'gridjs';
 
 	let columns = [];
 	let currentView = null;
@@ -141,7 +142,17 @@
 				columnName: column.columnName,
 				// @todo this may impact performance on large datasets but not sure
 				formatter: (cell) => {
+					let trimCell = cell;
+					if (cell.length > 75) {
+						trimCell = cell.substring(0, 75) + '...';
+					}
+					html('');
 					if (column.fieldFormatter === null || column.fieldFormatter === '') {
+						if (column.dataType === FieldType.STRING) {
+							return trimCell;
+						} else {
+							return;
+						}
 						return cell;
 					}
 					if (column.dataType === FieldType.DATE) {
