@@ -11,6 +11,7 @@ public class ViewColumn {
 
     public string FieldAlias { get; set; }
     public string FieldPath { get; set; }
+    public string? FieldFormatter { get; set; }
     public string ColumnName { get; set; }
     public string? Description { get; set; }
     public EntityColumnDataType DataType { get; set; }
