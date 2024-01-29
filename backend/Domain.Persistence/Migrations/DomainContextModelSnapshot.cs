@@ -630,6 +630,9 @@ namespace Domain.Persistence.Migrations
                     b.Property<DateTime?>("DisabledAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -638,6 +641,8 @@ namespace Domain.Persistence.Migrations
                     b.HasIndex("AssetId");
 
                     b.HasIndex("ContactEmployeeId");
+
+                    b.HasIndex("EmployeeId");
 
                     b.ToTable("ClientEmployeesHasAssets");
                 });
@@ -736,6 +741,9 @@ namespace Domain.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<int>("NetworkId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasColumnType("text");
@@ -746,6 +754,8 @@ namespace Domain.Persistence.Migrations
                     b.HasKey("ClientNetworkId", "AssetId");
 
                     b.HasIndex("AssetId");
+
+                    b.HasIndex("NetworkId");
 
                     b.ToTable("ClientNetworksHasAssets");
                 });
@@ -839,12 +849,17 @@ namespace Domain.Persistence.Migrations
                     b.Property<DateTime?>("DisabledAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int>("ServerId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("ClientServerId", "AssetId");
 
                     b.HasIndex("AssetId");
+
+                    b.HasIndex("ServerId");
 
                     b.ToTable("ClientServersHasAssets");
                 });
@@ -991,6 +1006,17 @@ namespace Domain.Persistence.Migrations
                     b.Property<string>("EntityName")
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FieldAlias")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FieldFormatter")
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FieldPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("FilterOperationType")
                         .HasColumnType("int");
@@ -1912,15 +1938,15 @@ namespace Domain.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.ClientEmployees", "Employee")
-                        .WithMany("Assets")
-                        .HasForeignKey("ClientEmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.ClientContacts", "ContactEmployee")
                         .WithMany()
                         .HasForeignKey("ContactEmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.ClientEmployees", "Employee")
+                        .WithMany("Assets")
+                        .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1979,7 +2005,7 @@ namespace Domain.Persistence.Migrations
 
                     b.HasOne("Domain.Entities.ClientNetworks", "Network")
                         .WithMany("Assets")
-                        .HasForeignKey("ClientNetworkId")
+                        .HasForeignKey("NetworkId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2044,7 +2070,7 @@ namespace Domain.Persistence.Migrations
 
                     b.HasOne("Domain.Entities.ClientServers", "Server")
                         .WithMany("Assets")
-                        .HasForeignKey("ClientServerId")
+                        .HasForeignKey("ServerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
