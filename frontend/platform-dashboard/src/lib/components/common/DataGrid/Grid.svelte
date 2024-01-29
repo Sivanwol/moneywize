@@ -8,6 +8,7 @@
 	import Grid from 'gridjs-svelte';
 	import { capitalize, get } from 'lodash-es';
 	import { SortDirection } from '@api/queries/utils/SortDirection.js';
+	import { PAGE_SIZE } from '@api/queries/utils/PageSize.js';
 
 	let columns = [];
 	let currentView = null;
@@ -18,8 +19,9 @@
 	export let showFilter = true;
 	export let showViewChanger = true;
 	export let useManualDataLoading = false;
-	export let paginationSize = 20;
-	export let onHandlerDataLoading = async (ops, sortByField, sortByDirection) => {
+	export let currentPage = 1;
+	export let paginationSize = PAGE_SIZE.TWENTY;
+	export let onHandlerDataLoading = async (ops, sortByField, sortByDirection, currentPage, paginationSize) => {
 	};
 	export let onConvertHandlerData = (records) => {
 		const newRecords = [];
@@ -67,13 +69,14 @@
 	const server = {
 		url: 'https://api.github.com/users',
 		data: async (ops) => {
-			const data = await onHandlerDataLoading(ops, sortByField, sortByDirection);
+			const data = await onHandlerDataLoading(ops, sortByField, sortByDirection, currentPage, paginationSize.query);
 			const convertData = onConvertHandlerData(data.records);
 			if (debug) {
 				console.log('data', data);
 				console.log('convertData', convertData);
 				console.log('sortByField', sortByField);
 				console.log('sortByDirection', sortByDirection);
+				console.log('currentPage', currentPage);
 			}
 			return {
 				data: convertData,
@@ -107,7 +110,16 @@
 	});
 
 	let pagination = {
-		limit: paginationSize
+		limit: paginationSize.value,
+		server: {
+			url: (prev, page, limit) => {
+				if (debug) {
+					console.log('pagination', page, limit);
+				}
+				currentPage = page + 1;
+				return `${prev}&page=${page}&limit=${limit}`;
+			}
+		}
 	};
 
 	function parseColumnsFromView() {
