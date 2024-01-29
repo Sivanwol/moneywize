@@ -11,7 +11,7 @@ namespace Domain.Persistence.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql("ALTER TABLE ConfigurableEntityColumnDefinitions ADD COLUMN FieldFormatter nvarchar(100) DEFAULT null AFTER DisplayName");
-            migrationBuilder.Sql("UPDATE ConfigurableEntityColumnDefinitions SET FieldFormatter = 'mm-dd-yyyy' WHERE FieldFormatter IS NULL and (ColumnName = 'CreatedAt')");
+            migrationBuilder.Sql("UPDATE ConfigurableEntityColumnDefinitions SET FieldFormatter = 'MM/DD/YYYY' WHERE FieldFormatter IS NULL and (ColumnName = 'CreatedAt')");
         }
 
         /// <inheritdoc />

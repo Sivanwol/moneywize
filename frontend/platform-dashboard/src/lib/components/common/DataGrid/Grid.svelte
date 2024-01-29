@@ -9,9 +9,9 @@
 	import { capitalize, get } from 'lodash-es';
 	import { SortDirection } from '@api/queries/utils/SortDirection.js';
 	import { PAGE_SIZE } from '@api/queries/utils/PageSize.js';
-	import { operationTypes } from '@api/queries/utils/operationTypes.js';
 	import moment from 'moment';
 	import { format } from '@utility/stringExtended.js';
+	import { FieldType } from '@api/queries/utils/fieldType.js';
 
 	let columns = [];
 	let currentView = null;
@@ -135,15 +135,18 @@
 				sort: column.isSortable || false,
 				hidden: column.isHidden,
 				columnName: column.columnName,
-				// @type {string} - field type
+				// @todo this may impact performance on large datasets but not sure
 				formatter: (cell) => {
-					if (!column.fieldFormatter) {
+					if (column.fieldFormatter === null || column.fieldFormatter === '') {
 						return cell;
 					}
-					if (column.dataType === operationTypes.DATE_FILTER_FIELD) {
+					if (column.dataType === FieldType.DATE) {
 						return moment(cell).format(column.fieldFormatter);
 					}
-					return format(column.fieldFormatter, cell);
+					if (column.dataType === FieldType.NUMBER || column.dataType === FieldType.STRING) {
+						return format(column.fieldFormatter, cell);
+					}
+					return cell;
 				}
 			}
 			columns.push(columnDef);
