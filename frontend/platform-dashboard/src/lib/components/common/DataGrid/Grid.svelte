@@ -4,7 +4,8 @@
 	import { systemMessagesStore } from '@stores/systemMessagesStore.js';
 	import { ErrorSystemMessage } from '@models/ErrorSystemMessage.js';
 	import { _ } from 'svelte-i18n';
-	import { Button, ButtonGroup, ListPlaceholder } from 'flowbite-svelte';
+	import { Button, ButtonGroup, ListPlaceholder, TabItem, Tabs } from 'flowbite-svelte';
+	import { fade } from 'svelte/transition';
 	import Grid from 'gridjs-svelte';
 	import { capitalize, get } from 'lodash-es';
 	import { SortDirection } from '@api/queries/utils/SortDirection.js';
@@ -12,10 +13,13 @@
 	import moment from 'moment';
 	import { format } from '@utility/stringExtended.js';
 	import { FieldType } from '@api/queries/utils/fieldType.js';
+	import { AdjustmentsVerticalSolid, GridSolid } from 'flowbite-svelte-icons';
 
 	let columns = [];
 	let currentView = null;
 	export let data = [];
+	let visibleViewEditor = false;
+	let visibleFilterEditor = false;
 	export let userViewKey = null;
 	let loading = false;
 	export let debug = false;
@@ -148,7 +152,7 @@
 					}
 					return cell;
 				}
-			}
+			};
 			columns.push(columnDef);
 		});
 		if (debug) {
@@ -156,11 +160,15 @@
 		}
 	}
 
-	const onFilterOpen = (event) => {
+	const onViewToggle = (event) => {
 		console.log('onFilterOpenClient', event);
+		visibleFilterEditor = false;
+		visibleViewEditor = !visibleViewEditor;
 	};
-	const onChangeViewOpen = (event) => {
+	const onFilterToggle = (event) => {
 		console.log('onChangeViewOpenClient', event);
+		visibleViewEditor = false;
+		visibleFilterEditor = !visibleFilterEditor;
 	};
 </script>
 
@@ -174,10 +182,48 @@
 	<div class="flex justify-between items-center mb-4">
 		<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">User Activity</h5>
 		<ButtonGroup>
-			<Button on:click={onFilterOpen} outline>Change Filters</Button>
-			<Button on:click={onChangeViewOpen} outline>Change View</Button>
+			<Button on:click={onViewToggle} outline>{visibleViewEditor ? 'Close' : 'Open'} Change Filters</Button>
+			<Button on:click={onFilterToggle} outline>{visibleFilterEditor ? 'Close' : 'Open'} Change View</Button>
 		</ButtonGroup>
 	</div>
+
+	{#if (visibleViewEditor)}
+		<div role="link" in:fade out:fade>
+			<Tabs style="underline">
+				<TabItem open title="Profile">
+					<div slot="title" class="flex items-center gap-2">
+						<AdjustmentsVerticalSolid size="sm" />
+						Settings
+					</div>
+					<p class="text-sm text-gray-500 dark:text-gray-400">
+						update view/ select view
+					</p>
+				</TabItem>
+				<TabItem title="Dashboard">
+					<div slot="title" class="flex items-center gap-2">
+						<GridSolid size="sm" />
+						Change Columns
+					</div>
+					<p class="text-sm text-gray-500 dark:text-gray-400">update columns </p>
+				</TabItem>
+			</Tabs>
+		</div>
+	{/if}
+	{#if (visibleFilterEditor)}
+		<div in:fade out:fade>
+			<Tabs style="underline">
+				<TabItem open title="Profile">
+					<div slot="title" class="flex items-center gap-2">
+						<AdjustmentsVerticalSolid size="sm" />
+						Change Filters
+					</div>
+					<p class="text-sm text-gray-500 dark:text-gray-400">
+						update Filters/ select Filters
+					</p>
+				</TabItem>
+			</Tabs>
+		</div>
+	{/if}
 	<div class="p-4 ag-theme-alpine">
 		{#if !useManualDataLoading}
 			<Grid
