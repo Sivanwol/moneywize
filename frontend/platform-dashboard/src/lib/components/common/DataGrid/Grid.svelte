@@ -9,6 +9,9 @@
 	import { capitalize, get } from 'lodash-es';
 	import { SortDirection } from '@api/queries/utils/SortDirection.js';
 	import { PAGE_SIZE } from '@api/queries/utils/PageSize.js';
+	import { operationTypes } from '@api/queries/utils/operationTypes.js';
+	import moment from 'moment';
+	import { format } from '@utility/stringExtended.js';
 
 	let columns = [];
 	let currentView = null;
@@ -126,16 +129,24 @@
 		let tColumns = currentView.columns;
 		tColumns.sort((a, b) => a.order - b.order);
 		tColumns.forEach(column => {
-			columns.push({
+			let columnDef = {
 				id: column.fieldAlias,
 				name: column.displayName,
 				sort: column.isSortable || false,
 				hidden: column.isHidden,
-				columnName: column.columnName
-				// formatter: (cell, row) => {
-				// 	return column.formatter(cell, row);
-				// }
-			});
+				columnName: column.columnName,
+				// @type {string} - field type
+				formatter: (cell) => {
+					if (!column.fieldFormatter) {
+						return cell;
+					}
+					if (column.dataType === operationTypes.DATE_FILTER_FIELD) {
+						return moment(cell).format(column.fieldFormatter);
+					}
+					return format(column.fieldFormatter, cell);
+				}
+			}
+			columns.push(columnDef);
 		});
 		if (debug) {
 			console.log('Columns', columns);
