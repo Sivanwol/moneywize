@@ -1,7 +1,9 @@
 using System.ComponentModel;
 using System.Security.Claims;
 using Application.Configs;
+using Application.Utils;
 using Application.Utils.Service;
+using FluentValidation;
 using GraphQL.AspNet.Attributes;
 using GraphQL.AspNet.Interfaces.Controllers;
 using Infrastructure.GQL;
@@ -17,7 +19,19 @@ namespace BackendApi.Controllers.v1.GQL;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [GraphRoute("general")]
 public class GeneralController : BaseGraphController {
-    public GeneralController(IMediator _mediator, BackendApplicationConfig _configuration) : base(_mediator, _configuration) { }
+    private readonly IValidator<ViewCreateInput> _viewCreateValidator;
+    private readonly IValidator<ViewUpdateColumnsInput> _viewUpdateColumnsValidator;
+    private readonly IValidator<ViewUpdateInput> _viewUpdateValidator;
+    public GeneralController(
+        IMediator _mediator,
+        IValidator<ViewCreateInput> viewCreateValidator,
+        IValidator<ViewUpdateInput> viewUpdateValidator,
+        IValidator<ViewUpdateColumnsInput> viewUpdateColumnsValidator,
+        BackendApplicationConfig _configuration) : base(_mediator, _configuration) {
+        _viewCreateValidator = viewCreateValidator;
+        _viewUpdateValidator = viewUpdateValidator;
+        _viewUpdateColumnsValidator = viewUpdateColumnsValidator;
+    }
     [Query("maintenanceMode", typeof(bool))]
     [Description("Get maintenance mode status")]
     public IGraphActionResult MaintenanceMode() {
@@ -63,7 +77,20 @@ public class GeneralController : BaseGraphController {
     public async Task<IGraphActionResult> GetView(
         [FromGraphQL("viewClientKey")] [Description("view client key")]
         Guid viewClientKey) {
-        return null;
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
+        if (viewClientKey == Guid.Empty) {
+            return BadRequest("ViewClientKey is required");
+        }
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Ok(null);
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
     }
 
     [Mutation("addView", typeof(View))]
@@ -71,7 +98,23 @@ public class GeneralController : BaseGraphController {
     public async Task<IGraphActionResult> AddView(
         [FromGraphQL("view")] [Description("view")]
         ViewCreateInput view) {
-        return null;
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var validator = await _viewCreateValidator.ValidateAsync(view);
+            if (!validator.IsValid) {
+                return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
+            }
+            return Ok(null);
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
     }
 
     [Mutation("duplicateView", typeof(View))]
@@ -79,7 +122,22 @@ public class GeneralController : BaseGraphController {
     public async Task<IGraphActionResult> DuplicateView(
         [FromGraphQL("viewClientKey")] [Description("view client key to duplicate")]
         Guid viewClientKey) {
-        return null;
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        try {
+            if (viewClientKey == Guid.Empty) {
+                return BadRequest("ViewClientKey is required");
+            }
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Ok(null);
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
     }
 
     [Mutation("updateView", typeof(View))]
@@ -87,7 +145,23 @@ public class GeneralController : BaseGraphController {
     public async Task<IGraphActionResult> UpdateView(
         [FromGraphQL("view")] [Description("view")]
         ViewUpdateInput view) {
-        return null;
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var validator = await _viewUpdateValidator.ValidateAsync(view);
+            if (!validator.IsValid) {
+                return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
+            }
+            return Ok(null);
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
     }
 
     [Mutation("deleteView", typeof(bool))]
@@ -95,7 +169,22 @@ public class GeneralController : BaseGraphController {
     public async Task<IGraphActionResult> DeleteView(
         [FromGraphQL("viewClientKey")] [Description("view client key to delete")]
         Guid viewClientKey) {
-        return null;
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        try {
+            if (viewClientKey == Guid.Empty) {
+                return BadRequest("ViewClientKey is required");
+            }
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Ok(null);
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
     }
 
     [Mutation("updateViewColumns", typeof(View))]
@@ -103,7 +192,23 @@ public class GeneralController : BaseGraphController {
     public async Task<IGraphActionResult> UpdateViewColumns(
         [FromGraphQL("view")] [Description("view")]
         ViewUpdateColumnsInput view) {
-        return null;
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var validator = await _viewUpdateColumnsValidator.ValidateAsync(view);
+            if (!validator.IsValid) {
+                return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
+            }
+            return Ok(null);
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
     }
 
     // [Mutation("setDefaultView", typeof(bool))]
