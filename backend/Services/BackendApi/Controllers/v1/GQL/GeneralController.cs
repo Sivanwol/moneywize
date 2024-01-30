@@ -105,4 +105,12 @@ public class GeneralController : BaseGraphController {
         ViewUpdateColumnsInput view) {
         return null;
     }
+
+    // [Mutation("setDefaultView", typeof(bool))]
+    // [Description("Set default view")]
+    // public async Task<IGraphActionResult> SetDefaultView(
+    //     [FromGraphQL("viewClientKey")] [Description("view client key to set as default")]
+    //     Guid viewClientKey) {
+    //     return null;
+    // }
 }
