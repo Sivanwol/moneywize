@@ -85,7 +85,10 @@ public class GeneralController : BaseGraphController {
         }
         try {
             var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return Ok(null);
+            return Ok(await Mediator.Send(new GetViewRequest {
+                UserId = loggedUserId!,
+                ViewClientKey = viewClientKey
+            }));
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);
