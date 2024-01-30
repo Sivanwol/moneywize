@@ -5,6 +5,7 @@ using Application.Utils.Service;
 using GraphQL.AspNet.Attributes;
 using GraphQL.AspNet.Interfaces.Controllers;
 using Infrastructure.GQL;
+using Infrastructure.GQL.Inputs.View;
 using Infrastructure.Requests.Processor.Services.Countries;
 using Infrastructure.Requests.Processor.Services.Views;
 using MediatR;
@@ -55,5 +56,53 @@ public class GeneralController : BaseGraphController {
             Log.Logger.Error(e, e.Message);
             return Error(e.Message);
         }
+    }
+
+    [Query("getView", typeof(View))]
+    [Description("Get all views of the user and default views")]
+    public async Task<IGraphActionResult> GetView(
+        [FromGraphQL("viewClientKey")] [Description("view client key")]
+        Guid viewClientKey) {
+        return null;
+    }
+
+    [Mutation("addView", typeof(View))]
+    [Description("Add a new view")]
+    public async Task<IGraphActionResult> AddView(
+        [FromGraphQL("view")] [Description("view")]
+        ViewCreateInput view) {
+        return null;
+    }
+
+    [Mutation("duplicateView", typeof(View))]
+    [Description("Duplicate a view")]
+    public async Task<IGraphActionResult> DuplicateView(
+        [FromGraphQL("viewClientKey")] [Description("view client key to duplicate")]
+        Guid viewClientKey) {
+        return null;
+    }
+
+    [Mutation("updateView", typeof(View))]
+    [Description("Update a view (will not update columns)")]
+    public async Task<IGraphActionResult> UpdateView(
+        [FromGraphQL("view")] [Description("view")]
+        ViewUpdateInput view) {
+        return null;
+    }
+
+    [Mutation("deleteView", typeof(bool))]
+    [Description("Delete a view")]
+    public async Task<IGraphActionResult> DeleteView(
+        [FromGraphQL("viewClientKey")] [Description("view client key to delete")]
+        Guid viewClientKey) {
+        return null;
+    }
+
+    [Mutation("updateViewColumns", typeof(View))]
+    [Description("Update a view columns")]
+    public async Task<IGraphActionResult> UpdateViewColumns(
+        [FromGraphQL("view")] [Description("view")]
+        ViewUpdateColumnsInput view) {
+        return null;
     }
 }

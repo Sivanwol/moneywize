@@ -193,8 +193,8 @@
 	<div class="flex justify-between items-center mb-4">
 		<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">User Activity</h5>
 		<ButtonGroup>
-			<Button on:click={onViewToggle} outline>{visibleViewEditor ? 'Close' : 'Open'} Change Filters</Button>
-			<Button on:click={onFilterToggle} outline>{visibleFilterEditor ? 'Close' : 'Open'} Change View</Button>
+			<Button on:click={onViewToggle} outline>{visibleFilterEditor ? 'Close' : 'Open'} Change Filters</Button>
+			<Button on:click={onFilterToggle} outline>{visibleViewEditor ? 'Close' : 'Open'} Change View</Button>
 		</ButtonGroup>
 	</div>
 
