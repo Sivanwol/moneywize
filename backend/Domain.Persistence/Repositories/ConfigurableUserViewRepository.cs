@@ -5,6 +5,7 @@ using Domain.Persistence.Repositories.Common;
 using Domain.Persistence.Repositories.Interfaces;
 using Infrastructure.GQL;
 using Infrastructure.GQL.Inputs.View;
+using Infrastructure.Requests.Processor.Services.Views;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 namespace Domain.Persistence.Repositories;
@@ -119,24 +120,24 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         return ToView(view, columns);
     }
 
-    public async Task<View> CreateView(string userId, ViewCreateInput input, List<string>? permissions) {
-        var view = await GetViewModel(userId, input.FromViewClientKey, permissions);
+    public async Task<View> CreateView(CreateViewRequest input, List<string>? permissions) {
+        var view = await GetViewModel(input.UserId, input.ViewClientKey, permissions);
         if (view == null) {
             Log.Logger.Error($"ConfigurableUserViewRepository: View not found");
-            throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{userId}-{input.FromViewClientKey}]");
+            throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{input.UserId}-{input.ViewClientKey}]");
         }
         var columns = await GetViewColumns(view);
         var hasAddedView = false;
         if (view.IsPredefined) {
-            await addNewView(userId, view, columns, input, permissions);
+            await addNewView(view, columns, input, permissions);
             hasAddedView = true;
         }
         if (view.IsShareAble && !view.IsPredefined) {
-            await addNewView(userId, view, columns, input, permissions);
+            await addNewView(view, columns, input, permissions);
             hasAddedView = true;
         }
-        if (view.UserId == userId && !view.IsShareAble) {
-            await addNewView(userId, view, columns, input, permissions);
+        if (view.UserId == input.UserId && !view.IsShareAble) {
+            await addNewView(view, columns, input, permissions);
             hasAddedView = true;
         }
         if (hasAddedView)
@@ -157,7 +158,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
                 Order = vc.Order
             }));
         Log.Logger.Error($"ConfigurableUserViewRepository: View not found");
-        throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{userId}-{input.FromViewClientKey}]");
+        throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{input.UserId}-{input.ViewClientKey}]");
     }
 
     public async Task<View> UpdateView(string userId, ViewUpdateInput input) {
@@ -248,7 +249,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         return true;
     }
 
-    private async Task addNewView(string userId, ConfigurableUserView view, IEnumerable<ConfigurableUserViewHasConfigurableEntityColumnDefinition> columns, ViewCreateInput input, List<string>? permissions) {
+    private async Task addNewView(ConfigurableUserView view, IEnumerable<ConfigurableUserViewHasConfigurableEntityColumnDefinition> columns, CreateViewRequest input, List<string>? permissions) {
         var newView = new ConfigurableUserView() {
             ClientUniqueKey = Guid.NewGuid(),
             Name = input.Name,
@@ -256,7 +257,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
             IsPredefined = false,
             IsShareAble = input.IsShareAble,
             Color = input.Color,
-            UserId = userId,
+            UserId = input.UserId,
             Permissions = permissions ?? new List<string>()
         };
         newView.Columns = new List<ConfigurableUserViewHasConfigurableEntityColumnDefinition>();
