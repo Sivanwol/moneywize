@@ -112,8 +112,8 @@ public class GeneralController : BaseGraphController {
             if (!validator.IsValid) {
                 return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
             }
-
-            return Ok(await Mediator.Send(view.ToProcessorEntity(loggedUserId!)));
+            var verifyRecord = await Mediator.Send(view.ToProcessorEntityVerify(loggedUserId!));
+            return verifyRecord ? BadRequest("View already exist") : Ok(await Mediator.Send(view.ToProcessorEntity(loggedUserId!)));
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);
@@ -137,7 +137,8 @@ public class GeneralController : BaseGraphController {
             if (!validator.IsValid) {
                 return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
             }
-            return Ok(await Mediator.Send(view.ToProcessorEntity(loggedUserId!)));
+            var response = await Mediator.Send(view.ToProcessorEntity(loggedUserId!));
+            return Ok();
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);

@@ -129,15 +129,15 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         var columns = await GetViewColumns(view);
         var hasAddedView = false;
         if (view.IsPredefined) {
-            await addNewView(view, columns, input, permissions);
+            view = await addNewView(view, columns, input, permissions);
             hasAddedView = true;
         }
-        if (view.IsShareAble && !view.IsPredefined) {
-            await addNewView(view, columns, input, permissions);
+        if (view.IsShareAble && !view.IsPredefined && !hasAddedView) {
+            view = await addNewView(view, columns, input, permissions);
             hasAddedView = true;
         }
-        if (view.UserId == input.UserId && !view.IsShareAble) {
-            await addNewView(view, columns, input, permissions);
+        if (view.UserId == input.UserId && !view.IsShareAble && !hasAddedView) {
+            view = await addNewView(view, columns, input, permissions);
             hasAddedView = true;
         }
         if (hasAddedView)
@@ -257,7 +257,12 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         return true;
     }
 
-    private async Task addNewView(ConfigurableUserView view, IEnumerable<ConfigurableUserViewHasConfigurableEntityColumnDefinition> columns, CreateViewRequest input, List<string>? permissions) {
+    public async Task<bool> VerifyViewExist(VerifyViewExistRequest input) {
+        var view = await GetViewModel(input.UserId, input.ViewClientKey, null);
+        return view != null;
+    }
+
+    private async Task<ConfigurableUserView> addNewView(ConfigurableUserView view, IEnumerable<ConfigurableUserViewHasConfigurableEntityColumnDefinition> columns, CreateViewRequest input, List<string>? permissions) {
         var newView = new ConfigurableUserView() {
             ClientUniqueKey = Guid.NewGuid(),
             Name = input.Name,
@@ -269,11 +274,11 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
             UserId = input.UserId,
             Permissions = permissions ?? new List<string>()
         };
-        newView.Columns = new List<ConfigurableUserViewHasConfigurableEntityColumnDefinition>();
+        var columnsToAdd = new List<ConfigurableUserViewHasConfigurableEntityColumnDefinition>();
         foreach (var column in columns) {
             if (permissions != null) {
                 if (permissions.Any() && column.ConfigurableEntityColumnDefinition.Permissions.Any(p => permissions.Contains(p))) {
-                    newView.Columns.Append(new ConfigurableUserViewHasConfigurableEntityColumnDefinition() {
+                    columnsToAdd.Add(new ConfigurableUserViewHasConfigurableEntityColumnDefinition() {
                         ConfigurableEntityColumnDefinitionId = column.ConfigurableEntityColumnDefinitionId,
                         ConfigurableUserViewId = newView.Id,
                         IsHidden = column.IsHidden,
@@ -283,7 +288,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
                     continue;
                 }
             }
-            newView.Columns.Append(new ConfigurableUserViewHasConfigurableEntityColumnDefinition() {
+            columnsToAdd.Add(new ConfigurableUserViewHasConfigurableEntityColumnDefinition() {
                 ConfigurableEntityColumnDefinitionId = column.ConfigurableEntityColumnDefinitionId,
                 ConfigurableUserViewId = newView.Id,
                 IsHidden = column.IsHidden,
@@ -291,10 +296,11 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
                 Order = column.Order
             });
         }
+        newView.Columns = columnsToAdd;
         await Context.ConfigurableUserViews.AddAsync(newView);
         await Context.Instance.SaveChangesAsync();
+        return newView;
     }
-
 
     private async Task<ConfigurableUserView?> GetViewModel(string userId, Guid viewClientId, List<string>? permissions) {
         Log.Logger.Information("Fetching configurable user view for user {UserId} and view {ViewClientId}", userId, viewClientId);

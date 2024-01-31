@@ -29,6 +29,14 @@ public class ViewCreateInput {
     [GraphField(TypeExpression = "String")]
     public string? Color { get; set; }
 
+    public VerifyViewExistRequest ToProcessorEntityVerify(string userId) {
+        return new VerifyViewExistRequest() {
+            UserId = userId,
+            ViewClientKey = FromViewClientKey,
+            Name = Name
+        };
+    }
+
     public CreateViewRequest ToProcessorEntity(string userId) {
         return new CreateViewRequest() {
             UserId = userId,
