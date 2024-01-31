@@ -1,4 +1,5 @@
 using Application.Exceptions;
+using Domain.DTO.ConfigurableEntities;
 using Domain.Entities;
 using Domain.Persistence.Context;
 using Domain.Persistence.Repositories.Common;
@@ -263,6 +264,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
             Description = input.Description,
             IsPredefined = false,
             IsShareAble = input.IsShareAble,
+            Settings = new List<ConfigurableEntityMetaData>(),
             Color = input.Color,
             UserId = input.UserId,
             Permissions = permissions ?? new List<string>()
