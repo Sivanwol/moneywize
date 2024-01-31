@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using GraphQL.AspNet.Attributes;
+using Infrastructure.Requests.Processor.Services.Views;
 namespace Infrastructure.GQL.Inputs.View;
 
 [Description("View Update Object input (will not update columns)")]
@@ -27,4 +28,15 @@ public class ViewUpdateInput {
     [Description("View Color (hex) (e.g. #000000) this will show as small dot in the view list")]
     [GraphField(TypeExpression = "String")]
     public string? Color { get; set; }
+
+    public UpdateViewRequest ToProcessorEntity(string userId) {
+        return new UpdateViewRequest() {
+            UserId = userId,
+            ViewClientKey = ViewClientKey,
+            Name = Name,
+            Description = Description,
+            IsShareAble = IsShareAble,
+            Color = Color
+        };
+    }
 }

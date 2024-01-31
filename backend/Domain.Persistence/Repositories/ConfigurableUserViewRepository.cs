@@ -161,11 +161,11 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{input.UserId}-{input.ViewClientKey}]");
     }
 
-    public async Task<View> UpdateView(string userId, ViewUpdateInput input) {
-        var view = await GetViewModel(userId, input.ViewClientKey, null);
+    public async Task<View> UpdateView(UpdateViewRequest input) {
+        var view = await GetViewModel(input.UserId, input.ViewClientKey, null);
         if (view == null) {
             Log.Logger.Error($"ConfigurableUserViewRepository: View not found");
-            throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{userId}-{input.ViewClientKey}]");
+            throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{input.UserId}-{input.ViewClientKey}]");
         }
         var columns = await GetViewColumns(view);
         view.Name = input.Name;
