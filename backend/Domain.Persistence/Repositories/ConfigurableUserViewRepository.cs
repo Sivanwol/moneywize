@@ -4,7 +4,6 @@ using Domain.Persistence.Context;
 using Domain.Persistence.Repositories.Common;
 using Domain.Persistence.Repositories.Interfaces;
 using Infrastructure.GQL;
-using Infrastructure.GQL.Inputs.View;
 using Infrastructure.Requests.Processor.Services.Views;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -192,11 +191,11 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         }));
     }
 
-    public async Task<View> UpdateViewColumns(string userId, ViewUpdateColumnsInput input) {
-        var view = await GetViewModel(userId, input.ViewClientKey, null);
+    public async Task<View> UpdateViewColumns(UpdateViewColumnsRequest input) {
+        var view = await GetViewModel(input.UserId, input.ViewClientKey, null);
         if (view == null) {
             Log.Logger.Error($"ConfigurableUserViewRepository: View not found");
-            throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{userId}-{input.ViewClientKey}]");
+            throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{input.UserId}-{input.ViewClientKey}]");
         }
         view.Columns = new List<ConfigurableUserViewHasConfigurableEntityColumnDefinition>();
         foreach (var column in input.Columns) {
