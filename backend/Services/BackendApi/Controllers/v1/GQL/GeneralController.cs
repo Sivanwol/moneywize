@@ -121,29 +121,6 @@ public class GeneralController : BaseGraphController {
         }
     }
 
-    [Mutation("duplicateView", typeof(View))]
-    [Description("Duplicate a view")]
-    public async Task<IGraphActionResult> DuplicateView(
-        [FromGraphQL("viewClientKey")] [Description("view client key to duplicate")]
-        Guid viewClientKey) {
-        if (IsMaintenanceMode()) {
-            return BadRequest("Maintenance Mode");
-        }
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-        try {
-            if (viewClientKey == Guid.Empty) {
-                return BadRequest("ViewClientKey is required");
-            }
-            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return Ok(null);
-        }
-        catch (Exception e) {
-            Log.Logger.Error(e, e.Message);
-            return Error(e.Message);
-        }
-    }
-
     [Mutation("updateView", typeof(View))]
     [Description("Update a view (will not update columns)")]
     public async Task<IGraphActionResult> UpdateView(
@@ -183,7 +160,10 @@ public class GeneralController : BaseGraphController {
                 return BadRequest("ViewClientKey is required");
             }
             var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return Ok(null);
+            return Ok(await Mediator.Send(new DeleteViewRequest {
+                UserId = loggedUserId!,
+                ViewClientKey = viewClientKey
+            }));
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);

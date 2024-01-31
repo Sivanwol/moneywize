@@ -243,6 +243,14 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
             Log.Logger.Error($"ConfigurableUserViewRepository: View not found");
             return false;
         }
+        if (view.IsPredefined) {
+            Log.Logger.Error($"ConfigurableUserViewRepository: View is predefined");
+            return false;
+        }
+        if (view.UserId != userId) {
+            Log.Logger.Error($"ConfigurableUserViewRepository: View is not owned by user");
+            return false;
+        }
         view.DeletedAt = DateTime.UtcNow;
         Context.ConfigurableUserViews.Update(view);
         await Context.Instance.SaveChangesAsync();
