@@ -39,4 +39,6 @@ public interface IDomainContext : IDisposable {
     DbSet<ConfigurableUserViewTags> ConfigurableUserViewTags { get; set; }
     DbSet<ConfigurableUserViewHasConfigurableUserViewTags> ConfigurableUserViewHasConfigurableUserViewTags { get; set; }
     DbSet<AspNetRoles> AspNetRoles { get; set; }
+    Task<T> ExecuteTransactionAsync<T>(Func<Task<T>> withinTransaction, Func<Exception, Task> onException = null);
+    Task ExecuteTransactionAsync(Func<Task> withinTransaction, Func<Exception, Task> onException = null);
 }

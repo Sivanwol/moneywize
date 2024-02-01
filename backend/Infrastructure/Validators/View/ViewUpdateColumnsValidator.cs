@@ -12,6 +12,9 @@ public class ViewUpdateColumnsValidator : AbstractValidator<ViewUpdateColumnsInp
             .WithMessage("ViewClientKey is not valid");
         RuleFor(x => x.Columns)
             .NotEmpty()
-            .WithMessage("Columns is required");
+            .WithMessage("Columns is required")
+            .Must(x => x.Count() >= 5)
+            .WithMessage("Columns must be at least 5");
+
     }
 }

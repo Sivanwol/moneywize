@@ -251,49 +251,57 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
     }
 
     public async Task<View> UpdateViewColumns(UpdateViewColumnsRequest input) {
-        var view = await GetViewModel(input.UserId, input.ViewClientKey, null);
-        if (view == null) {
-            Log.Logger.Error($"ConfigurableUserViewRepository: View not found");
-            throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{input.UserId}-{input.ViewClientKey}]");
-        }
-        view.Columns = new List<ConfigurableUserViewHasConfigurableEntityColumnDefinition>();
-        foreach (var column in input.Columns) {
-            var tColumn = await Context.ConfigurableUserViewHasConfigurableEntityColumnDefinitions.FirstOrDefaultAsync(w => w.ConfigurableEntityColumnDefinitionId == column && w.ConfigurableUserViewId == view.Id);
-            if (tColumn == null) {
-                Log.Logger.Error($"ConfigurableUserViewRepository: Column not found");
-                throw new EntityNotFoundException(nameof(ConfigurableEntityColumnDefinition), $"[{column}]");
+        return await Context.ExecuteTransactionAsync(async () => {
+            var view = await GetViewModel(input.UserId, input.ViewClientKey, null);
+            if (view == null) {
+                Log.Logger.Error($"ConfigurableUserViewRepository: View not found");
+                throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{input.UserId}-{input.ViewClientKey}]");
             }
-            view.Columns.Append(new ConfigurableUserViewHasConfigurableEntityColumnDefinition() {
-                ConfigurableEntityColumnDefinitionId = tColumn.ConfigurableEntityColumnDefinitionId,
-                ConfigurableUserViewId = view.Id,
-                IsHidden = tColumn.IsHidden,
-                IsFixed = tColumn.IsFixed,
-                Position = tColumn.Position
-            });
-        }
-        if (!view.Columns.Any()) {
-            Log.Logger.Error($"ConfigurableUserViewRepository: No columns to add to view");
-            throw new EntityNotFoundException(nameof(ConfigurableEntityColumnDefinition), $"[{input.Columns}]");
-        }
-        Context.ConfigurableUserViews.Update(view);
-        await Context.Instance.SaveChangesAsync();
-        return ToView(view, view.Columns.OrderBy(vc => vc.Position).Select(vc => new ViewColumn() {
-            Id = vc.ConfigurableEntityColumnDefinitionId,
-            DisplayName = vc.ConfigurableEntityColumnDefinition.DisplayName,
-            EntityName = vc.ConfigurableEntityColumnDefinition.EntityName,
-            FieldAlias = vc.ConfigurableEntityColumnDefinition.FieldAlias,
-            FieldPath = vc.ConfigurableEntityColumnDefinition.FieldPath,
-            Description = vc.ConfigurableEntityColumnDefinition.Description,
-            FieldFormatter = vc.ConfigurableEntityColumnDefinition.FieldFormatter,
-            ColumnName = vc.ConfigurableEntityColumnDefinition.ColumnName,
-            IsFilterable = vc.ConfigurableEntityColumnDefinition.IsFilterable,
-            IsSortable = vc.ConfigurableEntityColumnDefinition.IsSortable,
-            DataType = vc.ConfigurableEntityColumnDefinition.DataType,
-            FilterOperationType = vc.ConfigurableEntityColumnDefinition.FilterOperationType,
-            IsHidden = vc.IsHidden,
-            IsFixed = vc.IsFixed,
-            Order = vc.Position
-        }));
+            var columns = new List<ConfigurableUserViewHasConfigurableEntityColumnDefinition>();
+            var clearColumns = await GetViewColumns(view);
+            Context.ConfigurableUserViewHasConfigurableEntityColumnDefinitions.RemoveRange(clearColumns);
+            await Context.Instance.SaveChangesAsync();
+
+            foreach (var column in input.Columns) {
+                var tColumn = await Context.ConfigurableUserViewHasConfigurableEntityColumnDefinitions.FirstOrDefaultAsync(w => w.ConfigurableEntityColumnDefinitionId == column);
+                if (tColumn == null) {
+                    Log.Logger.Error($"ConfigurableUserViewRepository: Column not found");
+                    throw new EntityNotFoundException(nameof(ConfigurableEntityColumnDefinition), $"[{column}]");
+                }
+                columns.Add(new ConfigurableUserViewHasConfigurableEntityColumnDefinition() {
+                    ConfigurableEntityColumnDefinitionId = tColumn.ConfigurableEntityColumnDefinitionId,
+                    ConfigurableUserViewId = view.Id,
+                    IsHidden = tColumn.IsHidden,
+                    IsFixed = tColumn.IsFixed,
+                    Position = tColumn.Position
+                });
+            }
+
+            view.Columns = columns;
+            Context.ConfigurableUserViews.Update(view);
+            await Context.Instance.SaveChangesAsync();
+            var newColumns = await GetViewColumns(view);
+            return ToView(view, newColumns.OrderBy(vc => vc.Position).Select(vc => new ViewColumn() {
+                Id = vc.ConfigurableEntityColumnDefinitionId,
+                DisplayName = vc.ConfigurableEntityColumnDefinition.DisplayName,
+                EntityName = vc.ConfigurableEntityColumnDefinition.EntityName,
+                FieldAlias = vc.ConfigurableEntityColumnDefinition.FieldAlias,
+                FieldPath = vc.ConfigurableEntityColumnDefinition.FieldPath,
+                Description = vc.ConfigurableEntityColumnDefinition.Description,
+                FieldFormatter = vc.ConfigurableEntityColumnDefinition.FieldFormatter,
+                ColumnName = vc.ConfigurableEntityColumnDefinition.ColumnName,
+                IsFilterable = vc.ConfigurableEntityColumnDefinition.IsFilterable,
+                IsSortable = vc.ConfigurableEntityColumnDefinition.IsSortable,
+                DataType = vc.ConfigurableEntityColumnDefinition.DataType,
+                FilterOperationType = vc.ConfigurableEntityColumnDefinition.FilterOperationType,
+                IsHidden = vc.IsHidden,
+                IsFixed = vc.IsFixed,
+                Order = vc.Position
+            }));
+        }, (ex) => {
+            Log.Logger.Error(ex, "Failed to update view columns");
+            throw ex;
+        });
     }
 
     public async Task<bool> DeleteView(string userId, Guid viewClientId) {

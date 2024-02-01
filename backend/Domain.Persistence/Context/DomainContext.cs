@@ -67,6 +67,33 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
         base.Dispose();
     }
 
+    public async Task<T> ExecuteTransactionAsync<T>(Func<Task<T>> withinTransaction, Func<Exception, Task> onException = null) {
+        return await Database.CreateExecutionStrategy().ExecuteAsync(async () => {
+            await using var transaction = await Database.BeginTransactionAsync();
+            try {
+                var result = await withinTransaction();
+                await transaction.CommitAsync();
+
+                return result;
+            }
+            catch (Exception ex) {
+                await transaction.RollbackAsync();
+                if (onException != null) {
+                    await onException(ex);
+                }
+
+                throw;
+            }
+        });
+    }
+
+    public async Task ExecuteTransactionAsync(Func<Task> withinTransaction, Func<Exception, Task> onException = null) {
+        await ExecuteTransactionAsync<object>(async () => {
+            await withinTransaction();
+            return null;
+        }, onException);
+    }
+
     private void Initialize() {
         Log.Information("Initializing DomainContext.");
         UpdateTimestamps();
@@ -269,7 +296,6 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
             }
         }
     }
-
     private void UpdateTimestamps(EntityEntry entry, object trackable, DateTime utcNow) {
         switch (entry.State) {
             case EntityState.Modified:
