@@ -6,6 +6,7 @@ using Application.Utils.Service;
 using FluentValidation;
 using GraphQL.AspNet.Attributes;
 using GraphQL.AspNet.Interfaces.Controllers;
+using Infrastructure.Enums;
 using Infrastructure.GQL;
 using Infrastructure.GQL.Inputs.View;
 using Infrastructure.Requests.Processor.Services.Countries;
@@ -88,6 +89,27 @@ public class GeneralController : BaseGraphController {
             return Ok(await Mediator.Send(new GetViewRequest {
                 UserId = loggedUserId!,
                 ViewClientKey = viewClientKey
+            }));
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
+    }
+
+    [Query("getAvailableColumnsForView", typeof(ICollection<ViewColumn>))]
+    [Description("get available columns for view by given entity type")]
+    public async Task<IGraphActionResult> GetAvailableColumnsForView(
+        [FromGraphQL("entityType")] [Description("view client key")]
+        EntityTypes entityType) {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Ok(await Mediator.Send(new GetAvailableColumnsForViewRequest {
+                UserId = loggedUserId!,
+                EntityType = entityType
             }));
         }
         catch (Exception e) {

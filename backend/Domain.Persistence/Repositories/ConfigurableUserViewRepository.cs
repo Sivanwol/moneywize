@@ -4,6 +4,7 @@ using Domain.Entities;
 using Domain.Persistence.Context;
 using Domain.Persistence.Repositories.Common;
 using Domain.Persistence.Repositories.Interfaces;
+using Infrastructure.Enums;
 using Infrastructure.GQL;
 using Infrastructure.Requests.Processor.Services.Views;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
                 where vc.ConfigurableUserViewId == view.Id && vc.ConfigurableEntityColumnDefinition.DisabledAt == null
                 orderby vc.Position descending
                 select new ViewColumn() {
+                    Id = vc.ConfigurableEntityColumnDefinitionId,
                     DisplayName = vc.ConfigurableEntityColumnDefinition.DisplayName,
                     EntityName = vc.ConfigurableEntityColumnDefinition.EntityName,
                     FieldAlias = vc.ConfigurableEntityColumnDefinition.FieldAlias,
@@ -53,6 +55,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
                   vc.ConfigurableEntityColumnDefinition.Permissions.Any(p => permissions.Contains(p))
             orderby vc.Position descending
             select new ViewColumn() {
+                Id = vc.ConfigurableEntityColumnDefinitionId,
                 DisplayName = vc.ConfigurableEntityColumnDefinition.DisplayName,
                 EntityName = vc.ConfigurableEntityColumnDefinition.EntityName,
                 FieldAlias = vc.ConfigurableEntityColumnDefinition.FieldAlias,
@@ -69,6 +72,49 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
                 Order = vc.Position
             }).ToList();
         return selectedColumns;
+    }
+
+    public async Task<ICollection<ViewColumn>> GetAvailableColumnsForView(GetAvailableColumnsForViewRequest input, List<string>? permissions = null) {
+        ICollection<ViewColumn> columns;
+        var entityName = GetEntityName(input.EntityType);
+        if (permissions == null) {
+            var columnsQuery = (from vc in Context.ConfigurableEntityColumnDefinitions
+                where vc.EntityName == entityName && vc.DisabledAt == null
+                select new ViewColumn() {
+                    Id = vc.Id,
+                    DisplayName = vc.DisplayName,
+                    EntityName = vc.EntityName,
+                    FieldAlias = vc.FieldAlias,
+                    FieldPath = vc.FieldPath,
+                    Description = vc.Description,
+                    FieldFormatter = vc.FieldFormatter,
+                    ColumnName = vc.ColumnName,
+                    IsFilterable = vc.IsFilterable,
+                    IsSortable = vc.IsSortable,
+                    DataType = vc.DataType,
+                    FilterOperationType = vc.FilterOperationType,
+                });
+            columns = await columnsQuery.ToListAsync();
+        } else {
+            var columnsQuery = (from vc in Context.ConfigurableEntityColumnDefinitions
+                where vc.EntityName == entityName && vc.DisabledAt == null && vc.Permissions.Any(p => permissions.Contains(p))
+                select new ViewColumn() {
+                    Id = vc.Id,
+                    DisplayName = vc.DisplayName,
+                    EntityName = vc.EntityName,
+                    FieldAlias = vc.FieldAlias,
+                    FieldPath = vc.FieldPath,
+                    Description = vc.Description,
+                    FieldFormatter = vc.FieldFormatter,
+                    ColumnName = vc.ColumnName,
+                    IsFilterable = vc.IsFilterable,
+                    IsSortable = vc.IsSortable,
+                    DataType = vc.DataType,
+                    FilterOperationType = vc.FilterOperationType,
+                });
+            columns = await columnsQuery.ToListAsync();
+        }
+        return columns;
     }
 
     public async Task<View> GetViewDefinition(string userId, Guid viewClientId, List<string> permissions = null) {
@@ -143,6 +189,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         if (hasAddedView) {
             columns = await GetViewColumns(view);
             return ToView(view, columns.Select(vc => new ViewColumn() {
+                Id = vc.ConfigurableEntityColumnDefinitionId,
                 DisplayName = vc.ConfigurableEntityColumnDefinition.DisplayName,
                 EntityName = vc.ConfigurableEntityColumnDefinition.EntityName,
                 FieldAlias = vc.ConfigurableEntityColumnDefinition.FieldAlias,
@@ -185,6 +232,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         Context.ConfigurableUserViews.Update(view);
         await Context.Instance.SaveChangesAsync();
         return ToView(view, columns.Select(vc => new ViewColumn() {
+            Id = vc.ConfigurableEntityColumnDefinitionId,
             DisplayName = vc.ConfigurableEntityColumnDefinition.DisplayName,
             EntityName = vc.ConfigurableEntityColumnDefinition.EntityName,
             FieldAlias = vc.ConfigurableEntityColumnDefinition.FieldAlias,
@@ -230,6 +278,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         Context.ConfigurableUserViews.Update(view);
         await Context.Instance.SaveChangesAsync();
         return ToView(view, view.Columns.OrderBy(vc => vc.Position).Select(vc => new ViewColumn() {
+            Id = vc.ConfigurableEntityColumnDefinitionId,
             DisplayName = vc.ConfigurableEntityColumnDefinition.DisplayName,
             EntityName = vc.ConfigurableEntityColumnDefinition.EntityName,
             FieldAlias = vc.ConfigurableEntityColumnDefinition.FieldAlias,
@@ -270,6 +319,28 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
     public async Task<bool> VerifyViewExist(VerifyViewExistRequest input) {
         var view = await GetViewModel(input.UserId, input.ViewClientKey, null);
         return (view != null && view.Name == input.Name);
+    }
+
+    private string GetEntityName(EntityTypes entityType) {
+        var entityName = "";
+        switch (entityType) {
+            case EntityTypes.Activity:
+            case EntityTypes.UserActivity:
+                entityName = "ActivityLogs";
+                break;
+            case EntityTypes.Users:
+                entityName = "ApplicationUser";
+                break;
+            case EntityTypes.Clients:
+                entityName = "Clients";
+                break;
+            case EntityTypes.ClientContracts:
+                entityName = "ClientContracts";
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(entityType), entityType, null);
+        }
+        return entityName;
     }
 
     private async Task<ConfigurableUserView> addNewView(ConfigurableUserView view, IEnumerable<ConfigurableUserViewHasConfigurableEntityColumnDefinition> columns, CreateViewRequest input, List<string>? permissions) {

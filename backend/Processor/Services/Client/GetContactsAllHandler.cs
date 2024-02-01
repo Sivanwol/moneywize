@@ -7,7 +7,6 @@ using Domain.Filters;
 using Domain.Filters.Fields;
 using Domain.Persistence.Repositories.Interfaces;
 using Infrastructure.Enums;
-using Infrastructure.GQL;
 using Infrastructure.GQL.Common;
 using Infrastructure.Requests.Processor.Services.Client;
 using Infrastructure.Services.Cache;

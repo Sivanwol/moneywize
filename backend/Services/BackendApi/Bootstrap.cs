@@ -158,6 +158,7 @@ public class Bootstrap {
                 schemaOptions.AddType<PageSize>();
                 schemaOptions.AddType<EntityColumnOperationType>();
                 schemaOptions.AddType<EntityColumnDataType>();
+                schemaOptions.AddType<EntityTypes>();
 
             });
             services.AddHostedService<JwtRefreshTokenCache>();

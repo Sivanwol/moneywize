@@ -39,4 +39,10 @@
     </ItemGroup>
 
 
+    <ItemGroup>
+        <Compile Remove="Repositories\IApplicationUserRepository.cs"/>
+        <Compile Remove="Repositories\IActivityLogRepository.cs"/>
+    </ItemGroup>
+
+
 </Project>
