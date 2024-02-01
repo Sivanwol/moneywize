@@ -29,7 +29,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         if (permissions == null) {
             selectedColumns = (from vc in Context.ConfigurableUserViewHasConfigurableEntityColumnDefinitions
                 where vc.ConfigurableUserViewId == view.Id && vc.ConfigurableEntityColumnDefinition.DisabledAt == null
-                orderby vc.Order descending
+                orderby vc.Position descending
                 select new ViewColumn() {
                     DisplayName = vc.ConfigurableEntityColumnDefinition.DisplayName,
                     EntityName = vc.ConfigurableEntityColumnDefinition.EntityName,
@@ -44,14 +44,14 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
                     FilterOperationType = vc.ConfigurableEntityColumnDefinition.FilterOperationType,
                     IsHidden = vc.IsHidden,
                     IsFixed = vc.IsFixed,
-                    Order = vc.Order
+                    Order = vc.Position
                 }).ToList();
             return selectedColumns;
         }
         selectedColumns = (from vc in Context.ConfigurableUserViewHasConfigurableEntityColumnDefinitions
             where vc.ConfigurableUserViewId == view.Id && vc.ConfigurableEntityColumnDefinition.DisabledAt == null &&
                   vc.ConfigurableEntityColumnDefinition.Permissions.Any(p => permissions.Contains(p))
-            orderby vc.Order descending
+            orderby vc.Position descending
             select new ViewColumn() {
                 DisplayName = vc.ConfigurableEntityColumnDefinition.DisplayName,
                 EntityName = vc.ConfigurableEntityColumnDefinition.EntityName,
@@ -66,7 +66,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
                 FilterOperationType = vc.ConfigurableEntityColumnDefinition.FilterOperationType,
                 IsHidden = vc.IsHidden,
                 IsFixed = vc.IsFixed,
-                Order = vc.Order
+                Order = vc.Position
             }).ToList();
         return selectedColumns;
     }
@@ -140,8 +140,9 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
             view = await addNewView(view, columns, input, permissions);
             hasAddedView = true;
         }
-        if (hasAddedView)
-            return ToView(view, columns.OrderBy(vc => vc.Order).Select(vc => new ViewColumn() {
+        if (hasAddedView) {
+            columns = await GetViewColumns(view);
+            return ToView(view, columns.Select(vc => new ViewColumn() {
                 DisplayName = vc.ConfigurableEntityColumnDefinition.DisplayName,
                 EntityName = vc.ConfigurableEntityColumnDefinition.EntityName,
                 FieldAlias = vc.ConfigurableEntityColumnDefinition.FieldAlias,
@@ -155,8 +156,9 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
                 FilterOperationType = vc.ConfigurableEntityColumnDefinition.FilterOperationType,
                 IsHidden = vc.IsHidden,
                 IsFixed = vc.IsFixed,
-                Order = vc.Order
+                Order = vc.Position
             }));
+        }
         Log.Logger.Error($"ConfigurableUserViewRepository: View not found");
         throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{input.UserId}-{input.ViewClientKey}]");
     }
@@ -174,7 +176,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         view.Color = input.Color;
         Context.ConfigurableUserViews.Update(view);
         await Context.Instance.SaveChangesAsync();
-        return ToView(view, columns.OrderBy(vc => vc.Order).Select(vc => new ViewColumn() {
+        return ToView(view, columns.Select(vc => new ViewColumn() {
             DisplayName = vc.ConfigurableEntityColumnDefinition.DisplayName,
             EntityName = vc.ConfigurableEntityColumnDefinition.EntityName,
             FieldAlias = vc.ConfigurableEntityColumnDefinition.FieldAlias,
@@ -188,7 +190,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
             FilterOperationType = vc.ConfigurableEntityColumnDefinition.FilterOperationType,
             IsHidden = vc.IsHidden,
             IsFixed = vc.IsFixed,
-            Order = vc.Order
+            Order = vc.Position
         }));
     }
 
@@ -210,7 +212,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
                 ConfigurableUserViewId = view.Id,
                 IsHidden = tColumn.IsHidden,
                 IsFixed = tColumn.IsFixed,
-                Order = tColumn.Order
+                Position = tColumn.Position
             });
         }
         if (!view.Columns.Any()) {
@@ -219,7 +221,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         }
         Context.ConfigurableUserViews.Update(view);
         await Context.Instance.SaveChangesAsync();
-        return ToView(view, view.Columns.OrderBy(vc => vc.Order).Select(vc => new ViewColumn() {
+        return ToView(view, view.Columns.OrderBy(vc => vc.Position).Select(vc => new ViewColumn() {
             DisplayName = vc.ConfigurableEntityColumnDefinition.DisplayName,
             EntityName = vc.ConfigurableEntityColumnDefinition.EntityName,
             FieldAlias = vc.ConfigurableEntityColumnDefinition.FieldAlias,
@@ -233,7 +235,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
             FilterOperationType = vc.ConfigurableEntityColumnDefinition.FilterOperationType,
             IsHidden = vc.IsHidden,
             IsFixed = vc.IsFixed,
-            Order = vc.Order
+            Order = vc.Position
         }));
     }
 
@@ -259,7 +261,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
 
     public async Task<bool> VerifyViewExist(VerifyViewExistRequest input) {
         var view = await GetViewModel(input.UserId, input.ViewClientKey, null);
-        return view != null;
+        return (view != null && view.Name == input.Name);
     }
 
     private async Task<ConfigurableUserView> addNewView(ConfigurableUserView view, IEnumerable<ConfigurableUserViewHasConfigurableEntityColumnDefinition> columns, CreateViewRequest input, List<string>? permissions) {
@@ -283,7 +285,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
                         ConfigurableUserViewId = newView.Id,
                         IsHidden = column.IsHidden,
                         IsFixed = column.IsFixed,
-                        Order = column.Order
+                        Position = column.Position
                     });
                     continue;
                 }
@@ -293,7 +295,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
                 ConfigurableUserViewId = newView.Id,
                 IsHidden = column.IsHidden,
                 IsFixed = column.IsFixed,
-                Order = column.Order
+                Position = column.Position
             });
         }
         newView.Columns = columnsToAdd;
@@ -320,9 +322,10 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
 
     private async Task<IEnumerable<ConfigurableUserViewHasConfigurableEntityColumnDefinition>> GetViewColumns(ConfigurableUserView view) {
         Log.Logger.Information("Fetching configurable user view columns for user view [{ViewUserId} ,{ViewId}]", view.UserId, view.Id);
-        var selectedColumns = await (from vc in Context.ConfigurableUserViewHasConfigurableEntityColumnDefinitions
+        var selectedColumns = (from vc in Context.ConfigurableUserViewHasConfigurableEntityColumnDefinitions
             where vc.ConfigurableUserViewId == view.Id
-            select vc).ToListAsync();
+            orderby vc.Position descending
+            select vc).Include(vc => vc.ConfigurableEntityColumnDefinition);
         return selectedColumns;
     }
 

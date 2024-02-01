@@ -956,7 +956,7 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("Order")
+                    b.Property<int>("Position")
                         .HasColumnType("int");
 
                     b.Property<int?>("ParentCategoryId")
@@ -1037,7 +1037,7 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("json");
 
-                    b.Property<int>("Order")
+                    b.Property<int>("Position")
                         .HasColumnType("int");
 
                     b.Property<string>("Permissions")
@@ -1138,7 +1138,7 @@ namespace Domain.Persistence.Migrations
                     b.Property<bool>("IsHidden")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("Order")
+                    b.Property<int>("Position")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")

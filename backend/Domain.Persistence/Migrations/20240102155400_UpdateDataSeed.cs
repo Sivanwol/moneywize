@@ -14,10 +14,10 @@ namespace Domain.Persistence.Migrations
         protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.InsertData(
                 "ConfigurableCategories",
-                new[] { "Name", "Description", "Order"},
+                new[] { "Name", "Description", "Position"},
                 new object[] { "Baseic", "Baseic", 1});
             
-            #region Setup Vies
+            #region Setup View
             
             var sql = $"SET @userId = (SELECT Id FROM AspNetUsers WHERE UserName='adminWolbergPro' limit 1);";
             sql += $"Insert into ConfigurableUserViews (UserId, Name, Description, IsShareAble, IsDefault, Color, Settings, IsPredefined) VALUES (@userId, 'Base View Of Users list', '', 1, 1, '#000000', '[]', 1),";
@@ -26,6 +26,7 @@ namespace Domain.Persistence.Migrations
             sql += $"(@userId, 'Base View Of Activity Logs list', '', 1, 1, '#000000', '[]', 1);";
             migrationBuilder.Sql(sql);
             #endregion
+            
             #region ActivityLogs View
             var metaData = new Dictionary<string, string>
             {
@@ -56,7 +57,7 @@ namespace Domain.Persistence.Migrations
             
             
             sql = $"SET @viewId = (SELECT Id FROM ConfigurableUserViews WHERE Name = 'Base View Of Activity Logs list');";
-            sql += $"INSERT INTO ConfigurableUserViewHasConfigurableEntityColumnDefinitions (ConfigurableUserViewId, ConfigurableEntityColumnDefinitionId, `Order`) VALUES ";
+            sql += $"INSERT INTO ConfigurableUserViewHasConfigurableEntityColumnDefinitions (ConfigurableUserViewId, ConfigurableEntityColumnDefinitionId, Position) VALUES ";
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ActivityLogs' and ColumnName = 'Id'), 1),";
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ActivityLogs' and ColumnName = 'OwnerUserId'), 2),";
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ActivityLogs' and ColumnName = 'UserId'), 3),";
@@ -92,7 +93,7 @@ namespace Domain.Persistence.Migrations
             migrationBuilder.Sql(sql);
             
             sql = $"SET @viewId = (SELECT Id FROM ConfigurableUserViews WHERE Name = 'Base View Of Clients list');";
-            sql += $"INSERT INTO ConfigurableUserViewHasConfigurableEntityColumnDefinitions (ConfigurableUserViewId, ConfigurableEntityColumnDefinitionId, `Order`) VALUES ";
+            sql += $"INSERT INTO ConfigurableUserViewHasConfigurableEntityColumnDefinitions (ConfigurableUserViewId, ConfigurableEntityColumnDefinitionId, Position) VALUES ";
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'Clients' and ColumnName = 'Id'), 1),";
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'Clients' and ColumnName = 'ParentId'), 2),";
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'Clients' and ColumnName = 'OwnerUserId'), 3),";
@@ -134,7 +135,7 @@ namespace Domain.Persistence.Migrations
             migrationBuilder.Sql(sql);
             
             sql = $"SET @viewId = (SELECT Id FROM ConfigurableUserViews WHERE Name = 'Base View Of Client Contacts list');";
-            sql += $"INSERT INTO ConfigurableUserViewHasConfigurableEntityColumnDefinitions (ConfigurableUserViewId, ConfigurableEntityColumnDefinitionId, `Order`) VALUES ";
+            sql += $"INSERT INTO ConfigurableUserViewHasConfigurableEntityColumnDefinitions (ConfigurableUserViewId, ConfigurableEntityColumnDefinitionId, Position) VALUES ";
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ClientContacts' and ColumnName = 'Id'), 1),";
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ClientContacts' and ColumnName = 'ClientId'), 2),";
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ClientContacts' and ColumnName = 'FirstName'), 3),";
@@ -177,7 +178,7 @@ namespace Domain.Persistence.Migrations
             migrationBuilder.Sql(sql);
             
             sql = $"SET @viewId = (SELECT Id FROM ConfigurableUserViews WHERE Name = 'Base View Of Users list');";
-            sql += $"INSERT INTO ConfigurableUserViewHasConfigurableEntityColumnDefinitions (ConfigurableUserViewId, ConfigurableEntityColumnDefinitionId, `Order`) VALUES ";
+            sql += $"INSERT INTO ConfigurableUserViewHasConfigurableEntityColumnDefinitions (ConfigurableUserViewId, ConfigurableEntityColumnDefinitionId, Position) VALUES ";
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ApplicationUser' and ColumnName = 'Id'), 1),";
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ApplicationUser' and ColumnName = 'Email'), 2),";
             sql += $"(@viewId, (SELECT Id FROM ConfigurableEntityColumnDefinitions WHERE EntityName = 'ApplicationUser' and ColumnName = 'FirstName'), 3),";
