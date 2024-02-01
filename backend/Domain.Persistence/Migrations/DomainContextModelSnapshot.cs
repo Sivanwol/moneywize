@@ -16,7 +16,7 @@ namespace Domain.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "8.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("Domain.Entities.ActivityLog", b =>
@@ -953,10 +953,10 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("Position")
+                    b.Property<int?>("ParentCategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ParentCategoryId")
+                    b.Property<int>("Position")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -974,10 +974,6 @@ namespace Domain.Persistence.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    b.Property<string>("AffectedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int");
@@ -1033,9 +1029,6 @@ namespace Domain.Persistence.Migrations
                     b.Property<string>("MetaData")
                         .IsRequired()
                         .HasColumnType("json");
-
-                    b.Property<int>("Position")
-                        .HasColumnType("int");
 
                     b.Property<string>("Permissions")
                         .IsRequired()

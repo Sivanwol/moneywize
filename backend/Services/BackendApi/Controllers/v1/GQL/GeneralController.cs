@@ -138,7 +138,7 @@ public class GeneralController : BaseGraphController {
                 return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
             }
             var response = await Mediator.Send(view.ToProcessorEntity(loggedUserId!));
-            return Ok();
+            return Ok(response);
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);

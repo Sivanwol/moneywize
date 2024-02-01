@@ -169,6 +169,14 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
             Log.Logger.Error($"ConfigurableUserViewRepository: View not found");
             throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{input.UserId}-{input.ViewClientKey}]");
         }
+        if (view.IsPredefined) {
+            Log.Logger.Error($"ConfigurableUserViewRepository: View is predefined");
+            throw new AuthorizationException();
+        }
+        if (view.UserId != input.UserId) {
+            Log.Logger.Error($"ConfigurableUserViewRepository: View is not owned by user");
+            throw new AuthorizationException();
+        }
         var columns = await GetViewColumns(view);
         view.Name = input.Name;
         view.Description = input.Description;
@@ -274,6 +282,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
             Settings = new List<ConfigurableEntityMetaData>(),
             Color = input.Color,
             UserId = input.UserId,
+
             Permissions = permissions ?? new List<string>()
         };
         var columnsToAdd = new List<ConfigurableUserViewHasConfigurableEntityColumnDefinition>();
