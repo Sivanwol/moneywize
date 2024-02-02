@@ -29,6 +29,7 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
     public virtual DbSet<Countries> Countries { get; set; }
     public virtual DbSet<Languages> Languages { get; set; }
     public virtual DbSet<ApplicationUser> Users { get; set; }
+    public virtual DbSet<ApplicationUserPreferences> UserPreferences { get; set; }
     public virtual DbSet<ApplicationUserOtpCodes> UserOtpCodes { get; set; }
     public virtual DbSet<Vendors> Vendors { get; set; }
     public virtual DbSet<VendorsMetaData> VendorsMetaData { get; set; }
@@ -131,6 +132,10 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
             .WithMany(x => x.ActivityLogs)
             .HasForeignKey(x => x.UserId);
 
+        builder.Entity<ApplicationUserPreferences>().HasIndex(x => new {
+            x.UserId,
+            x.PreferenceKey
+        }).IsUnique();
         builder.Entity<Clients>().HasIndex(x => new {
             x.Name,
             x.OwnerUserId

@@ -7,6 +7,7 @@ public interface IDomainContext : IDisposable {
     DbSet<Countries> Countries { get; set; }
     DbSet<Languages> Languages { get; set; }
     DbSet<ApplicationUser> Users { get; set; }
+    DbSet<ApplicationUserPreferences> UserPreferences { get; set; }
     DbSet<ApplicationUserOtpCodes> UserOtpCodes { get; set; }
     DbSet<Vendors> Vendors { get; set; }
     DbSet<VendorsMetaData> VendorsMetaData { get; set; }
