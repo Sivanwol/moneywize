@@ -1,7 +1,7 @@
 using Application.Utils;
 using FluentValidation;
 using Infrastructure.Requests.Controllers.Auth;
-namespace Infrastructure.Validators.Account;
+namespace Infrastructure.Validators.User;
 
 public class ResetPasswordValidator : AbstractValidator<ResetPasswordRequest> {
     public ResetPasswordValidator() {

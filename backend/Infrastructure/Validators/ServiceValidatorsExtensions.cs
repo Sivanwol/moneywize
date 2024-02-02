@@ -1,7 +1,7 @@
 using FluentValidation;
-using Infrastructure.Validators.Account;
 using Infrastructure.Validators.Client;
 using Infrastructure.Validators.Common;
+using Infrastructure.Validators.User;
 using Infrastructure.Validators.View;
 using Microsoft.Extensions.DependencyInjection;
 namespace Infrastructure.Validators;
@@ -9,7 +9,7 @@ namespace Infrastructure.Validators;
 public static class ServiceValidatorsExtensions {
     public static void AddValidatorsExtension(this IServiceCollection services) {
 
-        #region Auth Account
+        #region User
 
         services.AddValidatorsFromAssemblyContaining<ForgetPasswordValidator>();
         services.AddValidatorsFromAssemblyContaining<RegisterUserValidator>();
@@ -21,6 +21,7 @@ public static class ServiceValidatorsExtensions {
         services.AddValidatorsFromAssemblyContaining<ConfirmEmailValidator>();
         services.AddValidatorsFromAssemblyContaining<EntityPageValidator>();
         services.AddValidatorsFromAssemblyContaining<EntityFilterItemValidator>();
+        services.AddValidatorsFromAssemblyContaining<UpdateUserPreferenceValidator>();
 
         #endregion
 

@@ -1,6 +1,6 @@
 using FluentValidation;
 using Infrastructure.Requests.Controllers.Auth;
-namespace Infrastructure.Validators.Account;
+namespace Infrastructure.Validators.User;
 
 public class RegisterUserValidator : AbstractValidator<RegisterNewUserRequest> {
     public RegisterUserValidator() {
