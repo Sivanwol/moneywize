@@ -8,6 +8,7 @@ public interface IApplicationUserRepository : IGenericRepository<ApplicationUser
     Task SaveDisplayLanguage(Guid userId, int languageId);
     Task DeleteUser(Guid userId);
     Task ExportUser(Guid userId);
+    Task<List<ApplicationUserPreferences>> GetPreferencesByUserId(Guid id);
     Task<ApplicationUser?> GetUserByToken(string userToken);
     Task<ApplicationUser?> LocateUserByPhone(int CountryId, string PhoneNumber);
     Task<ApplicationUser?> LocateUserByEmail(string email);

@@ -58,10 +58,21 @@ public class ApplicationUserRepository : BaseRepository, IApplicationUserReposit
     }
     public async Task<ApplicationUser?> GetById(Guid id) {
         Log.Logger.Information($"Fetching user with id {id}");
-        return Context.Users
+        var user = Context.Users
             .Include(w => w.Country)
             .Include(w => w.DisplayLanguage)
             .FirstOrDefault(w => w.DeletedAt == null && w.Id == id.ToString());
+        if (user == null) {
+            throw new EntityNotFoundException("User", id.ToString());
+        }
+        user.Preferences = await GetPreferencesByUserId(id);
+        return user;
+    }
+    public async Task<List<ApplicationUserPreferences>> GetPreferencesByUserId(Guid id) {
+        Log.Logger.Information($"Fetching preferences for user with id {id}");
+        return await Context.UserPreferences
+            .Where(r => r.UserId == id)
+            .ToListAsync();
     }
 
     public async Task<ApplicationUser?> GetUserByToken(string userToken) {

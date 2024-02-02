@@ -33,4 +33,12 @@ public class User {
 
     [Description("User Registration Date")]
     public DateTime RegisterCompletedAt { get; set; }
+
+    [Description("User Registration Date")]
+    public IList<UserPreference> Preferences { get; set; } = new List<UserPreference>();
+}
+
+public class UserPreference {
+    public string Key { get; set; }
+    public string Value { get; set; }
 }

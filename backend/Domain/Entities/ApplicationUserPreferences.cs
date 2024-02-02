@@ -6,6 +6,7 @@ namespace Domain.Entities;
 [Table("ApplicationUserPreferences")]
 public class ApplicationUserPreferences : BaseEntity {
     [ForeignKey("ApplicationUser")]
+    [Column("UserId")]
     public Guid UserId { get; set; }
 
     public ApplicationUser User { get; set; }
