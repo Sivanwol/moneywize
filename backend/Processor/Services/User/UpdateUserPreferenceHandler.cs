@@ -22,13 +22,18 @@ public class UpdateUserPreferenceHandler : IRequestHandler<UpdateUserPreferenceR
     public async Task<bool> Handle(UpdateUserPreferenceRequest request, CancellationToken cancellationToken) {
         try {
             await _applicationUserRepository.UpdateUserPreference(request.UserId, request.Preferences);
-            await _activityLogRepository.AddActivity(request.UserId, request.UserId.ToString(), nameof(ApplicationUserPreferences), ActivityLogOperationType.UserUpdatePreference, "User Update Preference", ActivityStatus.Success, request.IpAddress, request.UserAgent);
+
+            await _activityLogRepository.AddActivity(request.UserId, request.UserId.ToString(), nameof(ApplicationUserPreferences), ActivityLogOperationType.UserUpdatePreference, "User Update Preference",
+                "User Update Preference been updated successfully", ActivityStatus.Success, request.IpAddress, request.UserAgent);
+
+            return true;
         }
         catch (Exception e) {
             Log.Logger.Error(e, e.Message);
-            await _activityLogRepository.AddActivity(request.UserId, request.UserId.ToString(), nameof(ApplicationUserPreferences), ActivityLogOperationType.UserUpdatePreference, "User Update Preference", ActivityStatus.Failed, request.IpAddress, request.UserAgent);
+            await _activityLogRepository.AddActivity(request.UserId, request.UserId.ToString(), nameof(ApplicationUserPreferences), ActivityLogOperationType.UserUpdatePreference, "User Update Preference",
+                "User Update Preference not been updated", ActivityStatus.Failed, request.IpAddress, request.UserAgent);
+            return false;
             return false;
         }
-        return true;
     }
 }

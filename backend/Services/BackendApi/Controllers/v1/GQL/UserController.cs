@@ -205,4 +205,35 @@ public class UserController : BaseGraphController {
             return Error(e.Message);
         }
     }
+
+    [Mutation("resetUserPreference", typeof(bool))]
+    [Description("Reset user preference")]
+    public async Task<IGraphActionResult> ResetUserPreference() {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (Guid.Parse(loggedUserId!) == Guid.Empty) {
+                Log.Logger.Error("GetMyProfile: User not found");
+                return BadRequest("User not found");
+            }
+            await Mediator.Send(new ResetUserPreferenceRequest {
+                UserId = Guid.Parse(loggedUserId!),
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
+            });
+            return Ok(true);
+        }
+        catch (EntityNotFoundException e) {
+            Log.Logger.Error(e, e.Message);
+            return Error("Failed to find user");
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
+    }
 }

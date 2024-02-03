@@ -16,6 +16,7 @@ public static class ActivityLogOperationType {
     public const string UserSendOTP = "UserSendOTP";
     public const string UserVerifyOTP = "UserVerifyOTP";
     public const string UserUpdatePreference = "UserUpdatePreference";
+    public const string UserResetPreference = "UserResetPreference";
 
     #endregion
 

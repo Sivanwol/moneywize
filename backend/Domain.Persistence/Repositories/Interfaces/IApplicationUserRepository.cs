@@ -11,6 +11,7 @@ public interface IApplicationUserRepository : IGenericRepository<ApplicationUser
     Task ExportUser(Guid userId);
     Task<List<ApplicationUserPreferences>> GetPreferencesByUserId(Guid id);
     Task<bool> UpdateUserPreference(Guid userId, IList<UserPreferenceInput> preferences);
+    Task ResetUserPreference(Guid userId);
     Task<ApplicationUser?> GetUserByToken(string userToken);
     Task<ApplicationUser?> LocateUserByPhone(int CountryId, string PhoneNumber);
     Task<ApplicationUser?> LocateUserByEmail(string email);

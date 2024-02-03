@@ -73,9 +73,21 @@ public class ApplicationUserRepository : BaseRepository, IApplicationUserReposit
             }
             await Context.Instance.SaveChangesAsync();
             return true;
+        }, (ex) => {
+            Log.Logger.Error(ex, "Failed to update user preference for user {UserId}", userId);
+            return Task.FromResult(false);
         });
     }
 
+    public async Task ResetUserPreference(Guid userId) {
+        Log.Logger.Information("Reset user preference for user {UserId}", userId);
+        var user = await GetById(userId);
+        if (user == null) {
+            throw new EntityNotFoundException("User", userId.ToString());
+        }
+        Context.UserPreferences.RemoveRange(user.Preferences);
+        await Context.Instance.SaveChangesAsync();
+    }
     public async Task ExportUser(Guid userId) {
         Log.Logger.Information($"Export new user with id {userId}");
         var user = await GetById(userId);
