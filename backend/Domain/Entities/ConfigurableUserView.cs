@@ -11,6 +11,7 @@ public class ConfigurableUserView : BaseEntity {
 
     public ApplicationUser User { get; set; }
     public Guid ClientUniqueKey { get; set; } = Guid.NewGuid();
+    public string EntityType { get; set; }
 
     [StringLength(100)]
     public string Name { get; set; }

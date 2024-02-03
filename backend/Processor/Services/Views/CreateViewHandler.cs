@@ -22,6 +22,10 @@ public class CreateViewHandler : IRequestHandler<CreateViewRequest, View> {
         if (basedView == null) {
             throw new EntityNotFoundException("ConfigurableUserView", request.ViewClientKey.ToString());
         }
+        if (!await _configurableUserViewRepository.IsAllowViewCreation(request)) {
+            Log.Logger.Error("View already exists");
+            throw new EntityFoundException("ConfigurableUserView", $"{request.UserId}-{request.Name}-{basedView.EntityType}");
+        }
         var cacheKey = Cache.GetKey($"Views:{request.UserId}");
         var hasCache = await _cacheService.IsExistAsync(cacheKey);
         if (hasCache) {

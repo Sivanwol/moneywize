@@ -8,5 +8,6 @@ public class View {
     public bool IsShareAble { get; set; }
     public string? Color { get; set; }
     public bool IsPredefined { get; set; }
+    public string EntityType { get; set; }
     public IEnumerable<ViewColumn>? Columns { get; set; }
 }

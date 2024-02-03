@@ -28,6 +28,8 @@ namespace Domain.Persistence.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Description = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    EntityType = table.Column<string>( type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     IsShareAble = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsDefault = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Color = table.Column<string>(type: "varchar(8)", maxLength: 8, nullable: false)
@@ -110,9 +112,9 @@ namespace Domain.Persistence.Migrations
                 column: "ConfigurableUserViewTagsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ConfigurableUserViews_UserId_Name",
+                name: "IX_ConfigurableUserViews_UserId_Name_EntityType_IsPredefined",
                 table: "ConfigurableUserViews",
-                columns: new[] { "UserId", "Name" },
+                columns: new[] { "UserId", "Name", "EntityType", "IsPredefined" },
                 unique: true);
 
             migrationBuilder.CreateIndex(

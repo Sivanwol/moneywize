@@ -250,6 +250,18 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         }));
     }
 
+    public async Task<bool> IsAllowViewCreation(CreateViewRequest input) {
+        var view = await GetViewModel(input.UserId, input.ViewClientKey, null);
+        if (view == null) {
+            Log.Logger.Error($"ConfigurableUserViewRepository: View not found");
+            throw new EntityNotFoundException(nameof(ConfigurableUserView), $"[{input.UserId}-{input.ViewClientKey}]");
+        }
+        var query = (from vc in Context.ConfigurableUserViews
+            where vc.UserId == input.UserId && vc.Name == input.Name && vc.DeletedAt == null && vc.EntityType == view.EntityType
+            select vc).Count();
+        return query == 0;
+    }
+
     public async Task<View> UpdateViewColumns(UpdateViewColumnsRequest input) {
         return await Context.ExecuteTransactionAsync(async () => {
             var view = await GetViewModel(input.UserId, input.ViewClientKey, null);
@@ -357,6 +369,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
             Name = input.Name,
             Description = input.Description,
             IsPredefined = false,
+            EntityType = view.EntityType,
             IsShareAble = input.IsShareAble,
             Settings = new List<ConfigurableEntityMetaData>(),
             Color = input.Color,
@@ -421,6 +434,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         return new View() {
             ClientKey = view.ClientUniqueKey,
             Name = view.Name,
+            EntityType = view.EntityType,
             Description = view.Description,
             IsPredefined = view.IsPredefined,
             IsShareAble = view.IsShareAble,
@@ -432,6 +446,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
         return new View() {
             ClientKey = view.ClientUniqueKey,
             Name = view.Name,
+            EntityType = view.EntityType,
             Description = view.Description,
             IsPredefined = view.IsPredefined,
             IsShareAble = view.IsShareAble,
