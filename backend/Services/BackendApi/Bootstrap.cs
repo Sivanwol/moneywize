@@ -108,28 +108,38 @@ public class Bootstrap {
                 r.AddAttributes(new List<KeyValuePair<string, object>> {
                     new KeyValuePair<string, object>("Environment", Environment.EnvironmentName),
                     new KeyValuePair<string, object>("Version", applicationConfig.APIMajorVersion),
-                    new KeyValuePair<string, object>("MaintenanceMode", applicationConfig.MaintenanceMode)
+                    new KeyValuePair<string, object>("MaintenanceMode", applicationConfig.MaintenanceMode),
+                    new KeyValuePair<string, object>("EnableCache", applicationConfig.EnableCache),
+                    new KeyValuePair<string, object>("EnableGraphQLCache", applicationConfig.EnableGraphQLCache),
+                    new KeyValuePair<string, object>("DeveloperModeEnabledOTP", applicationConfig.DeveloperModeEnabledOTP),
+                    new KeyValuePair<string, object>("EnableHealthCheck", !applicationConfig.DisableHealthCheck),
+                    new KeyValuePair<string, object>("DeveloperMode", applicationConfig.DeveloperMode),
+                    new KeyValuePair<string, object>("EnableSwagger", applicationConfig.EnableSwagger)
                 });
                 r.AddEnvironmentVariableDetector();
             })
             .WithTracing(tracing => {
                 tracing.AddAspNetCoreInstrumentation();
                 tracing.AddHttpClientInstrumentation();
-                tracing.AddSqlClientInstrumentation();
-                tracing.AddConsoleExporter();
+                tracing.AddSqlClientInstrumentation(options => {
+                    options.SetDbStatementForText = true;
+                    options.SetDbStatementForStoredProcedure = true;
+                    options.EnableConnectionLevelAttributes = true;
+                    options.RecordException = true;
+                });
+                // tracing.AddQuartzInstrumentation();
                 tracing.AddOtlpExporter(opt => {
-                    opt.Endpoint = new Uri("http://localhost:5341/ingest/otlp/v1/traces");
+                    opt.Endpoint = new Uri($"{secretSettings.SeqUrl}/ingest/otlp/v1/traces");
                     opt.Protocol = OtlpExportProtocol.HttpProtobuf;
                     opt.Headers = $"X-Seq-ApiKey={seqApiKey}";
                 });
-                tracing.AddOtlpExporter();
                 tracing.AddConsoleExporter();
             })
             .WithMetrics(metrics => {
                 metrics.AddAspNetCoreInstrumentation();
                 metrics.AddHttpClientInstrumentation();
                 metrics.AddOtlpExporter(opt => {
-                    opt.Endpoint = new Uri("http://localhost:5341/ingest/otlp/v1/metrics");
+                    opt.Endpoint = new Uri($"{secretSettings.SeqUrl}/ingest/otlp/v1/metrics");
                     opt.Protocol = OtlpExportProtocol.HttpProtobuf;
                     opt.Headers = $"X-Seq-ApiKey={seqApiKey}";
                 });
