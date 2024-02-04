@@ -13,6 +13,7 @@ public static class MasstransitExtension {
             options.WaitUntilStarted = true;
         });
         services.AddQuartz(c => {
+
             c.SchedulerName = "System-Job";
             c.SchedulerId = "AUTO";
             c.UseMicrosoftDependencyInjectionJobFactory();
