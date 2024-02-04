@@ -125,7 +125,8 @@ public class Bootstrap {
                 });
                 tracing.AddOtlpExporter();
                 tracing.AddConsoleExporter();
-            }).WithMetrics(metrics => {
+            })
+            .WithMetrics(metrics => {
                 metrics.AddAspNetCoreInstrumentation();
                 metrics.AddHttpClientInstrumentation();
                 metrics.AddOtlpExporter(opt => {
