@@ -19,4 +19,10 @@ public class BackendSecretApplicationConfig {
 
     [EnvKey("SeqApiKey")]
     public string SeqApiKey { get; set; }
+
+    [EnvKey("SeqUrl")]
+    public string SeqUrl { get; set; }
+
+    [EnvKey("ServiceName")]
+    public string ServiceName { get; set; }
 }

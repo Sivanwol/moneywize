@@ -104,10 +104,9 @@ public class Bootstrap {
         };
         services.AddOpenTelemetry()
             .ConfigureResource(r => {
-                r.AddService(applicationConfig.ServiceName);
+                r.AddService(secretSettings.ServiceName);
                 r.AddAttributes(new List<KeyValuePair<string, object>> {
                     new KeyValuePair<string, object>("Environment", Environment.EnvironmentName),
-                    new KeyValuePair<string, object>("Application", applicationConfig.ServiceName),
                     new KeyValuePair<string, object>("Version", applicationConfig.APIMajorVersion),
                     new KeyValuePair<string, object>("MaintenanceMode", applicationConfig.MaintenanceMode)
                 });

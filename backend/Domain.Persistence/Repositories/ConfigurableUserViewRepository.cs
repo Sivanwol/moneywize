@@ -152,6 +152,7 @@ public class ConfigurableUserViewRepository : BaseRepository, IConfigurableUserV
             var columns = await GetConfigurableViewColumns(view, permissions);
             result.Add(ToView(view, columns));
         }
+        throw new NotSupportedException();
         return result;
     }
 
