@@ -8,16 +8,20 @@
 	import { fade } from 'svelte/transition';
 	import Grid from 'gridjs-svelte';
 	import { capitalize, get } from 'lodash-es';
-	import { SortDirection } from '@api/queries/utils/SortDirection.js';
-	import { PAGE_SIZE } from '@api/queries/utils/PageSize.js';
+	import { SortDirection } from '@api/utils/SortDirection.js';
+	import { PAGE_SIZE } from '@api/utils/PageSize.js';
 	import moment from 'moment';
 	import { format } from '@utility/stringExtended.js';
-	import { FieldType } from '@api/queries/utils/fieldType.js';
+	import { FieldType } from '@api/utils/fieldType.js';
+	import { isMatchingEntityType } from '@api/utils/entityTypes.js';
 	import { AdjustmentsVerticalSolid, GridSolid } from 'flowbite-svelte-icons';
 	import { html } from 'gridjs';
 
 	let columns = [];
 	let currentView = null;
+
+	export let entityType = '';
+	
 	export let data = [];
 	let visibleViewEditor = false;
 	let visibleFilterEditor = false;
@@ -52,7 +56,7 @@
 	};
 	$: sortByField = 'CreatedAt';
 	$: sortByDirection = SortDirection.DESCENDING;
-
+	$: showCustomzitionBar = entityType !== null || !isMatchingEntityType(entityType);
 	const sort = {
 		multiColumn: false,
 		server: {
@@ -198,7 +202,7 @@
 		</ButtonGroup>
 	</div>
 
-	{#if (visibleViewEditor)}
+	{#if (visibleViewEditor && showCustomzitionBar)}
 		<div role="link" in:fade out:fade>
 			<Tabs style="underline">
 				<TabItem open title="Profile">
@@ -220,7 +224,7 @@
 			</Tabs>
 		</div>
 	{/if}
-	{#if (visibleFilterEditor)}
+	{#if (visibleFilterEditor && showCustomzitionBar)}
 		<div in:fade out:fade>
 			<Tabs style="underline">
 				<TabItem open title="Profile">

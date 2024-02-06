@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client/core';
-import { GetList } from '@api/queries/utils/common.js';
+import { GetList } from '@api/utils/common.js';
 
 export const GetMyProfileQuery = gql`
 query GetMyProfile {

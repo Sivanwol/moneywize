@@ -1,4 +1,4 @@
-import { GetList } from '@api/queries/utils/common.js';
+import { GetList } from '@api/utils/common.js';
 
 /**
  * @param {{fieldName: string, filterOperationType: filterOperationTypes, operationType: operationTypes, value: string|bool|number, values: string[]|bool[]|number[] }} filters
