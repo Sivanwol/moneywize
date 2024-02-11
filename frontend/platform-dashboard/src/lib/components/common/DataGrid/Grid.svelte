@@ -4,7 +4,29 @@
 	import { systemMessagesStore } from '@stores/systemMessagesStore.js';
 	import { ErrorSystemMessage } from '@models/ErrorSystemMessage.js';
 	import { _ } from 'svelte-i18n';
-	import { Button, ButtonGroup, ListPlaceholder, TabItem, Tabs } from 'flowbite-svelte';
+	import {
+		Accordion,
+		AccordionItem,
+		Button,
+		ButtonGroup,
+		Input,
+		Label,
+		ListPlaceholder,
+		Modal,
+		P,
+		Select,
+		TabItem,
+		Table,
+		TableBody,
+		TableBodyCell,
+		TableBodyRow,
+		TableHead,
+		TableHeadCell,
+		Tabs,
+		Textarea,
+		Toggle,
+		Tooltip
+	} from 'flowbite-svelte';
 	import { fade } from 'svelte/transition';
 	import Grid from 'gridjs-svelte';
 	import { capitalize, get } from 'lodash-es';
@@ -33,6 +55,8 @@
 	export let useManualDataLoading = false;
 	export let currentPage = 1;
 	export let paginationSize = PAGE_SIZE.TWENTY;
+	
+	let changeViewModel = false;
 	export let onHandlerDataLoading = async (ops, sortByField, sortByDirection, currentPage, paginationSize) => {
 	};
 	export let onConvertHandlerData = (records) => {
@@ -96,9 +120,16 @@
 			};
 		}
 	};
-
+	
+	let views = [];
 	onMount(async () => {
 		currentView = $userStore.userViews.find(view => view.clientKey === userViewKey);
+		$userStore.userViews.filter(view => view.entityType === currentView.entityType).forEach(view => {
+			views.push({
+				value: view.clientKey,
+				name: view.name
+			});
+		});
 		if (currentView == null) {
 			systemMessagesStore.addMessage(ErrorSystemMessage.fromJson({
 				message: $_('userActivity.errors.viewNotFound'),
@@ -186,6 +217,9 @@
 		visibleViewEditor = false;
 		visibleFilterEditor = !visibleFilterEditor;
 	};
+	const onViewChange = (event) => {
+		changeViewModel = !changeViewModel;
+	};
 </script>
 
 {#if loading}
@@ -198,8 +232,9 @@
 	<div class="flex justify-between items-center mb-4">
 		<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">User Activity</h5>
 		<ButtonGroup>
-			<Button on:click={onViewToggle} outline>{visibleFilterEditor ? 'Close' : 'Open'} Change Filters</Button>
-			<Button on:click={onFilterToggle} outline>{visibleViewEditor ? 'Close' : 'Open'} Change View</Button>
+			<Button on:click={onViewChange} outline>Change View</Button>
+			<Button on:click={onViewToggle} outline>{visibleViewEditor ? 'Hide' : 'Open'} View Information</Button>
+			<Button on:click={onFilterToggle} outline>{visibleFilterEditor ? 'Hide' : 'Open'} Filters</Button>
 		</ButtonGroup>
 	</div>
 
@@ -246,5 +281,66 @@
 				pagination={pagination}
 			/>
 		{/if}
+
+		<Modal bind:open={changeViewModel} size="md" class="w-full" placement="center">
+			<h5 class="font-bold text-gray-900 dark:text-white">Change View</h5>
+
+			<div class="mb-6">
+				<Label for="view-select-input" class="block mb-2">Selected View</Label>
+				<Select id="view-select-input" items={views} bind:value={currentView.clientKey}
+								placeholder="You can't select anything..." />
+			</div>
+			<div class="mb-6">
+				<div class="flex items-baseline">
+					<span style="background-color: '#{currentView.color}'"
+								class="flex-shrink-0 rounded-full w-2.5 h-2.5 bg-orange-600 me-1.5"></span>
+					<Label for="view-name-input" class="block mb-2">Name of the view</Label>
+				</div>
+				<Input id="view-name-input" size="lg" placeholder="Name of view" readonly value={currentView.name} />
+			</div>
+			<div class="mb-6">
+				<Label for="view-base-input" class="block mb-2">Is base view</Label>
+				<Toggle id="view-base-input" bind:checked={currentView.isPredefined} disabled />
+			</div>
+
+			<div class="mb-6">
+				<Label for="view-base-input" class="block mb-2">Is view shareable</Label>
+				<Toggle id="view-base-input" bind:checked={currentView.isShareAble} disabled />
+			</div>
+			<div class="mb-6">
+				<Label for="view-desc-input" class="block mb-2">Name of the view</Label>
+				<Textarea id="view-desc-input" placeholder="view description" rows="4" readonly
+									value={currentView.description} />
+			</div>
+
+			<Accordion>
+				<AccordionItem>
+					<span slot="header">View has total of {columns.length} columns</span>
+					<Table>
+						<TableHead>
+							<TableHeadCell>Column Name</TableHeadCell>
+							<TableHeadCell>Is FilterAble</TableHeadCell>
+							<TableHeadCell>Is Sortable</TableHeadCell>
+							<TableHeadCell>Is Fixed</TableHeadCell>
+						</TableHead>
+						<TableBody class="overflow-y-auto">
+							{#each currentView.columns as column}
+								<TableBodyRow>
+									<TableBodyCell>
+										<P id="column-{column.id}">{column.displayName}</P>
+										<Tooltip triggeredBy="#column-{column.id}">
+											{column.description}
+										</Tooltip>
+									</TableBodyCell>
+									<TableBodyCell>{column.isFilterAble ? 'Yes' : 'No'}</TableBodyCell>
+									<TableBodyCell>{column.isSortable ? 'Yes' : 'No'}</TableBodyCell>
+									<TableBodyCell>{column.isFixed ? 'Yes' : 'No'}</TableBodyCell>
+								</TableBodyRow>
+							{/each}
+						</TableBody>
+					</Table>
+				</AccordionItem>
+			</Accordion>
+		</Modal>
 	</div>
 {/if}

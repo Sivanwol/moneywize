@@ -2,6 +2,8 @@
 	import {
 		Alert,
 		Checkbox,
+		Input,
+		Label,
 		P,
 		Spinner,
 		TabItem,
@@ -12,6 +14,8 @@
 		TableHead,
 		TableHeadCell,
 		Tabs,
+		Textarea,
+		Toggle,
 		Tooltip
 	} from 'flowbite-svelte';
 	import { AdjustmentsVerticalSolid, GridSolid } from 'flowbite-svelte-icons';
@@ -22,6 +26,7 @@
 	$: client = getClient();
 	$: loading = false;
 	$: showErrorMessage = false;
+	$: hasCheckAllColumns = false;
 	$: columns = [];
 	/**
 	 * @param {boolean} debug flag
@@ -34,7 +39,7 @@
 		const { data, error } = await client.query({
 			query: GetAvailableViewColumns,
 			variables: {
-				entityType: entityType
+				entityType
 			}
 		});
 		loading = false;
@@ -46,9 +51,15 @@
 		}
 		columns = [];
 		data?.general?.getAvailableColumnsForView.forEach((column) => {
-			const obj = { ...column, checked: true };
+			const obj = { ...column, checked: false };
+			let hasChecked = currentView.columns.find((c) => c.id === column.id);
+			if (hasChecked) {
+				obj.checked = true;
+			}
 			columns.push(obj);
 		});
+		
+		columns.filter(column => column.checked).length === columns.length ? hasCheckAllColumns = true : hasCheckAllColumns = false;
 		
 		// console.log('currentView', currentView);
 		// console.log('entityType', entityType);
@@ -58,21 +69,39 @@
 		columns.forEach((column) => {
 			column.checked = e.target.checked;
 		});
+		columns = [...columns];
 	};
 	const checkColumn = (e, column) => {
 		column.checked = e.target.checked;
 	};
 </script>
-
 <Tabs style="underline">
 	<TabItem open title="Profile">
 		<div class="flex items-center gap-2" slot="title">
 			<AdjustmentsVerticalSolid size="sm" />
 			Settings
 		</div>
-		<p class="text-sm text-gray-500 dark:text-gray-400">
-			update view/ select view
-		</p>
+		<div class="mb-6">
+			<div class="flex items-baseline">
+				<span class="flex-shrink-0 rounded-full w-2.5 h-2.5 bg-orange-600 me-1.5"
+							style="background-color: '#{currentView.color}'"></span>
+				<Label class="block mb-2" for="view-name-input">Name of the view</Label>
+			</div>
+			<Input id="view-name-input" placeholder="Name of view" readonly size="lg" value={currentView.name} />
+		</div>
+		<div class="mb-6">
+			<Label class="block mb-2" for="view-base-input">Is base view</Label>
+			<Toggle bind:checked={currentView.isPredefined} disabled id="view-base-input" />
+		</div>
+
+		<div class="mb-6">
+			<Label class="block mb-2" for="view-base-input">Is view shareable</Label>
+			<Toggle bind:checked={currentView.isShareAble} disabled id="view-base-input" />
+		</div>
+		<div class="mb-6">
+			<Label class="block mb-2" for="view-desc-input">Name of the view</Label>
+			<Textarea id="view-desc-input" placeholder="view description" readonly rows="4" value={currentView.description} />
+		</div>
 	</TabItem>
 	<TabItem title="Dashboard">
 		<div class="flex items-center gap-2" slot="title">
@@ -88,11 +117,11 @@
 					<p class="text-red-500 dark:text-red-400">Error loading columns</p>
 				</Alert>
 			{:else}
-				<div style="h-[250px]">
+				<div style="h-[100px]">
 					<Table>
 						<TableHead>
 							<TableHeadCell>
-								<Checkbox color="purple" on:click={checkAllColumns} />
+								<Checkbox bind:checked={hasCheckAllColumns} color="purple" on:click={checkAllColumns} />
 							</TableHeadCell>
 							<TableHeadCell>Column Name</TableHeadCell>
 							<TableHeadCell>Is FilterAble</TableHeadCell>
