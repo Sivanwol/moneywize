@@ -35,13 +35,13 @@
 	import moment from 'moment';
 	import { format } from '@utility/stringExtended.js';
 	import { FieldType } from '@api/utils/fieldType.js';
-	import { AdjustmentsVerticalSolid } from 'flowbite-svelte-icons';
+	import { AdjustmentsVerticalSolid, PlusOutline } from 'flowbite-svelte-icons';
 	import { html } from 'gridjs';
 	import ViewEditor from '@components/common/DataGrid/ViewEditor.svelte';
 	
 	let columns = [];
 	let currentView = null;
-
+	
 	export let entityType = '';
 	
 	export let data = [];
@@ -72,7 +72,7 @@
 		});
 		return newRecords;
 	};
-
+	
 	const style = {
 		table: {
 			'white-space': 'nowrap'
@@ -86,7 +86,7 @@
 		server: {
 			url: (prev, sortColumns) => {
 				if (!sortColumns.length) return prev;
-
+				
 				const { index, direction } = sortColumns[0];
 				const dir = direction === 1 ? SortDirection.ASCENDING : SortDirection.DESCENDING;
 				const col = columns[index];
@@ -122,6 +122,8 @@
 	};
 	
 	let views = [];
+	let selectedView = '';
+	let selectedViewInfo = null;
 	onMount(async () => {
 		currentView = $userStore.userViews.find(view => view.clientKey === userViewKey);
 		$userStore.userViews.filter(view => view.entityType === currentView.entityType).forEach(view => {
@@ -139,8 +141,10 @@
 			data = [];
 			columns = [];
 		}
+		selectedView = currentView.clientKey;
+		selectedViewInfo = currentView;
 		parseColumnsFromView();
-
+		
 		if (debug) {
 			console.log('data', data);
 			console.log('userViewKey', userViewKey);
@@ -151,7 +155,7 @@
 			console.log('paginationSize', paginationSize);
 		}
 	});
-
+	
 	let pagination = {
 		limit: paginationSize.value,
 		server: {
@@ -164,7 +168,7 @@
 			}
 		}
 	};
-
+	
 	function parseColumnsFromView() {
 		showCustomzitionBar = true;
 		let tColumns = currentView.columns;
@@ -206,7 +210,7 @@
 			console.log('Columns', columns);
 		}
 	}
-
+	
 	const onViewToggle = (event) => {
 		console.log('onFilterOpenClient', event);
 		visibleFilterEditor = false;
@@ -219,6 +223,10 @@
 	};
 	const onViewChange = (event) => {
 		changeViewModel = !changeViewModel;
+	};
+	const onViewSelect = (event) => {
+		console.log('onViewSelect', event, selectedView);
+		selectedViewInfo = $userStore.userViews.find(view => view.clientKey === selectedView);
 	};
 </script>
 
@@ -287,8 +295,16 @@
 
 			<div class="mb-6">
 				<Label for="view-select-input" class="block mb-2">Selected View</Label>
-				<Select id="view-select-input" items={views} bind:value={currentView.clientKey}
-								placeholder="You can't select anything..." />
+				<Select id="view-select-input" items={views} bind:value={selectedView} on:change={onViewSelect}
+								placeholder="You can't select anything..." /> Or
+				<Button id="create-view">
+					Create New view
+					<PlusOutline class="w-3.5 h-3.5 ms-2" />
+				</Button>
+				<Tooltip triggeredBy="[id^='create-view']" placement='bottom'>
+					You can create new view it will base the selected view if shareable. <br />
+					if not it be based on the base view
+				</Tooltip>
 			</div>
 			<div class="mb-6">
 				<div class="flex items-baseline">
@@ -296,26 +312,26 @@
 								class="flex-shrink-0 rounded-full w-2.5 h-2.5 bg-orange-600 me-1.5"></span>
 					<Label for="view-name-input" class="block mb-2">Name of the view</Label>
 				</div>
-				<Input id="view-name-input" size="lg" placeholder="Name of view" readonly value={currentView.name} />
+				<Input id="view-name-input" size="lg" placeholder="Name of view" readonly value={selectedViewInfo.name} />
 			</div>
 			<div class="mb-6">
 				<Label for="view-base-input" class="block mb-2">Is base view</Label>
-				<Toggle id="view-base-input" bind:checked={currentView.isPredefined} disabled />
+				<Toggle id="view-base-input" color="purple" bind:checked={selectedViewInfo.isPredefined} disabled />
 			</div>
 
 			<div class="mb-6">
 				<Label for="view-base-input" class="block mb-2">Is view shareable</Label>
-				<Toggle id="view-base-input" bind:checked={currentView.isShareAble} disabled />
+				<Toggle id="view-base-input" color="yellow" bind:checked={selectedViewInfo.isShareAble} disabled />
 			</div>
 			<div class="mb-6">
 				<Label for="view-desc-input" class="block mb-2">Name of the view</Label>
 				<Textarea id="view-desc-input" placeholder="view description" rows="4" readonly
-									value={currentView.description} />
+									value={selectedViewInfo.description} />
 			</div>
 
 			<Accordion>
 				<AccordionItem>
-					<span slot="header">View has total of {columns.length} columns</span>
+					<span slot="header">View has total of {selectedViewInfo.columns.length} columns</span>
 					<Table>
 						<TableHead>
 							<TableHeadCell>Column Name</TableHeadCell>
@@ -324,7 +340,7 @@
 							<TableHeadCell>Is Fixed</TableHeadCell>
 						</TableHead>
 						<TableBody class="overflow-y-auto">
-							{#each currentView.columns as column}
+							{#each selectedViewInfo.columns as column}
 								<TableBodyRow>
 									<TableBodyCell>
 										<P id="column-{column.id}">{column.displayName}</P>
