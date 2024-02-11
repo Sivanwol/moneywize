@@ -10,6 +10,7 @@
 	
 	$: client = getClient();
 	$: currentViewKey = null || PUBLIC_VIEWS_USER_ACTIVITY;
+	$: loading = false;
 
 
 	async function fetchData(sortByField, sortByDirection, currentPage, paginationSize) {

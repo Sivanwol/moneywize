@@ -56,7 +56,7 @@
 	};
 	$: sortByField = 'CreatedAt';
 	$: sortByDirection = SortDirection.DESCENDING;
-	$: showCustomzitionBar = true;//entityType !== null || !isMatchingEntityType(entityType);
+	$: showCustomzitionBar = false;//entityType !== null || !isMatchingEntityType(entityType);
 	const sort = {
 		multiColumn: false,
 		server: {
@@ -135,6 +135,7 @@
 	};
 
 	function parseColumnsFromView() {
+		showCustomzitionBar = true;
 		let tColumns = currentView.columns;
 		tColumns.sort((a, b) => a.order - b.order);
 		tColumns.forEach(column => {
@@ -206,7 +207,7 @@
 		<div role="link" in:fade out:fade>
 			<ViewEditor
 				debug={debug}
-				entityType={entityType}
+				entityType={currentView.entityType}
 				currentView={currentView}
 				on:reload={() => visibleViewEditor = false}
 			/>

@@ -2,6 +2,7 @@
 	import {
 		Alert,
 		Checkbox,
+		P,
 		Spinner,
 		TabItem,
 		Table,
@@ -10,7 +11,8 @@
 		TableBodyRow,
 		TableHead,
 		TableHeadCell,
-		Tabs
+		Tabs,
+		Tooltip
 	} from 'flowbite-svelte';
 	import { AdjustmentsVerticalSolid, GridSolid } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
@@ -28,6 +30,7 @@
 	export let entityType;
 	export let currentView;
 	onMount(async () => {
+		showErrorMessage = false;
 		const { data, error } = await client.query({
 			query: GetAvailableViewColumns,
 			variables: {
@@ -38,12 +41,13 @@
 		if (error) {
 			showErrorMessage = true;
 		}
-		if (!data?.general?.availableColumns || data?.general?.availableColumns?.length === 0) {
+		if (!data?.general?.getAvailableColumnsForView || data?.general?.getAvailableColumnsForView?.length === 0) {
 			showErrorMessage = true;
 		}
-		data?.general?.availableColumns.forEach((column) => {
-			column.checked = true;
-			columns.push(column);
+		columns = [];
+		data?.general?.getAvailableColumnsForView.forEach((column) => {
+			const obj = { ...column, checked: true };
+			columns.push(obj);
 		});
 		
 		// console.log('currentView', currentView);
@@ -84,31 +88,38 @@
 					<p class="text-red-500 dark:text-red-400">Error loading columns</p>
 				</Alert>
 			{:else}
-				<Table>
-					<TableHead>
-						<TableHeadCell class="!p-4">
-							<Checkbox color="purple" on:click={} />
-						</TableHeadCell>
-						<TableHeadCell>Column Name</TableHeadCell>
-						<TableHeadCell>Is FilterAble</TableHeadCell>
-						<TableHeadCell>Is Sortable</TableHeadCell>
-						<TableHeadCell>Is Fixed</TableHeadCell>
-					</TableHead>
-					<TableBody class="divide-y dark:divide-gray-700">
-						{#each columns as column}
-							<TableBodyRow>
-								<TableBodyCell>
-									<Checkbox bind:checked={column.checked} color="blue"
-														on:click={(event) =>checkColumn(event, column)} />
-								</TableBodyCell>
-								<TableBodyCell>{column.displayName}</TableBodyCell>
-								<TableBodyCell>{column.isFilterAble ? 'Yes' : 'No'}</TableBodyCell>
-								<TableBodyCell>{column.isSortable ? 'Yes' : 'No'}</TableBodyCell>
-								<TableBodyCell>{column.isFixed ? 'Yes' : 'No'}</TableBodyCell>
-							</TableBodyRow>
-						{/each}
-					</TableBody>
-				</Table>
+				<div style="h-[250px]">
+					<Table>
+						<TableHead>
+							<TableHeadCell>
+								<Checkbox color="purple" on:click={checkAllColumns} />
+							</TableHeadCell>
+							<TableHeadCell>Column Name</TableHeadCell>
+							<TableHeadCell>Is FilterAble</TableHeadCell>
+							<TableHeadCell>Is Sortable</TableHeadCell>
+							<TableHeadCell>Is Fixed</TableHeadCell>
+						</TableHead>
+						<TableBody class="overflow-y-auto">
+							{#each columns as column}
+								<TableBodyRow>
+									<TableBodyCell>
+										<Checkbox bind:checked={column.checked} color="blue"
+															on:click={(event) =>checkColumn(event, column)} />
+									</TableBodyCell>
+									<TableBodyCell>
+										<P id="column-{column.id}">{column.displayName}</P>
+										<Tooltip triggeredBy="#column-{column.id}">
+											{column.description}
+										</Tooltip>
+									</TableBodyCell>
+									<TableBodyCell>{column.isFilterAble ? 'Yes' : 'No'}</TableBodyCell>
+									<TableBodyCell>{column.isSortable ? 'Yes' : 'No'}</TableBodyCell>
+									<TableBodyCell>{column.isFixed ? 'Yes' : 'No'}</TableBodyCell>
+								</TableBodyRow>
+							{/each}
+						</TableBody>
+					</Table>
+				</div>
 			{/if}
 		{/if}
 	</TabItem>

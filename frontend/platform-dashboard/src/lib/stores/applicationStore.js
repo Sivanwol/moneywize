@@ -1,9 +1,8 @@
-import storage from '@stores/store.js';
 import { PUBLIC_CACHE_STORE_MINUTES } from '$env/static/public';
 import moment from 'moment';
+import { writable } from 'svelte/store';
 
 function createApplicationStore() {
-	const localStorageKey = 'applicationData';
 	const initialValues = {
 		countries: [],
 		maintenanceMode: false,
@@ -12,7 +11,7 @@ function createApplicationStore() {
 		systemNotAvailable: false,
 		expireAt: null
 	};
-	const { subscribe, set, update } = storage(localStorageKey, initialValues);
+	const { subscribe, set, update } = writable(initialValues);
 	return {
 		subscribe,
 		setLoading: (loading) => update((state) => {

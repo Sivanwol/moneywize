@@ -80,12 +80,17 @@ export const GetInitialUserData = gql`
     query GetInitialUserData {
         general {
             getViews {
-                clientKey, color, name, description,isPredefined, isShareAble,
+                clientKey,
+                color,
+                entityType,
+                name,
+                description,
+                isPredefined,
+                isShareAble,
                 columns {
                     displayName,
                     columnName,
                     dataType,
-                    entityType,
                     fieldAlias,
                     fieldPath,
                     fieldFormatter,
