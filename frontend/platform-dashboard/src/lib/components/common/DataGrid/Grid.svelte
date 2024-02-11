@@ -344,9 +344,7 @@
 								<TableBodyRow>
 									<TableBodyCell>
 										<P id="column-{column.id}">{column.displayName}</P>
-										<Tooltip triggeredBy="#column-{column.id}">
-											{column.description}
-										</Tooltip>
+										<Tooltip triggeredBy="#column-{column.id}">{column.description}</Tooltip>
 									</TableBodyCell>
 									<TableBodyCell>{column.isFilterAble ? 'Yes' : 'No'}</TableBodyCell>
 									<TableBodyCell>{column.isSortable ? 'Yes' : 'No'}</TableBodyCell>
