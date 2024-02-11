@@ -13,10 +13,10 @@
 	import moment from 'moment';
 	import { format } from '@utility/stringExtended.js';
 	import { FieldType } from '@api/utils/fieldType.js';
-	import { isMatchingEntityType } from '@api/utils/entityTypes.js';
-	import { AdjustmentsVerticalSolid, GridSolid } from 'flowbite-svelte-icons';
+	import { AdjustmentsVerticalSolid } from 'flowbite-svelte-icons';
 	import { html } from 'gridjs';
-
+	import ViewEditor from '@components/common/DataGrid/ViewEditor.svelte';
+	
 	let columns = [];
 	let currentView = null;
 
@@ -56,7 +56,7 @@
 	};
 	$: sortByField = 'CreatedAt';
 	$: sortByDirection = SortDirection.DESCENDING;
-	$: showCustomzitionBar = entityType !== null || !isMatchingEntityType(entityType);
+	$: showCustomzitionBar = true;//entityType !== null || !isMatchingEntityType(entityType);
 	const sort = {
 		multiColumn: false,
 		server: {
@@ -204,24 +204,12 @@
 
 	{#if (visibleViewEditor && showCustomzitionBar)}
 		<div role="link" in:fade out:fade>
-			<Tabs style="underline">
-				<TabItem open title="Profile">
-					<div slot="title" class="flex items-center gap-2">
-						<AdjustmentsVerticalSolid size="sm" />
-						Settings
-					</div>
-					<p class="text-sm text-gray-500 dark:text-gray-400">
-						update view/ select view
-					</p>
-				</TabItem>
-				<TabItem title="Dashboard">
-					<div slot="title" class="flex items-center gap-2">
-						<GridSolid size="sm" />
-						Change Columns
-					</div>
-					<p class="text-sm text-gray-500 dark:text-gray-400">update columns </p>
-				</TabItem>
-			</Tabs>
+			<ViewEditor
+				debug={debug}
+				entityType={entityType}
+				currentView={currentView}
+				on:reload={() => visibleViewEditor = false}
+			/>
 		</div>
 	{/if}
 	{#if (visibleFilterEditor && showCustomzitionBar)}

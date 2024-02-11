@@ -8,7 +8,16 @@ export const GetAvailableViewColumns = gql`query getAvailableColumns(
             entityType: $entityType
         ) {
             id,
-            columnName
+            columnName,
+            description,
+            displayName,
+            dataType,
+            filterOperationType,
+            isFilterable,
+            isSortable,
+            isHidden,
+            isFixed,
+            order
         }
     }
 }

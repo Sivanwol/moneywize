@@ -5,11 +5,10 @@
 	import { _ } from 'svelte-i18n';
 	import { getClient } from 'svelte-apollo';
 	import { GetUserActivities } from '@api/queries/user.query.js';
-	import { SortDirection } from '@api/queries/utils/SortDirection.js';
+	import { SortDirection } from '@api/utils/SortDirection.js';
 	import Grid from '@components/common/DataGrid/Grid.svelte';
-
+	
 	$: client = getClient();
-	$: currentPage = 1;
 	$: currentViewKey = null || PUBLIC_VIEWS_USER_ACTIVITY;
 
 

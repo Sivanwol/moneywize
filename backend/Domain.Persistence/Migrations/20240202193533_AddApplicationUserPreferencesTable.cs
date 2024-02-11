@@ -19,6 +19,7 @@ namespace Domain.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    UserId1 = table.Column<string>(type: "varchar(95)", nullable: true, collation: "ascii_general_ci"),
                     PreferenceKey = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PreferenceValue = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)

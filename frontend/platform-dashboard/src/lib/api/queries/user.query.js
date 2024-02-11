@@ -77,46 +77,47 @@ export const GetUsers = (filters = []) => {
 };
 
 export const GetInitialUserData = gql`
-query GetInitialUserData {
-	general {
-		getViews {
-			clientKey, color, name, description,isPredefined, isShareAble, 
-			columns {
-          displayName,
-          columnName,
-          dataType,
-          fieldAlias,
-          fieldPath,
-          fieldFormatter,
-          description,
-          filterOperationType,
-          isFilterable,
-          isSortable,
-          isHidden,
-          isFixed,
-          order
-			}
-		}
-		getCountries {
-			id, 
-			countryName, 
-			countryCode, 
-			countryNumber
-		}
-	}
-	user {
-		getMyProfile {
-			id,
-			email,
-			firstName,
-			lastName,
-			phoneNumber,
-			country { id, countryName },
-			address,
-			displayLanguage { id, code },
-			roles,
-			registerCompletedAt
-		}
-	}
-}`;
+    query GetInitialUserData {
+        general {
+            getViews {
+                clientKey, color, name, description,isPredefined, isShareAble,
+                columns {
+                    displayName,
+                    columnName,
+                    dataType,
+                    entityType,
+                    fieldAlias,
+                    fieldPath,
+                    fieldFormatter,
+                    description,
+                    filterOperationType,
+                    isFilterable,
+                    isSortable,
+                    isHidden,
+                    isFixed,
+                    order
+                }
+            }
+            getCountries {
+                id,
+                countryName,
+                countryCode,
+                countryNumber
+            }
+        }
+        user {
+            getMyProfile {
+                id,
+                email,
+                firstName,
+                lastName,
+                phoneNumber,
+                country { id, countryName },
+                address,
+                displayLanguage { id, code },
+                roles,
+                registerCompletedAt
+            }
+        }
+    }`;
 	
