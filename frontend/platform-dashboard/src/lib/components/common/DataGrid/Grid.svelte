@@ -219,6 +219,15 @@
 	};
 	const onViewChange = (event) => {
 		changeViewModel = !changeViewModel;
+		if (!changeViewModel) return;
+		let tColumns = [];
+		currentView.columns.forEach((column, index) => {
+			tColumns.push({
+				...column,
+				generatedId: uuid.v4()
+			});
+		});
+		selectedViewInfoColumns = tColumns;
 	};
 	const onViewSelect = (event) => {
 		console.log('onViewSelect', event, selectedView);
@@ -300,7 +309,6 @@
 		{#if changeViewModel}
 			<Modal bind:open={changeViewModel} size="md" class="w-full" placement="center">
 				<h5 class="font-bold text-gray-900 dark:text-white">Change View</h5>
-
 				<div class="mb-6">
 					<Label for="view-select-input" class="block mb-2">Selected View</Label>
 					<Select id="view-select-input" items={views} bind:value={selectedView} on:change={onViewSelect}
@@ -339,12 +347,18 @@
 
 				<Accordion>
 					<AccordionItem>
-						<span slot="header">View has total of {selectedViewInfo.columns.length} columns</span>
+						<span slot="header">View has total of {selectedViewInfoColumns.length} columns</span>
 						<ColumnSelectorView
-							columns={selectedViewInfo.columns}
+							columns={selectedViewInfoColumns}
 							{saveColumns} />
 					</AccordionItem>
 				</Accordion>
+				<div class="flex justify-end mt-4">
+					<ButtonGroup>
+						<Button color="blue">Save</Button>
+						<Button on:click={onViewChange}>Cancel</Button>
+					</ButtonGroup>
+				</div>
 			</Modal>
 		{/if}
 	</div>
