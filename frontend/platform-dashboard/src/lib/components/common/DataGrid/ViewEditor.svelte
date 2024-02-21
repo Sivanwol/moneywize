@@ -1,32 +1,18 @@
 <script>
-	import {
-		Alert,
-		Checkbox,
-		Input,
-		Label,
-		Li,
-		List,
-		P,
-		Spinner,
-		TabItem,
-		Tabs,
-		Textarea,
-		Toggle,
-		Tooltip
-	} from 'flowbite-svelte';
+	import { Alert, Input, Label, Spinner, TabItem, Tabs, Textarea, Toggle } from 'flowbite-svelte';
+	import uuid from 'uuid';
 	import { AdjustmentsVerticalSolid, GridSolid } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
 	import { GetAvailableViewColumns } from '@api/queries/view.query.js';
 	import { getClient } from 'svelte-apollo';
+	import ColumnSelectorView from '@components/common/DataGrid/ColumnSelectorView.svelte';
 	
 	$: client = getClient();
 	$: loading = false;
 	$: showErrorMessage = false;
-	$: hasCheckAllColumns = false;
 	$: columns = [];
 	
 	
-	let hovering = false;
 	/**
 	 * @param {boolean} debug flag
 	 */
@@ -55,6 +41,7 @@
 			if (hasChecked) {
 				obj.checked = true;
 			}
+			obj.generatedId = uuid.v4();
 			columns.push(obj);
 		});
 		
@@ -70,39 +57,8 @@
 		});
 		columns = [...columns];
 	};
-	const checkColumn = (e, column) => {
-		column.checked = e.target.checked;
-	};
-	
-	const drop = (event, target) => {
-		event.preventDefault();
-		event.dataTransfer.dropEffect = 'move';
-		const start = parseInt(event.dataTransfer.getData('text/plain'));
-		const newTracklist = columns;
-		
-		if (start < target) {
-			newTracklist.splice(target + 1, 0, newTracklist[start]);
-			newTracklist.splice(start, 1);
-		} else {
-			newTracklist.splice(target, 0, newTracklist[start]);
-			newTracklist.splice(start + 1, 1);
-		}
-		let order = 0;
-		console.log('newTracklist', newTracklist);
-		newTracklist.forEach((column, index) => {
-			order++;
-			column.order = order;
-		});
-		console.log('newTracklist', newTracklist);
-		columns = newTracklist;
-		hovering = null;
-	};
-	
-	const dragstart = (event, i) => {
-		event.dataTransfer.effectAllowed = 'move';
-		event.dataTransfer.dropEffect = 'move';
-		const start = i;
-		event.dataTransfer.setData('text/plain', start);
+	const saveColumns = (columns) => {
+		console.log('columns', columns);
 	};
 </script>
 <Tabs style="underline">
@@ -147,49 +103,10 @@
 					<p class="text-red-500 dark:text-red-400">Error loading columns</p>
 				</Alert>
 			{:else}
-				<div style="h-[100px]">
+				<ColumnSelectorView
+					{columns}
+					{saveColumns} />
 
-					<List tag="ul" list="none">
-						<h3 class="p-1 text-center text-xl font-medium text-gray-900 dark:text-white">User list</h3>
-						{#each columns as column , index (column.id)}
-							<div
-								role="listitem"
-								animation:flip
-								draggable={true}
-								on:dragstart={event => dragstart(event, index)}
-								on:drop={event => drop(event, index)}
-								on:dragenter={() => hovering = index}
-								on:dragover={(e) => e.preventDefault()}>
-								<Li class="h-[60px]">
-									<div class="flex items-center justify-evenly gap-2">
-										<div class="text-left">
-											<Toggle checked={!column.isHidden} color="blue"
-															on:click={(event) =>checkColumn(event, column)} />
-										</div>
-										<div>
-										<P id="column-{column.id}">{column.displayName}</P>
-										<Tooltip triggeredBy="#column-{column.id}">
-											{column.description}
-										</Tooltip>
-										</div>
-										<div class="flex items-center justify-evenly gap-2 flex-col">
-											<h2>Is Sortable</h2>
-											<Checkbox bind:checked={column.isSortable} disabled color="blue" />
-										</div>
-										<div class="flex items-center justify-evenly gap-2 flex-col">
-											<h2>Is Filterable</h2>
-											<Checkbox bind:checked={column.isFilterable} disabled color="blue" />
-										</div>
-										<div class="flex items-center justify-evenly gap-2 flex-col">
-											<h2>Is Fixed</h2>
-											<Checkbox bind:checked={column.isFixed} disabled color="blue" />
-										</div>
-
-								</Li>
-							</div>
-						{/each}
-					</List>
-				</div>
 			{/if}
 		{/if}
 	</TabItem>

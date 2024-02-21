@@ -13,15 +13,8 @@
 		Label,
 		ListPlaceholder,
 		Modal,
-		P,
 		Select,
 		TabItem,
-		Table,
-		TableBody,
-		TableBodyCell,
-		TableBodyRow,
-		TableHead,
-		TableHeadCell,
 		Tabs,
 		Textarea,
 		Toggle,
@@ -29,6 +22,7 @@
 	} from 'flowbite-svelte';
 	import { fade } from 'svelte/transition';
 	import Grid from 'gridjs-svelte';
+	import uuid from 'uuid';
 	import { capitalize, get } from 'lodash-es';
 	import { SortDirection } from '@api/utils/SortDirection.js';
 	import { PAGE_SIZE } from '@api/utils/PageSize.js';
@@ -38,6 +32,7 @@
 	import { AdjustmentsVerticalSolid, PlusOutline } from 'flowbite-svelte-icons';
 	import { html } from 'gridjs';
 	import ViewEditor from '@components/common/DataGrid/ViewEditor.svelte';
+	import ColumnSelectorView from '@components/common/DataGrid/ColumnSelectorView.svelte';
 	
 	let columns = [];
 	let currentView = null;
@@ -124,6 +119,7 @@
 	let views = [];
 	let selectedView = '';
 	let selectedViewInfo = null;
+	let selectedViewInfoColumns = [];
 	onMount(async () => {
 		currentView = $userStore.userViews.find(view => view.clientKey === userViewKey);
 		$userStore.userViews.filter(view => view.entityType === currentView.entityType).forEach(view => {
@@ -227,6 +223,18 @@
 	const onViewSelect = (event) => {
 		console.log('onViewSelect', event, selectedView);
 		selectedViewInfo = $userStore.userViews.find(view => view.clientKey === selectedView);
+		selectedViewInfo.columns.sort((a, b) => a.order - b.order);
+		let tColumns = [];
+		selectedViewInfo.columns.forEach((column, index) => {
+			tColumns.push({
+				...column,
+				generatedId: uuid.v4()
+			});
+		});
+		selectedViewInfoColumns = tColumns;
+	};
+	const saveColumns = (columns) => {
+		// console.log('selectedColumns', selectedColumns);
 	};
 </script>
 
@@ -289,72 +297,55 @@
 				pagination={pagination}
 			/>
 		{/if}
+		{#if changeViewModel}
+			<Modal bind:open={changeViewModel} size="md" class="w-full" placement="center">
+				<h5 class="font-bold text-gray-900 dark:text-white">Change View</h5>
 
-		<Modal bind:open={changeViewModel} size="md" class="w-full" placement="center">
-			<h5 class="font-bold text-gray-900 dark:text-white">Change View</h5>
-
-			<div class="mb-6">
-				<Label for="view-select-input" class="block mb-2">Selected View</Label>
-				<Select id="view-select-input" items={views} bind:value={selectedView} on:change={onViewSelect}
-								placeholder="You can't select anything..." /> Or
-				<Button id="create-view">
-					Create New view
-					<PlusOutline class="w-3.5 h-3.5 ms-2" />
-				</Button>
-				<Tooltip triggeredBy="[id^='create-view']" placement='bottom'>
-					You can create new view it will base the selected view if shareable. <br />
-					if not it be based on the base view
-				</Tooltip>
-			</div>
-			<div class="mb-6">
-				<div class="flex items-baseline">
+				<div class="mb-6">
+					<Label for="view-select-input" class="block mb-2">Selected View</Label>
+					<Select id="view-select-input" items={views} bind:value={selectedView} on:change={onViewSelect}
+									placeholder="You can't select anything..." /> Or
+					<Button id="create-view">
+						Create New view
+						<PlusOutline class="w-3.5 h-3.5 ms-2" />
+					</Button>
+					<Tooltip triggeredBy="[id^='create-view']" placement='bottom'>
+						You can create new view it will base the selected view if shareable. <br />
+						if not it be based on the base view
+					</Tooltip>
+				</div>
+				<div class="mb-6">
+					<div class="flex items-baseline">
 					<span style="background-color: '#{currentView.color}'"
 								class="flex-shrink-0 rounded-full w-2.5 h-2.5 bg-orange-600 me-1.5"></span>
-					<Label for="view-name-input" class="block mb-2">Name of the view</Label>
+						<Label for="view-name-input" class="block mb-2">Name of the view</Label>
+					</div>
+					<Input id="view-name-input" size="lg" placeholder="Name of view" readonly value={selectedViewInfo.name} />
 				</div>
-				<Input id="view-name-input" size="lg" placeholder="Name of view" readonly value={selectedViewInfo.name} />
-			</div>
-			<div class="mb-6">
-				<Label for="view-base-input" class="block mb-2">Is base view</Label>
-				<Toggle id="view-base-input" color="purple" bind:checked={selectedViewInfo.isPredefined} disabled />
-			</div>
+				<div class="mb-6">
+					<Label for="view-base-input" class="block mb-2">Is base view</Label>
+					<Toggle id="view-base-input" color="purple" bind:checked={selectedViewInfo.isPredefined} disabled />
+				</div>
 
-			<div class="mb-6">
-				<Label for="view-base-input" class="block mb-2">Is view shareable</Label>
-				<Toggle id="view-base-input" color="yellow" bind:checked={selectedViewInfo.isShareAble} disabled />
-			</div>
-			<div class="mb-6">
-				<Label for="view-desc-input" class="block mb-2">Name of the view</Label>
-				<Textarea id="view-desc-input" placeholder="view description" rows="4" readonly
-									value={selectedViewInfo.description} />
-			</div>
+				<div class="mb-6">
+					<Label for="view-base-input" class="block mb-2">Is view shareable</Label>
+					<Toggle id="view-base-input" color="yellow" bind:checked={selectedViewInfo.isShareAble} disabled />
+				</div>
+				<div class="mb-6">
+					<Label for="view-desc-input" class="block mb-2">Name of the view</Label>
+					<Textarea id="view-desc-input" placeholder="view description" rows="4" readonly
+										value={selectedViewInfo.description} />
+				</div>
 
-			<Accordion>
-				<AccordionItem>
-					<span slot="header">View has total of {selectedViewInfo.columns.length} columns</span>
-					<Table>
-						<TableHead>
-							<TableHeadCell>Column Name</TableHeadCell>
-							<TableHeadCell>Is FilterAble</TableHeadCell>
-							<TableHeadCell>Is Sortable</TableHeadCell>
-							<TableHeadCell>Is Fixed</TableHeadCell>
-						</TableHead>
-						<TableBody class="overflow-y-auto">
-							{#each selectedViewInfo.columns as column}
-								<TableBodyRow>
-									<TableBodyCell>
-										<P id="column-{column.id}">{column.displayName}</P>
-										<Tooltip triggeredBy="#column-{column.id}">{column.description}</Tooltip>
-									</TableBodyCell>
-									<TableBodyCell>{column.isFilterAble ? 'Yes' : 'No'}</TableBodyCell>
-									<TableBodyCell>{column.isSortable ? 'Yes' : 'No'}</TableBodyCell>
-									<TableBodyCell>{column.isFixed ? 'Yes' : 'No'}</TableBodyCell>
-								</TableBodyRow>
-							{/each}
-						</TableBody>
-					</Table>
-				</AccordionItem>
-			</Accordion>
-		</Modal>
+				<Accordion>
+					<AccordionItem>
+						<span slot="header">View has total of {selectedViewInfo.columns.length} columns</span>
+						<ColumnSelectorView
+							columns={selectedViewInfo.columns}
+							{saveColumns} />
+					</AccordionItem>
+				</Accordion>
+			</Modal>
+		{/if}
 	</div>
 {/if}
