@@ -4,22 +4,7 @@
 	import { systemMessagesStore } from '@stores/systemMessagesStore.js';
 	import { ErrorSystemMessage } from '@models/ErrorSystemMessage.js';
 	import { _ } from 'svelte-i18n';
-	import {
-		Accordion,
-		AccordionItem,
-		Button,
-		ButtonGroup,
-		Input,
-		Label,
-		ListPlaceholder,
-		Modal,
-		Select,
-		TabItem,
-		Tabs,
-		Textarea,
-		Toggle,
-		Tooltip
-	} from 'flowbite-svelte';
+	import { Button, ButtonGroup, ListPlaceholder, Modal, TabItem, Tabs } from 'flowbite-svelte';
 	import { fade } from 'svelte/transition';
 	import Grid from 'gridjs-svelte';
 	import uuid from 'uuid';
@@ -29,10 +14,11 @@
 	import moment from 'moment';
 	import { format } from '@utility/stringExtended.js';
 	import { FieldType } from '@api/utils/fieldType.js';
-	import { AdjustmentsVerticalSolid, PlusOutline } from 'flowbite-svelte-icons';
+	import { AdjustmentsVerticalSolid } from 'flowbite-svelte-icons';
 	import { html } from 'gridjs';
 	import ViewEditor from '@components/common/DataGrid/ViewEditor.svelte';
-	import ColumnSelectorView from '@components/common/DataGrid/ColumnSelectorView.svelte';
+	import { SvelteToast } from '@zerodevx/svelte-toast';
+	import NewViewForm from '@components/common/DataGrid/NewViewForm.svelte';
 	
 	let columns = [];
 	let currentView = null;
@@ -50,6 +36,7 @@
 	export let useManualDataLoading = false;
 	export let currentPage = 1;
 	export let paginationSize = PAGE_SIZE.TWENTY;
+	
 	
 	let changeViewModel = false;
 	export let onHandlerDataLoading = async (ops, sortByField, sortByDirection, currentPage, paginationSize) => {
@@ -118,8 +105,6 @@
 	
 	let views = [];
 	let selectedView = '';
-	let selectedViewInfo = null;
-	let selectedViewInfoColumns = [];
 	onMount(async () => {
 		currentView = $userStore.userViews.find(view => view.clientKey === userViewKey);
 		$userStore.userViews.filter(view => view.entityType === currentView.entityType).forEach(view => {
@@ -138,7 +123,6 @@
 			columns = [];
 		}
 		selectedView = currentView.clientKey;
-		selectedViewInfo = currentView;
 		parseColumnsFromView();
 		
 		if (debug) {
@@ -217,7 +201,7 @@
 		visibleViewEditor = false;
 		visibleFilterEditor = !visibleFilterEditor;
 	};
-	const onViewChange = (event) => {
+	const onViewChange = (view) => {
 		changeViewModel = !changeViewModel;
 		if (!changeViewModel) return;
 		let tColumns = [];
@@ -227,22 +211,15 @@
 				generatedId: uuid.v4()
 			});
 		});
-		selectedViewInfoColumns = tColumns;
+		selectedView = view.clientKey;
 	};
-	const onViewSelect = (event) => {
-		console.log('onViewSelect', event, selectedView);
-		selectedViewInfo = $userStore.userViews.find(view => view.clientKey === selectedView);
-		selectedViewInfo.columns.sort((a, b) => a.order - b.order);
-		let tColumns = [];
-		selectedViewInfo.columns.forEach((column, index) => {
-			tColumns.push({
-				...column,
-				generatedId: uuid.v4()
-			});
-		});
-		selectedViewInfoColumns = tColumns;
+	const onSaveColumns = (columns) => {
+		// console.log('selectedColumns', selectedColumns);
 	};
-	const saveColumns = (columns) => {
+	const onNewViewDraft = (columns) => {
+		// console.log('selectedColumns', selectedColumns);
+	};
+	const onViewSave = ({ viewSelect, viewName, viewShareable, viewDesc }) => {
 		// console.log('selectedColumns', selectedColumns);
 	};
 </script>
@@ -294,6 +271,8 @@
 				data={data}
 				columns={columns}
 				server={server}
+				resizable={true}
+				fixedHeader={true}
 				style={style}
 				sort={sort}
 				pagination={pagination}
@@ -301,65 +280,23 @@
 		{:else}
 			<Grid
 				data={data}
+				resizable={true}
+				fixedHeader={true}
 				columns={columns}
 				style={style}
 				pagination={pagination}
 			/>
 		{/if}
 		{#if changeViewModel}
-			<Modal bind:open={changeViewModel} size="md" class="w-full" placement="center">
-				<h5 class="font-bold text-gray-900 dark:text-white">Change View</h5>
-				<div class="mb-6">
-					<Label for="view-select-input" class="block mb-2">Selected View</Label>
-					<Select id="view-select-input" items={views} bind:value={selectedView} on:change={onViewSelect}
-									placeholder="You can't select anything..." /> Or
-					<Button id="create-view">
-						Create New view
-						<PlusOutline class="w-3.5 h-3.5 ms-2" />
-					</Button>
-					<Tooltip triggeredBy="[id^='create-view']" placement='bottom'>
-						You can create new view it will base the selected view if shareable. <br />
-						if not it be based on the base view
-					</Tooltip>
-				</div>
-				<div class="mb-6">
-					<div class="flex items-baseline">
-					<span style="background-color: '#{currentView.color}'"
-								class="flex-shrink-0 rounded-full w-2.5 h-2.5 bg-orange-600 me-1.5"></span>
-						<Label for="view-name-input" class="block mb-2">Name of the view</Label>
-					</div>
-					<Input id="view-name-input" size="lg" placeholder="Name of view" readonly value={selectedViewInfo.name} />
-				</div>
-				<div class="mb-6">
-					<Label for="view-base-input" class="block mb-2">Is base view</Label>
-					<Toggle id="view-base-input" color="purple" bind:checked={selectedViewInfo.isPredefined} disabled />
-				</div>
-
-				<div class="mb-6">
-					<Label for="view-base-input" class="block mb-2">Is view shareable</Label>
-					<Toggle id="view-base-input" color="yellow" bind:checked={selectedViewInfo.isShareAble} disabled />
-				</div>
-				<div class="mb-6">
-					<Label for="view-desc-input" class="block mb-2">Name of the view</Label>
-					<Textarea id="view-desc-input" placeholder="view description" rows="4" readonly
-										value={selectedViewInfo.description} />
-				</div>
-
-				<Accordion>
-					<AccordionItem>
-						<span slot="header">View has total of {selectedViewInfoColumns.length} columns</span>
-						<ColumnSelectorView
-							columns={selectedViewInfoColumns}
-							{saveColumns} />
-					</AccordionItem>
-				</Accordion>
-				<div class="flex justify-end mt-4">
-					<ButtonGroup>
-						<Button color="blue">Save</Button>
-						<Button on:click={onViewChange}>Cancel</Button>
-					</ButtonGroup>
-				</div>
+			<Modal bind:open={changeView} size="md" class="w-full" placement="center">
+				<NewViewForm
+					{selectedView}
+					{onViewChange}
+					{onViewSave}
+					{onNewViewDraft}
+					{onSaveColumns} />
 			</Modal>
 		{/if}
 	</div>
+	<SvelteToast />
 {/if}
