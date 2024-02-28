@@ -30,13 +30,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Processor;
 using Serilog;
 namespace BackendApi;
 
 public class Bootstrap {
-
     private static TimeSpan KEEP_ALIVE_INTERVAL = TimeSpan.FromMilliseconds(10000);
+    private IHostApplicationLifetime _lifeTime;
     public Bootstrap(IConfiguration configuration, IWebHostEnvironment env) {
         Configuration = configuration;
         Environment = env;
@@ -59,25 +63,33 @@ public class Bootstrap {
         if (!IsLocalConfiguration) {
             services.Configure<BackendApplicationConfig>(Configuration.GetSection("ApplicationConfig"));
         }
-        var applicationConfig = Configuration.GetSection("ApplicationConfig").Get<BackendApplicationConfig>()!;
+
         services.Configure<MailServerConfig>(Configuration.GetSection("MailConfig"));
+
+        var applicationConfig = Configuration.GetSection("ApplicationConfig").Get<BackendApplicationConfig>()!;
         new EnvLoader().Load();
-        var settings = new EnvBinder().Bind<BackendSecretApplicationConfig>();
+        var secretSettings = new EnvBinder().Bind<BackendSecretApplicationConfig>();
 
         if (string.IsNullOrEmpty(applicationConfig.ConnectionString)) {
             ActiveConnectionString = Configuration.GetConnectionString("DbConnection")!;
             Log.Information("Change Domain Connection: {ActiveConnectionString}", ActiveConnectionString);
         }
-        if (settings != null) {
+        var seqApiKey = "";
+        if (secretSettings != null) {
             Log.Information("Override Configuration base environment variables");
-            applicationConfig.JwtSecret = settings.JwtSecret;
-            applicationConfig.SMSProviderInfouToken = settings.SMSProviderInfouToken;
-            applicationConfig.EMailPassword = settings.EMailPassword;
-            applicationConfig.EMailUser = settings.EMailUser;
-            ActiveConnectionString = settings.DatabaseConnectionString;
+            applicationConfig.JwtSecret = secretSettings.JwtSecret;
+            applicationConfig.SMSProviderInfouToken = secretSettings.SMSProviderInfouToken;
+            applicationConfig.EMailPassword = secretSettings.EMailPassword;
+            applicationConfig.EMailUser = secretSettings.EMailUser;
+            ActiveConnectionString = secretSettings.DatabaseConnectionString;
+            seqApiKey = secretSettings.SeqApiKey;
             Log.Information("Change Domain Connection: {ActiveConnectionString}", ActiveConnectionString);
+        } else {
+            Log.Logger.Fatal("Secret Settings are not loaded, please check the environment variables");
+            _lifeTime.StopApplication();
+            // we need to return explicit after exit
+            return;
         }
-
         var jwtTokenConfig = new JwtTokenConfig {
             Secret = applicationConfig.JwtSecret,
             Issuer = applicationConfig.JwtIssuer,
@@ -90,6 +102,49 @@ public class Bootstrap {
             Token = applicationConfig.SMSProviderInfouToken,
             Sender = applicationConfig.SMSProviderInfouSender
         };
+        services.AddOpenTelemetry()
+            .ConfigureResource(r => {
+                r.AddService(secretSettings.ServiceName);
+                r.AddAttributes(new List<KeyValuePair<string, object>> {
+                    new KeyValuePair<string, object>("Environment", Environment.EnvironmentName),
+                    new KeyValuePair<string, object>("Version", applicationConfig.APIMajorVersion),
+                    new KeyValuePair<string, object>("MaintenanceMode", applicationConfig.MaintenanceMode),
+                    new KeyValuePair<string, object>("EnableCache", applicationConfig.EnableCache),
+                    new KeyValuePair<string, object>("EnableGraphQLCache", applicationConfig.EnableGraphQLCache),
+                    new KeyValuePair<string, object>("DeveloperModeEnabledOTP", applicationConfig.DeveloperModeEnabledOTP),
+                    new KeyValuePair<string, object>("EnableHealthCheck", !applicationConfig.DisableHealthCheck),
+                    new KeyValuePair<string, object>("DeveloperMode", applicationConfig.DeveloperMode),
+                    new KeyValuePair<string, object>("EnableSwagger", applicationConfig.EnableSwagger)
+                });
+                r.AddEnvironmentVariableDetector();
+            })
+            .WithTracing(tracing => {
+                tracing.AddAspNetCoreInstrumentation();
+                tracing.AddHttpClientInstrumentation();
+                tracing.AddSqlClientInstrumentation(options => {
+                    options.SetDbStatementForText = true;
+                    options.SetDbStatementForStoredProcedure = true;
+                    options.EnableConnectionLevelAttributes = true;
+                    options.RecordException = true;
+                });
+                // tracing.AddQuartzInstrumentation();
+                tracing.AddOtlpExporter(opt => {
+                    opt.Endpoint = new Uri($"{secretSettings.SeqUrl}/ingest/otlp/v1/traces");
+                    opt.Protocol = OtlpExportProtocol.HttpProtobuf;
+                    opt.Headers = $"X-Seq-ApiKey={seqApiKey}";
+                });
+                tracing.AddConsoleExporter();
+            })
+            .WithMetrics(metrics => {
+                metrics.AddAspNetCoreInstrumentation();
+                metrics.AddHttpClientInstrumentation();
+                metrics.AddOtlpExporter(opt => {
+                    opt.Endpoint = new Uri($"{secretSettings.SeqUrl}/ingest/otlp/v1/metrics");
+                    opt.Protocol = OtlpExportProtocol.HttpProtobuf;
+                    opt.Headers = $"X-Seq-ApiKey={seqApiKey}";
+                });
+                metrics.AddConsoleExporter();
+            });
         services.AddSingleton(jwtTokenConfig!);
         services.AddSingleton(applicationConfig);
         services.AddSingleton(infoUSmsProvider);
@@ -158,6 +213,7 @@ public class Bootstrap {
                 schemaOptions.AddType<PageSize>();
                 schemaOptions.AddType<EntityColumnOperationType>();
                 schemaOptions.AddType<EntityColumnDataType>();
+                schemaOptions.AddType<EntityTypes>();
 
             });
             services.AddHostedService<JwtRefreshTokenCache>();
@@ -270,11 +326,11 @@ public class Bootstrap {
                 NameClaimType = ClaimTypes.NameIdentifier
             };
         });
-
     }
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime) {
         Log.Information("Perp Server");
+        _lifeTime = lifetime;
         var applicationConfig = Configuration.GetSection("ApplicationConfig").Get<BackendApplicationConfig>()!;
 
         if (Environment.IsDevelopment() || applicationConfig.EnableSwagger) {

@@ -29,6 +29,7 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
     public virtual DbSet<Countries> Countries { get; set; }
     public virtual DbSet<Languages> Languages { get; set; }
     public virtual DbSet<ApplicationUser> Users { get; set; }
+    public virtual DbSet<ApplicationUserPreferences> UserPreferences { get; set; }
     public virtual DbSet<ApplicationUserOtpCodes> UserOtpCodes { get; set; }
     public virtual DbSet<Vendors> Vendors { get; set; }
     public virtual DbSet<VendorsMetaData> VendorsMetaData { get; set; }
@@ -65,6 +66,33 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
     public new void Dispose() {
         _logger?.LogInformation("Disposing DomainContext instance.");
         base.Dispose();
+    }
+
+    public async Task<T> ExecuteTransactionAsync<T>(Func<Task<T>> withinTransaction, Func<Exception, Task> onException = null) {
+        return await Database.CreateExecutionStrategy().ExecuteAsync(async () => {
+            await using var transaction = await Database.BeginTransactionAsync();
+            try {
+                var result = await withinTransaction();
+                await transaction.CommitAsync();
+
+                return result;
+            }
+            catch (Exception ex) {
+                await transaction.RollbackAsync();
+                if (onException != null) {
+                    await onException(ex);
+                }
+
+                throw;
+            }
+        });
+    }
+
+    public async Task ExecuteTransactionAsync(Func<Task> withinTransaction, Func<Exception, Task> onException = null) {
+        await ExecuteTransactionAsync<object>(async () => {
+            await withinTransaction();
+            return null;
+        }, onException);
     }
 
     private void Initialize() {
@@ -104,6 +132,10 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
             .WithMany(x => x.ActivityLogs)
             .HasForeignKey(x => x.UserId);
 
+        builder.Entity<ApplicationUserPreferences>().HasIndex(x => new {
+            x.UserId,
+            x.PreferenceKey
+        }).IsUnique();
         builder.Entity<Clients>().HasIndex(x => new {
             x.Name,
             x.OwnerUserId
@@ -269,7 +301,6 @@ public class DomainContext : IdentityDbContext<ApplicationUser, AspNetRoles, str
             }
         }
     }
-
     private void UpdateTimestamps(EntityEntry entry, object trackable, DateTime utcNow) {
         switch (entry.State) {
             case EntityState.Modified:

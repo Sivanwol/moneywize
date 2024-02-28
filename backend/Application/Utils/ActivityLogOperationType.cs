@@ -2,7 +2,7 @@ namespace Application.Utils;
 
 public static class ActivityLogOperationType {
 
-    #region Auth
+    #region User
 
     public const string UserLogin = "UserLogin";
     public const string UserLogout = "UserLogout";
@@ -15,6 +15,8 @@ public static class ActivityLogOperationType {
     public const string UserForgotPassword = "UserForgotPassword";
     public const string UserSendOTP = "UserSendOTP";
     public const string UserVerifyOTP = "UserVerifyOTP";
+    public const string UserUpdatePreference = "UserUpdatePreference";
+    public const string UserResetPreference = "UserResetPreference";
 
     #endregion
 

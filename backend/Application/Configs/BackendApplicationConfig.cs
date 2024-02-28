@@ -4,6 +4,7 @@ public class BackendApplicationConfig : BaseConfig {
     public bool DisableHealthCheck { get; set; }
     public string AzureServiceBus { get; set; }
     public string AzureServiceBusUri { get; set; }
+    public string ServiceName { get; set; }
     public bool MaintenanceMode { get; set; }
     public bool EnableCache { get; set; }
     public bool EnableGraphQLCache { get; set; }

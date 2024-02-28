@@ -1,7 +1,7 @@
 using FluentValidation;
 using Infrastructure.Enums;
 using Infrastructure.Requests.Controllers.Auth;
-namespace Infrastructure.Validators.Account;
+namespace Infrastructure.Validators.User;
 
 public class RequestOtpValidator : AbstractValidator<MobileRequestOTPUserRequest> {
     public RequestOtpValidator() {

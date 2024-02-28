@@ -16,7 +16,7 @@ namespace Domain.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "8.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("Domain.Entities.ActivityLog", b =>
@@ -231,6 +231,48 @@ namespace Domain.Persistence.Migrations
                     b.HasIndex("UserId1");
 
                     b.ToTable("ApplicationUserOtpCodes");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ApplicationUserPreferences", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<string>("PreferenceKey")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("PreferenceValue")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("UserId1")
+                        .HasColumnType("varchar(95)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId1");
+
+                    b.HasIndex("UserId", "PreferenceKey")
+                        .IsUnique();
+
+                    b.ToTable("ApplicationUserPreferences");
                 });
 
             modelBuilder.Entity("Domain.Entities.ApplicationUserRole", b =>
@@ -953,10 +995,10 @@ namespace Domain.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("Order")
+                    b.Property<int?>("ParentCategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ParentCategoryId")
+                    b.Property<int>("Position")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -974,10 +1016,6 @@ namespace Domain.Persistence.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    b.Property<string>("AffectedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int");
@@ -1033,9 +1071,6 @@ namespace Domain.Persistence.Migrations
                     b.Property<string>("MetaData")
                         .IsRequired()
                         .HasColumnType("json");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
 
                     b.Property<string>("Permissions")
                         .IsRequired()
@@ -1135,7 +1170,7 @@ namespace Domain.Persistence.Migrations
                     b.Property<bool>("IsHidden")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("Order")
+                    b.Property<int>("Position")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -1775,6 +1810,15 @@ namespace Domain.Persistence.Migrations
                 });
 
             modelBuilder.Entity("Domain.Entities.ApplicationUserOtpCodes", b =>
+                {
+                    b.HasOne("Domain.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ApplicationUserPreferences", b =>
                 {
                     b.HasOne("Domain.Entities.ApplicationUser", "User")
                         .WithMany()

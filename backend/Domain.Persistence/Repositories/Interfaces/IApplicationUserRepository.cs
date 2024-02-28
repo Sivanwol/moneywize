@@ -2,12 +2,16 @@ using Domain.Entities;
 using Domain.Filters;
 using Domain.Persistence.Repositories.Common.Interfaces;
 using Infrastructure.Enums;
+using Infrastructure.GQL.Inputs.User;
 namespace Domain.Persistence.Repositories.Interfaces;
 
 public interface IApplicationUserRepository : IGenericRepository<ApplicationUser, Guid> {
     Task SaveDisplayLanguage(Guid userId, int languageId);
     Task DeleteUser(Guid userId);
     Task ExportUser(Guid userId);
+    Task<List<ApplicationUserPreferences>> GetPreferencesByUserId(Guid id);
+    Task<bool> UpdateUserPreference(Guid userId, IList<UserPreferenceInput> preferences);
+    Task ResetUserPreference(Guid userId);
     Task<ApplicationUser?> GetUserByToken(string userToken);
     Task<ApplicationUser?> LocateUserByPhone(int CountryId, string PhoneNumber);
     Task<ApplicationUser?> LocateUserByEmail(string email);

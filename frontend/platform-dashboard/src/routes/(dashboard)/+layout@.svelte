@@ -16,7 +16,7 @@
 	import { GetMaintenanceMode } from '@api/queries/general.query.js';
 	import { isEmpty } from 'lodash-es';
 	import { PUBLIC_MAINTENANCE_URL } from '$env/static/public';
-
+	
 	$: auth = createAuth();
 	$: loggedUser = auth.isLoggedIn();
 	$: auth.isLoggedIn() ?createApolloClient(auth.getAccessToken()): null;
@@ -44,11 +44,13 @@
 	}
 
 	onMount(async () => {
-
+		
+		applicationStore.setLoading(true);
 		try {
 			const result = await fetch(PUBLIC_MAINTENANCE_URL, {
 				method: 'GET'
 			});
+			applicationStore.setLoading(false);
 			if (result.ok) {
 				const data = await result.json();
 				if (data.Maintenance) {
@@ -58,6 +60,7 @@
 
 			}
 		} catch (e) {
+			applicationStore.setLoading(false);
 			await logout();
 			return;
 		}
@@ -212,7 +215,7 @@
 					<div class="grid grid-cols-12 gap-5">
 						<div class="col-span-12">
 
-							{#if $userStore.loading}
+							{#if $applicationStore.loading}
 								<div class="flex justify-center items-center h-screen">
 									<div class="flex flex-col items-center">
 										<div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>

@@ -9,14 +9,14 @@ using Serilog.Formatting.Compact;
 namespace Application.Utils;
 
 public static class ServicesLogger {
-    public static Logger GetLogger(string serviceName) {
+    public static Logger GetLogger(string serviceName, string seqUrl, string seqApiKey) {
         var isAzureHost = bool.Parse(Environment.GetEnvironmentVariable("AzureHost") ?? "false");
         // 
-        return !isAzureHost ? GetLocalLogger(serviceName) : GetDeployLogger(serviceName);
+        return !isAzureHost ? GetLocalLogger(serviceName, seqUrl, seqApiKey) : GetDeployLogger(serviceName, seqUrl, seqApiKey);
     }
 
     private static LoggerConfiguration GetCommonConfiguration(string serviceName) {
-        return new LoggerConfiguration()
+        var logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
             .Enrich.FromLogContext()
@@ -31,16 +31,18 @@ public static class ServicesLogger {
                 options.MaskValue = "**";
             })
             .Enrich.WithProperty("ServiceName", serviceName);
+        return logger;
     }
 
-    private static Logger GetLocalLogger(string serviceName) {
+    private static Logger GetLocalLogger(string serviceName, string seqUrl, string seqApiKey) {
         return GetCommonConfiguration(serviceName)
             .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
             .WriteTo.File(new CompactJsonFormatter(), Path.Combine("Logs", $"{serviceName}.service.log"),
                 rollingInterval: RollingInterval.Day)
+            .WriteTo.Seq(seqUrl, apiKey: seqApiKey)
             .CreateLogger();
     }
-    private static Logger GetDeployLogger(string serviceName) {
+    private static Logger GetDeployLogger(string serviceName, string seqUrl, string seqApiKey) {
         return GetCommonConfiguration(serviceName)
             .WriteTo.Console(new RenderedCompactJsonFormatter())
             .WriteTo.ApplicationInsights(TelemetryConfiguration.CreateDefault(), TelemetryConverter.Traces)
@@ -52,6 +54,7 @@ public static class ServicesLogger {
                 rollOnFileSizeLimit: true,
                 shared: true,
                 flushToDiskInterval: TimeSpan.FromSeconds(1))
+            .WriteTo.Seq(seqUrl, apiKey: seqApiKey)
             .CreateLogger();
 
     }

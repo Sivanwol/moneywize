@@ -8,7 +8,6 @@ using Domain.Filters.Fields;
 using Domain.Persistence.Repositories.Interfaces;
 using EasyCaching.Core;
 using Infrastructure.Enums;
-using Infrastructure.GQL;
 using Infrastructure.GQL.Common;
 using Infrastructure.Requests.Processor.Services.User;
 using Infrastructure.Services.Cache;

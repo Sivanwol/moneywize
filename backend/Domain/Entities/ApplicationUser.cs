@@ -20,6 +20,10 @@ public class ApplicationUser : IdentityUser, ISoftDeletable {
     public ICollection<ActivityLog> ActivityLogs { get; set; }
     public DateTime? RegisterCompletedAt { get; set; }
     public virtual ICollection<ApplicationUserRole> UserRoles { get; set; }
+
+    [ProtectedPersonalData]
+    public ICollection<ApplicationUserPreferences> Preferences { get; set; }
+
     public DateTime? DeletedAt { get; set; }
     public User ToGql(ICollection<string> roles) {
         return new() {
@@ -32,6 +36,10 @@ public class ApplicationUser : IdentityUser, ISoftDeletable {
             Country = Country?.ToGql(),
             DisplayLanguage = DisplayLanguage?.ToGql(),
             Roles = roles.ToList(),
+            Preferences = Preferences.Select(x => new UserPreference {
+                Key = x.PreferenceKey,
+                Value = x.PreferenceValue
+            }).ToList(),
             RegisterCompletedAt = RegisterCompletedAt.GetValueOrDefault()
         };
     }
@@ -47,6 +55,10 @@ public class ApplicationUser : IdentityUser, ISoftDeletable {
             Country = Country?.ToGql(),
             DisplayLanguage = DisplayLanguage?.ToGql(),
             Roles = new List<string>(),
+            Preferences = Preferences.Select(x => new UserPreference {
+                Key = x.PreferenceKey,
+                Value = x.PreferenceValue
+            }).ToList(),
             RegisterCompletedAt = RegisterCompletedAt.GetValueOrDefault()
         };
     }

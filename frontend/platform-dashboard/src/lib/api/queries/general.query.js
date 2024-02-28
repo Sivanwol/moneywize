@@ -1,26 +1,34 @@
 import { gql } from '@apollo/client/core';
 
 export const getViews = gql`
-query getViews {
-	general {
-		getViews {
-			clientKey, color, name, description,isPredefined, isShareAble, 
-			columns {
-				entityName,
-				columnName,
-				dataType,
-          fieldAlias,
-          fieldPath,
-				filterOperationType,
-				isFilterable,
-				isSortable,
-				isHidden,
-				isFixed,
-				order
-			}
-		}
-	}
-}`;
+    query getViews {
+        general {
+            getViews {
+                clientKey,
+                color,
+                name,
+                description,
+                isPredefined,
+                entityType,
+                isShareAble,
+                columns {
+                    displayName,
+                    columnName,
+                    dataType,
+                    fieldAlias,
+                    fieldPath,
+                    fieldFormatter,
+                    description,
+                    filterOperationType,
+                    isFilterable,
+                    isSortable,
+                    isHidden,
+                    isFixed,
+                    order
+                }
+            }
+        }
+    }`;
 
 export const GetMaintenanceMode = gql`
 query GetMaintenanceMode {

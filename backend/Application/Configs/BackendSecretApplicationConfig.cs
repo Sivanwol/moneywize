@@ -16,4 +16,13 @@ public class BackendSecretApplicationConfig {
 
     [EnvKey("DatabaseConnectionString")]
     public string DatabaseConnectionString { get; set; }
+
+    [EnvKey("SeqApiKey")]
+    public string SeqApiKey { get; set; }
+
+    [EnvKey("SeqUrl")]
+    public string SeqUrl { get; set; }
+
+    [EnvKey("ServiceName")]
+    public string ServiceName { get; set; }
 }

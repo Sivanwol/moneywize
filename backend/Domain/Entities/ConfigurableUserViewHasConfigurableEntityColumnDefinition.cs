@@ -9,5 +9,5 @@ public class ConfigurableUserViewHasConfigurableEntityColumnDefinition : BaseEnt
 
     public bool IsHidden { get; set; } = false; // will it display in the grid
     public bool IsFixed { get; set; }
-    public int Order { get; set; }
+    public int Position { get; set; }
 }

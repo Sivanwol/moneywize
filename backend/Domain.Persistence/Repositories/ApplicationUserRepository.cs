@@ -7,6 +7,7 @@ using Domain.Persistence.Context;
 using Domain.Persistence.Repositories.Common;
 using Domain.Persistence.Repositories.Interfaces;
 using Infrastructure.Enums;
+using Infrastructure.GQL.Inputs.User;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 namespace Domain.Persistence.Repositories;
@@ -49,6 +50,44 @@ public class ApplicationUserRepository : BaseRepository, IApplicationUserReposit
         }
 
     }
+
+    public async Task<bool> UpdateUserPreference(Guid userId, IList<UserPreferenceInput> preferences) {
+        Log.Logger.Information("Update user preference for user {UserId}", userId);
+        return await Context.ExecuteTransactionAsync(async () => {
+            var user = await GetById(userId);
+            if (user == null) {
+                throw new EntityNotFoundException("User", userId.ToString());
+            }
+            foreach (var preference in preferences) {
+                var userPreference = user.Preferences.FirstOrDefault(w => w.PreferenceKey == preference.Key);
+                if (userPreference == null) {
+                    userPreference = new ApplicationUserPreferences {
+                        UserId = userId,
+                        PreferenceKey = preference.Key,
+                        PreferenceValue = preference.Value
+                    };
+                    user.Preferences.Add(userPreference);
+                    continue;
+                }
+                userPreference.PreferenceValue = preference.Value;
+            }
+            await Context.Instance.SaveChangesAsync();
+            return true;
+        }, (ex) => {
+            Log.Logger.Error(ex, "Failed to update user preference for user {UserId}", userId);
+            return Task.FromResult(false);
+        });
+    }
+
+    public async Task ResetUserPreference(Guid userId) {
+        Log.Logger.Information("Reset user preference for user {UserId}", userId);
+        var user = await GetById(userId);
+        if (user == null) {
+            throw new EntityNotFoundException("User", userId.ToString());
+        }
+        Context.UserPreferences.RemoveRange(user.Preferences);
+        await Context.Instance.SaveChangesAsync();
+    }
     public async Task ExportUser(Guid userId) {
         Log.Logger.Information($"Export new user with id {userId}");
         var user = await GetById(userId);
@@ -58,10 +97,21 @@ public class ApplicationUserRepository : BaseRepository, IApplicationUserReposit
     }
     public async Task<ApplicationUser?> GetById(Guid id) {
         Log.Logger.Information($"Fetching user with id {id}");
-        return Context.Users
+        var user = Context.Users
             .Include(w => w.Country)
             .Include(w => w.DisplayLanguage)
             .FirstOrDefault(w => w.DeletedAt == null && w.Id == id.ToString());
+        if (user == null) {
+            throw new EntityNotFoundException("User", id.ToString());
+        }
+        user.Preferences = await GetPreferencesByUserId(id);
+        return user;
+    }
+    public async Task<List<ApplicationUserPreferences>> GetPreferencesByUserId(Guid id) {
+        Log.Logger.Information($"Fetching preferences for user with id {id}");
+        return await Context.UserPreferences
+            .Where(r => r.UserId == id)
+            .ToListAsync();
     }
 
     public async Task<ApplicationUser?> GetUserByToken(string userToken) {

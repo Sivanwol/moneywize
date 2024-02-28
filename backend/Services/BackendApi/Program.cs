@@ -1,4 +1,6 @@
+using Application.Configs;
 using Application.Extensions;
+using DotEnv.Core;
 using Serilog;
 namespace BackendApi;
 
@@ -12,7 +14,13 @@ public class Program {
 
     public static int Main(string[] args) {
         try {
-            SerilogExtension.ProcessLogHandler("Backend", _getCurrentEnvironment ??= "development");
+
+            new EnvLoader().Load();
+            var sercetSettings = new EnvBinder().Bind<BackendSecretApplicationConfig>();
+            var serviceName = sercetSettings.ServiceName ?? "Backend";
+            var seqUrl = sercetSettings.SeqUrl ?? "";
+            var seqApiKey = sercetSettings.SeqApiKey ?? "";
+            SerilogExtension.ProcessLogHandler("Backend", _getCurrentEnvironment ??= "development", seqUrl, seqApiKey);
             Log.Information("Starting host...");
             CreateHostBuilder(args).Build().Run();
         }

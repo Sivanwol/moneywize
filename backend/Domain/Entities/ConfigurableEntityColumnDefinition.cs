@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using Domain.DTO.ConfigurableEntities;
 using Domain.Entities.Common;
 using Infrastructure.Enums;
 namespace Domain.Entities;
@@ -43,12 +42,7 @@ public class ConfigurableEntityColumnDefinition : BaseEntity {
     public bool IsVirtualColumn { get; set; }
 
     [Column(TypeName = "json")]
-    public ICollection<ConfigurableEntityMetaData> MetaData { get; set; }
-
-    public int Order { get; set; }
-
-    [Column(TypeName = "nvarchar(100)")]
-    public string AffectedBy { get; set; }
+    public string MetaData { get; set; }
 
     public IEnumerable<ConfigurableUserViewHasConfigurableEntityColumnDefinition>? Views { get; set; }
 }

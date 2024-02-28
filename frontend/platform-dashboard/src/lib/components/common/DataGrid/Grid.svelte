@@ -4,18 +4,30 @@
 	import { systemMessagesStore } from '@stores/systemMessagesStore.js';
 	import { ErrorSystemMessage } from '@models/ErrorSystemMessage.js';
 	import { _ } from 'svelte-i18n';
-	import { Button, ButtonGroup, ListPlaceholder } from 'flowbite-svelte';
+	import { Button, ButtonGroup, ListPlaceholder, Modal, TabItem, Tabs } from 'flowbite-svelte';
+	import { fade } from 'svelte/transition';
 	import Grid from 'gridjs-svelte';
+	import uuid from 'uuid';
 	import { capitalize, get } from 'lodash-es';
-	import { SortDirection } from '@api/queries/utils/SortDirection.js';
-	import { PAGE_SIZE } from '@api/queries/utils/PageSize.js';
+	import { SortDirection } from '@api/utils/SortDirection.js';
+	import { PAGE_SIZE } from '@api/utils/PageSize.js';
 	import moment from 'moment';
 	import { format } from '@utility/stringExtended.js';
-	import { FieldType } from '@api/queries/utils/fieldType.js';
-
+	import { FieldType } from '@api/utils/fieldType.js';
+	import { AdjustmentsVerticalSolid } from 'flowbite-svelte-icons';
+	import { html } from 'gridjs';
+	import ViewEditor from '@components/common/DataGrid/ViewEditor.svelte';
+	import { SvelteToast } from '@zerodevx/svelte-toast';
+	import NewViewForm from '@components/common/DataGrid/NewViewForm.svelte';
+	
 	let columns = [];
 	let currentView = null;
+	
+	export let entityType = '';
+	
 	export let data = [];
+	let visibleViewEditor = false;
+	let visibleFilterEditor = false;
 	export let userViewKey = null;
 	let loading = false;
 	export let debug = false;
@@ -24,6 +36,9 @@
 	export let useManualDataLoading = false;
 	export let currentPage = 1;
 	export let paginationSize = PAGE_SIZE.TWENTY;
+	
+	
+	let changeViewModel = false;
 	export let onHandlerDataLoading = async (ops, sortByField, sortByDirection, currentPage, paginationSize) => {
 	};
 	export let onConvertHandlerData = (records) => {
@@ -39,7 +54,7 @@
 		});
 		return newRecords;
 	};
-
+	
 	const style = {
 		table: {
 			'white-space': 'nowrap'
@@ -47,13 +62,13 @@
 	};
 	$: sortByField = 'CreatedAt';
 	$: sortByDirection = SortDirection.DESCENDING;
-
+	$: showCustomzitionBar = false;//entityType !== null || !isMatchingEntityType(entityType);
 	const sort = {
 		multiColumn: false,
 		server: {
 			url: (prev, sortColumns) => {
 				if (!sortColumns.length) return prev;
-
+				
 				const { index, direction } = sortColumns[0];
 				const dir = direction === 1 ? SortDirection.ASCENDING : SortDirection.DESCENDING;
 				const col = columns[index];
@@ -87,9 +102,17 @@
 			};
 		}
 	};
-
+	
+	let views = [];
+	let selectedView = '';
 	onMount(async () => {
 		currentView = $userStore.userViews.find(view => view.clientKey === userViewKey);
+		$userStore.userViews.filter(view => view.entityType === currentView.entityType).forEach(view => {
+			views.push({
+				value: view.clientKey,
+				name: view.name
+			});
+		});
 		if (currentView == null) {
 			systemMessagesStore.addMessage(ErrorSystemMessage.fromJson({
 				message: $_('userActivity.errors.viewNotFound'),
@@ -99,8 +122,9 @@
 			data = [];
 			columns = [];
 		}
+		selectedView = currentView.clientKey;
 		parseColumnsFromView();
-
+		
 		if (debug) {
 			console.log('data', data);
 			console.log('userViewKey', userViewKey);
@@ -111,7 +135,7 @@
 			console.log('paginationSize', paginationSize);
 		}
 	});
-
+	
 	let pagination = {
 		limit: paginationSize.value,
 		server: {
@@ -124,8 +148,9 @@
 			}
 		}
 	};
-
+	
 	function parseColumnsFromView() {
+		showCustomzitionBar = true;
 		let tColumns = currentView.columns;
 		tColumns.sort((a, b) => a.order - b.order);
 		tColumns.forEach(column => {
@@ -137,7 +162,17 @@
 				columnName: column.columnName,
 				// @todo this may impact performance on large datasets but not sure
 				formatter: (cell) => {
+					let trimCell = cell;
+					if (cell.length > 75) {
+						trimCell = cell.substring(0, 75) + '...';
+					}
+					html('');
 					if (column.fieldFormatter === null || column.fieldFormatter === '') {
+						if (column.dataType === FieldType.STRING) {
+							return trimCell;
+						} else {
+							return;
+						}
 						return cell;
 					}
 					if (column.dataType === FieldType.DATE) {
@@ -148,19 +183,44 @@
 					}
 					return cell;
 				}
-			}
+			};
 			columns.push(columnDef);
 		});
 		if (debug) {
 			console.log('Columns', columns);
 		}
 	}
-
-	const onFilterOpen = (event) => {
+	
+	const onViewToggle = (event) => {
 		console.log('onFilterOpenClient', event);
+		visibleFilterEditor = false;
+		visibleViewEditor = !visibleViewEditor;
 	};
-	const onChangeViewOpen = (event) => {
+	const onFilterToggle = (event) => {
 		console.log('onChangeViewOpenClient', event);
+		visibleViewEditor = false;
+		visibleFilterEditor = !visibleFilterEditor;
+	};
+	const onViewChange = (view) => {
+		changeViewModel = !changeViewModel;
+		if (!changeViewModel) return;
+		let tColumns = [];
+		currentView.columns.forEach((column, index) => {
+			tColumns.push({
+				...column,
+				generatedId: uuid.v4()
+			});
+		});
+		selectedView = view.clientKey;
+	};
+	const onSaveColumns = (columns) => {
+		// console.log('selectedColumns', selectedColumns);
+	};
+	const onNewViewDraft = (columns) => {
+		// console.log('selectedColumns', selectedColumns);
+	};
+	const onViewSave = ({ viewSelect, viewName, viewShareable, viewDesc }) => {
+		// console.log('selectedColumns', selectedColumns);
 	};
 </script>
 
@@ -174,16 +234,45 @@
 	<div class="flex justify-between items-center mb-4">
 		<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">User Activity</h5>
 		<ButtonGroup>
-			<Button on:click={onFilterOpen} outline>Change Filters</Button>
-			<Button on:click={onChangeViewOpen} outline>Change View</Button>
+			<Button on:click={onViewChange} outline>Change View</Button>
+			<Button on:click={onViewToggle} outline>{visibleViewEditor ? 'Hide' : 'Open'} View Information</Button>
+			<Button on:click={onFilterToggle} outline>{visibleFilterEditor ? 'Hide' : 'Open'} Filters</Button>
 		</ButtonGroup>
 	</div>
+
+	{#if (visibleViewEditor && showCustomzitionBar)}
+		<div role="link" in:fade out:fade>
+			<ViewEditor
+				debug={debug}
+				entityType={currentView.entityType}
+				currentView={currentView}
+				on:reload={() => visibleViewEditor = false}
+			/>
+		</div>
+	{/if}
+	{#if (visibleFilterEditor && showCustomzitionBar)}
+		<div in:fade out:fade>
+			<Tabs style="underline">
+				<TabItem open title="Profile">
+					<div slot="title" class="flex items-center gap-2">
+						<AdjustmentsVerticalSolid size="sm" />
+						Change Filters
+					</div>
+					<p class="text-sm text-gray-500 dark:text-gray-400">
+						update Filters/ select Filters
+					</p>
+				</TabItem>
+			</Tabs>
+		</div>
+	{/if}
 	<div class="p-4 ag-theme-alpine">
 		{#if !useManualDataLoading}
 			<Grid
 				data={data}
 				columns={columns}
 				server={server}
+				resizable={true}
+				fixedHeader={true}
 				style={style}
 				sort={sort}
 				pagination={pagination}
@@ -191,10 +280,23 @@
 		{:else}
 			<Grid
 				data={data}
+				resizable={true}
+				fixedHeader={true}
 				columns={columns}
 				style={style}
 				pagination={pagination}
 			/>
 		{/if}
+		{#if changeViewModel}
+			<Modal bind:open={changeView} size="md" class="w-full" placement="center">
+				<NewViewForm
+					{selectedView}
+					{onViewChange}
+					{onViewSave}
+					{onNewViewDraft}
+					{onSaveColumns} />
+			</Modal>
+		{/if}
 	</div>
+	<SvelteToast />
 {/if}

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client/core';
-import { GetList } from '@api/queries/utils/common.js';
+import { GetList } from '@api/utils/common.js';
 
 export const GetMyProfileQuery = gql`
 query GetMyProfile {
@@ -77,46 +77,52 @@ export const GetUsers = (filters = []) => {
 };
 
 export const GetInitialUserData = gql`
-query GetInitialUserData {
-	general {
-		getViews {
-			clientKey, color, name, description,isPredefined, isShareAble, 
-			columns {
-          displayName,
-          columnName,
-          dataType,
-          fieldAlias,
-          fieldPath,
-          fieldFormatter,
-          description,
-          filterOperationType,
-          isFilterable,
-          isSortable,
-          isHidden,
-          isFixed,
-          order
-			}
-		}
-		getCountries {
-			id, 
-			countryName, 
-			countryCode, 
-			countryNumber
-		}
-	}
-	user {
-		getMyProfile {
-			id,
-			email,
-			firstName,
-			lastName,
-			phoneNumber,
-			country { id, countryName },
-			address,
-			displayLanguage { id, code },
-			roles,
-			registerCompletedAt
-		}
-	}
-}`;
+    query GetInitialUserData {
+        general {
+            getViews {
+                clientKey,
+                color,
+                entityType,
+                name,
+                description,
+                isPredefined,
+                isShareAble,
+                columns {
+                    displayName,
+                    columnName,
+                    dataType,
+                    fieldAlias,
+                    fieldPath,
+                    fieldFormatter,
+                    description,
+                    filterOperationType,
+                    isFilterable,
+                    isSortable,
+                    isHidden,
+                    isFixed,
+                    order
+                }
+            }
+            getCountries {
+                id,
+                countryName,
+                countryCode,
+                countryNumber
+            }
+        }
+        user {
+            getMyProfile {
+                id,
+                email,
+                firstName,
+                lastName,
+                phoneNumber,
+                country { id, countryName },
+                address,
+                displayLanguage { id, code },
+                roles,
+                registerCompletedAt
+            }
+        }
+    }`;
 	

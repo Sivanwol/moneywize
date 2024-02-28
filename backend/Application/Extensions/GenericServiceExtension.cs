@@ -57,7 +57,7 @@ public static class GenericServiceExtension {
         app.UseSerilogRequestLogging();
         AppUrlHttpContext.Configure(app.ApplicationServices.GetRequiredService<IHttpContextAccessor>());
         app.UseMiddleware<ErrorHandlingMiddleware>();
-        app.UseMiddleware<CorrelationMiddleware>();
+        // app.UseMiddleware<CorrelationMiddleware>();
 
         if (env.IsDevelopment()) {
             app.UseDeveloperExceptionPage();

@@ -11,5 +11,5 @@ public class ConfigurableCategories : BaseEntity {
 
     public int? ParentCategoryId { get; set; }
     public string? Icon { get; set; }
-    public int Order { get; set; }
+    public int Position { get; set; }
 }

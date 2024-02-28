@@ -10,6 +10,7 @@ using GraphQL.AspNet.Interfaces.Controllers;
 using Infrastructure.GQL;
 using Infrastructure.GQL.Common;
 using Infrastructure.GQL.Inputs.Common;
+using Infrastructure.GQL.Inputs.User;
 using Infrastructure.Requests.Processor.Services.User;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,11 +22,14 @@ namespace BackendApi.Controllers.v1.GQL;
 [GraphRoute("user")]
 public class UserController : BaseGraphController {
     private readonly IValidator<EntityPage> _pageValidator;
+    private readonly IValidator<UpdateUserPreferenceRequest> _updateUserPreferenceValidator;
     public UserController(
         IMediator mediator,
         BackendApplicationConfig configuration,
+        IValidator<UpdateUserPreferenceRequest> updateUserPreferenceValidator,
         IValidator<EntityPage> pageValidator) : base(mediator, configuration) {
         _pageValidator = pageValidator;
+        _updateUserPreferenceValidator = updateUserPreferenceValidator;
     }
     [Query("getMyProfile", typeof(User))]
     [Description("Will return the current user profile")]
@@ -153,6 +157,75 @@ public class UserController : BaseGraphController {
                 PageControl = page
             });
             return Ok(activities);
+        }
+        catch (EntityNotFoundException e) {
+            Log.Logger.Error(e, e.Message);
+            return Error("Failed to find user");
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
+    }
+
+    [Mutation("updateUserPreference", typeof(bool))]
+    [Description("Update user preference")]
+    public async Task<IGraphActionResult> UpdateUserPreference(
+        [FromGraphQL("preferences")] [Description("Preference Input")]
+        List<UserPreferenceInput> preferences) {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (Guid.Parse(loggedUserId!) == Guid.Empty) {
+                Log.Logger.Error("GetMyProfile: User not found");
+                return BadRequest("User not found");
+            }
+            var preferenceObject = new UpdateUserPreferenceRequest {
+                UserId = Guid.Parse(loggedUserId!),
+                Preferences = preferences,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
+            };
+            var validator = await _updateUserPreferenceValidator.ValidateAsync(preferenceObject);
+            if (!validator.IsValid) {
+                return BadRequest(string.Join(",", ResponseHelper.HandlerErrorResponse(validator)));
+            }
+            return Ok(await Mediator.Send(preferenceObject));
+        }
+        catch (EntityNotFoundException e) {
+            Log.Logger.Error(e, e.Message);
+            return Error("Failed to find user");
+        }
+        catch (Exception e) {
+            Log.Logger.Error(e, e.Message);
+            return Error(e.Message);
+        }
+    }
+
+    [Mutation("resetUserPreference", typeof(bool))]
+    [Description("Reset user preference")]
+    public async Task<IGraphActionResult> ResetUserPreference() {
+        if (IsMaintenanceMode()) {
+            return BadRequest("Maintenance Mode");
+        }
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        try {
+            var loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (Guid.Parse(loggedUserId!) == Guid.Empty) {
+                Log.Logger.Error("GetMyProfile: User not found");
+                return BadRequest("User not found");
+            }
+            await Mediator.Send(new ResetUserPreferenceRequest {
+                UserId = Guid.Parse(loggedUserId!),
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                UserAgent = HttpContext.Request.Headers["User-Agent"].ToString()
+            });
+            return Ok(true);
         }
         catch (EntityNotFoundException e) {
             Log.Logger.Error(e, e.Message);

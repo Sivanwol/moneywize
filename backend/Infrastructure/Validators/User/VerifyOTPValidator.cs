@@ -1,6 +1,6 @@
 using FluentValidation;
 using Infrastructure.Requests.Controllers.Auth;
-namespace Infrastructure.Validators.Account;
+namespace Infrastructure.Validators.User;
 
 public class VerifyOTPValidator : AbstractValidator<VerifyOTPUserRequest> {
     private const int MAX_TOKEN_LENGTH = 128;
